@@ -3,6 +3,9 @@
  * @author Victor Dubiniuk <dubiniuk@owncloud.com>
  *
  * @copyright Copyright (c) 2017, ownCloud GmbH
+ *
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+ *
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -24,14 +27,12 @@ namespace OCA\Market;
 use OCP\App\AppUpdateNotFoundException;
 
 class Listener {
-	/** @var MarketService */
-	private $marketService;
-
-	public function __construct(MarketService $marketService) {
-		$this->marketService = $marketService;
+	public function __construct(
+		private readonly MarketService $marketService,
+	) {
 	}
 
-	public function upgradeAppStoreApp($app, $isMajorUpdate) {
+	public function upgradeAppStoreApp(string $app, bool $isMajorUpdate): void {
 		$updateVersions = $this->marketService->getAvailableUpdateVersions($app);
 		$updateVersion = $this->marketService->chooseCandidate(
 			$updateVersions,
@@ -44,7 +45,7 @@ class Listener {
 		}
 	}
 
-	public function reinstallAppStoreApp($app) {
+	public function reinstallAppStoreApp(string $app): void {
 		// only reinstall the code, do not run migrations
 		$this->marketService->installApp($app, true);
 	}

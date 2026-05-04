@@ -3,6 +3,9 @@
  * @author Philipp Schaffrath <pschaffrath@owncloud.com>
  *
  * @copyright Copyright (c) 2016, ownCloud GmbH
+ *
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+ *
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -20,9 +23,10 @@
 
 namespace OCA\Market\Exception;
 
+use Exception;
+
 /**
- * base exception for market app
- * @package OCA\Market\Exception
+ * Base exception for the market app.
  */
-class MarketException extends \Exception {
+class MarketException extends Exception {
 }
