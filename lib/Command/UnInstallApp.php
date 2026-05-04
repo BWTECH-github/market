@@ -3,6 +3,9 @@
  * @author Thomas Müller <thomas.mueller@tmit.eu>
  *
  * @copyright Copyright (c) 2016, ownCloud GmbH
+ *
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+ *
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -21,6 +24,7 @@
 
 namespace OCA\Market\Command;
 
+use Exception;
 use OCA\Market\MarketService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -28,18 +32,16 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UnInstallApp extends Command {
-	/** @var MarketService */
-	private $marketService;
+	private int $exitCode = 0;
 
-	/** @var int  */
-	private $exitCode = 0;
-
-	public function __construct(MarketService $marketService) {
+	public function __construct(
+		private readonly MarketService $marketService,
+	) {
 		parent::__construct();
-		$this->marketService = $marketService;
 	}
 
-	protected function configure() {
+	#[\Override]
+	protected function configure(): void {
 		$this
 			->setName('market:uninstall')
 			->setDescription('Un-Install apps.')
@@ -50,13 +52,13 @@ class UnInstallApp extends Command {
 			);
 	}
 
+	#[\Override]
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		if (!$this->marketService->canInstall()) {
-			throw new \Exception("Un-Installing apps is not supported because the app folder is not writable.");
+			throw new Exception("Un-Installing apps is not supported because the app folder is not writable.");
 		}
 
-		$appIds = $input->getArgument('ids');
-		$appIds = \array_unique($appIds);
+		$appIds = \array_unique($input->getArgument('ids'));
 
 		if (!\count($appIds)) {
 			$output->writeln("No appIds specified. Nothing to do.");
@@ -68,7 +70,7 @@ class UnInstallApp extends Command {
 				$output->writeln("$appId: Un-Installing ...");
 				$this->marketService->uninstallApp($appId);
 				$output->writeln("$appId: App uninstalled.");
-			} catch (\Exception $ex) {
+			} catch (Exception $ex) {
 				$output->writeln("<error>$appId: {$ex->getMessage()}</error>");
 				$this->exitCode = 1;
 			}

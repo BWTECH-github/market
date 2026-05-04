@@ -3,6 +3,9 @@
  * @author Philipp Schaffrath <pschaffrath@owncloud.com>
  *
  * @copyright Copyright (c) 2016, ownCloud GmbH
+ *
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+ *
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -21,8 +24,7 @@
 namespace OCA\Market\Exception;
 
 /**
- * exception that is thrown when a license key is already set.
- * @package OCA\Market\Exception
+ * Thrown when a license key is already set.
  */
 class LicenseKeyAlreadyAvailableException extends MarketException {
 }

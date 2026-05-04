@@ -3,6 +3,9 @@
  * @author Thomas Müller <thomas.mueller@tmit.eu>
  *
  * @copyright Copyright (c) 2016, ownCloud GmbH
+ *
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+ *
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -21,36 +24,36 @@
 
 namespace OCA\Market\Command;
 
+use Exception;
 use OCA\Market\MarketService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ListApps extends Command {
-	private $marketService;
-
-	public function __construct(MarketService $marketService) {
+	public function __construct(
+		private readonly MarketService $marketService,
+	) {
 		parent::__construct();
-		$this->marketService = $marketService;
 	}
 
-	protected function configure() {
+	#[\Override]
+	protected function configure(): void {
 		$this
 			->setName('market:list')
 			->setDescription('Lists apps as available on the marketplace.');
 	}
 
+	#[\Override]
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		try {
 			$apps = $this->marketService->listApps();
-		} catch (\Exception $ex) {
+		} catch (Exception $ex) {
 			$output->writeln("<error>{$ex->getMessage()} </error>");
 			return 1;
 		}
 
-		\usort($apps, function ($a, $b) {
-			return \strcmp($a['id'], $b['id']);
-		});
+		\usort($apps, static fn ($a, $b): int => \strcmp($a['id'], $b['id']));
 
 		foreach ($apps as $app) {
 			$output->writeln("{$app['id']}");
