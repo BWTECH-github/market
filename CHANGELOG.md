@@ -6,7 +6,42 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
 
+- BW-Tech / owncloud.online fork.
+- **Local-first marketplace catalog** at `marketplace/` (`apps.json`,
+  `categories.json`, `bundles.json`); no remote backend required by default.
+  See `marketplace/README.md` for the schema.
+- Support for `file://` and catalog-relative download URLs in `HttpService`.
+- Dark-mode UI via `prefers-color-scheme` and `[data-theme="dark"]` toggle.
+- Refreshed tile design with custom CSS variables and smoother animations.
+- **Live search** in the sidebar that filters apps by name, summary,
+  description and category.
+- Self-contained CI workflows that clone owncloud.online as core for
+  integration smoke-checks (no longer depends on
+  `owncloud/reusable-workflows`).
+- Comprehensive `README.md` with installation, configuration, OCC reference,
+  and troubleshooting matrix.
+
+### Changed
+
+- Minimum PHP version raised to **8.4**.
+- Composer package renamed to `bwtech/market`.
+- PHP code modernised: constructor property promotion, `readonly` properties,
+  `#[\Override]` on interface / parent methods, typed properties,
+  `match` instead of multi-`elseif`, `??` short-circuits, arrow functions
+  where they improve readability.
+- `info.xml` rebranded for owncloud.online (website, bugs, repository,
+  author, description); `<php min-version>` bumped to `8.4`.
+- Default `appstoreurl` is now `local` (bundled catalog) instead of
+  `https://marketplace.owncloud.com`.
+- Content-security policy in `PageController` now permits images from
+  `owncloud.online`, `*.bw.tech`, `raw.githubusercontent.com`, and
+  `github.com` to support the local-catalog use case.
+
+### Removed
+
+- Dependency on the `owncloud/reusable-workflows` GitHub Actions repository.
 
 ## [0.9.0] - 2024-06-04
 
