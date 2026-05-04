@@ -32,7 +32,7 @@ PHPSTAN=php -d zend.enable_gc=0 vendor-bin/phpstan/vendor/bin/phpstan
 BEHAT_BIN=vendor-bin/behat/vendor/bin/behat
 
 market_doc_files=LICENSE README.md CHANGELOG.md
-market_src_dirs=appinfo img js lib templates vendor
+market_src_dirs=appinfo img js lib marketplace templates vendor
 market_all_src=$(market_src_dirs) $(market_doc_files)
 build_dir=build
 dist_dir=$(build_dir)/dist

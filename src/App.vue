@@ -1,5 +1,5 @@
 <template lang="pug">
-	.uk-padding(v-if="config")
+	#market-app.uk-padding(v-if="config")
 		.uk-grid-large(uk-grid)
 			.uk-width-1-1(v-if="showNotice").uk-animation-slide-top-small
 				.uk-alert-primary(uk-alert)

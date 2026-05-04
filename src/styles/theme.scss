@@ -1,51 +1,227 @@
 @import "variables-theme.scss";
 
 #market-app {
-  font-family: "Open Sans", Frutiger, Calibri, sans-serif;
-  @extend .uk-background-muted;
+	font-family: "Inter", "Open Sans", Frutiger, Calibri, sans-serif;
+	background: var(--bwt-bg);
+	color: var(--bwt-text);
+	min-height: 100vh;
 
-  .uk-button * {
-    cursor: pointer;
-  }
+	.uk-button * {
+		cursor: pointer;
+	}
+
+	a {
+		color: var(--bwt-brand);
+	}
+
+	.uk-card-default {
+		background: var(--bwt-surface);
+		color: var(--bwt-text);
+		border: 1px solid var(--bwt-border);
+	}
+
+	.uk-card-header,
+	.uk-card-body,
+	.uk-card-footer {
+		border-color: var(--bwt-border) !important;
+	}
+
+	.uk-text-meta {
+		color: var(--bwt-muted);
+	}
+
+	.uk-button-primary {
+		background: var(--bwt-brand);
+		border-color: var(--bwt-brand);
+		transition: background-color var(--bwt-transition), transform var(--bwt-transition);
+
+		&:hover {
+			background: var(--bwt-brand-strong);
+			border-color: var(--bwt-brand-strong);
+		}
+	}
+
+	.uk-input,
+	.uk-textarea {
+		background: var(--bwt-surface);
+		color: var(--bwt-text);
+		border-color: var(--bwt-border);
+
+		&:focus {
+			border-color: var(--bwt-brand);
+			box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+		}
+	}
 }
 
 @import "../../node_modules/uikit/src/scss/uikit-theme.scss";
 
+// ---------------------------------------------------------------------
 // Animations
-
-.fade-enter-active, .fade-leave-active {
-  transition: transform .5s, opacity .45s
+// ---------------------------------------------------------------------
+.fade-enter-active,
+.fade-leave-active {
+	transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .3s;
 }
 
 .fade-enter {
-  transform: translateY(-10px);
-  opacity: 0;
+	transform: translateY(-6px);
+	opacity: 0;
 }
 
 .fade-leave-to {
-  transform: translateY(10px);
-  opacity: 0;
+	transform: translateY(6px);
+	opacity: 0;
 }
 
-// Reset overwritten core css styles
+// ---------------------------------------------------------------------
+// Search bar
+// ---------------------------------------------------------------------
+.bwt-search {
+	position: relative;
+	margin-bottom: 1rem;
 
+	input {
+		width: 100%;
+		padding: 0.55rem 0.85rem 0.55rem 2.25rem;
+		border-radius: var(--bwt-radius);
+		border: 1px solid var(--bwt-border);
+		background: var(--bwt-surface);
+		color: var(--bwt-text);
+		font-size: 0.95rem;
+		transition: border-color var(--bwt-transition), box-shadow var(--bwt-transition);
+
+		&:focus {
+			outline: none;
+			border-color: var(--bwt-brand);
+			box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
+		}
+	}
+
+	&::before {
+		content: "";
+		position: absolute;
+		left: 0.7rem;
+		top: 50%;
+		width: 1rem;
+		height: 1rem;
+		transform: translateY(-50%);
+		background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'/><path d='m21 21-4.3-4.3'/></svg>");
+		background-size: contain;
+		background-repeat: no-repeat;
+		opacity: 0.8;
+	}
+}
+
+// ---------------------------------------------------------------------
+// Tile grid
+// ---------------------------------------------------------------------
+.bwt-tile {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+	cursor: pointer;
+	transition: transform var(--bwt-transition), box-shadow var(--bwt-transition);
+
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: var(--bwt-shadow-hover);
+	}
+
+	.bwt-tile__media {
+		position: relative;
+		aspect-ratio: 16 / 9;
+		background-size: cover;
+		background-position: center;
+		background-color: var(--bwt-bg);
+	}
+
+	.bwt-tile__body {
+		padding: 0.85rem 1rem 1rem;
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+	}
+
+	.bwt-tile__title {
+		font-size: 1.05rem;
+		font-weight: 600;
+		margin: 0;
+		color: var(--bwt-text);
+
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+	}
+
+	.bwt-tile__summary {
+		color: var(--bwt-muted);
+		font-size: 0.85rem;
+		margin: 0;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+
+	.bwt-tile__footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		margin-top: auto;
+	}
+
+	.bwt-tile__category {
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: var(--bwt-muted);
+	}
+}
+
+.bwt-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.15rem 0.55rem;
+	border-radius: 999px;
+	font-size: 0.7rem;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+
+	&--installed {
+		background: rgba(34, 197, 94, 0.15);
+		color: #16a34a;
+	}
+
+	&--update {
+		background: rgba(245, 158, 11, 0.18);
+		color: #b45309;
+	}
+}
+
+// ---------------------------------------------------------------------
+// Reset overwritten core css styles
+// ---------------------------------------------------------------------
 #expanddiv ul,
 #apps ul {
-  margin-bottom: 0;
-  padding-left: 0;
+	margin-bottom: 0;
+	padding-left: 0;
 
-  a:hover {
-    text-decoration: none;
-  }
+	a:hover {
+		text-decoration: none;
+	}
 
-  img {
-    max-width: inherit;
-  }
+	img {
+		max-width: inherit;
+	}
 }
 
-.article {
-  ul {
-    @extend .uk-list;
-    @extend .uk-list-bullet;
-  }
+.article ul {
+	@extend .uk-list;
+	@extend .uk-list-bullet;
 }

@@ -1,20 +1,99 @@
-// 1. Your custom variables and variable overwrites.
+// =====================================================================
+// BW-Tech / owncloud.online theme variables
+// ---------------------------------------------------------------------
+// All chrome colours are exposed as CSS custom properties so we can
+// flip the whole UI to dark mode via `prefers-color-scheme: dark`
+// (or by toggling `data-theme="dark"` on <html>) without recompiling
+// SCSS.
+// =====================================================================
 
-$global-link-color: #1d2d44;
+// Brand
+$bwt-brand: #4f46e5;          // indigo-600
+$bwt-brand-dark: #3730a3;     // indigo-800
+$bwt-accent: #0ea5e9;         // sky-500
+
+// Light surface
+$bwt-bg-light: #f5f7fb;
+$bwt-surface-light: #ffffff;
+$bwt-text-light: #1f2937;
+$bwt-muted-light: #64748b;
+$bwt-border-light: #e5e7eb;
+
+// Dark surface
+$bwt-bg-dark: #0f172a;
+$bwt-surface-dark: #1e293b;
+$bwt-text-dark: #e2e8f0;
+$bwt-muted-dark: #94a3b8;
+$bwt-border-dark: #334155;
+
+:root {
+	--bwt-brand: #{$bwt-brand};
+	--bwt-brand-strong: #{$bwt-brand-dark};
+	--bwt-accent: #{$bwt-accent};
+
+	--bwt-bg: #{$bwt-bg-light};
+	--bwt-surface: #{$bwt-surface-light};
+	--bwt-surface-elevated: #{$bwt-surface-light};
+	--bwt-text: #{$bwt-text-light};
+	--bwt-muted: #{$bwt-muted-light};
+	--bwt-border: #{$bwt-border-light};
+
+	--bwt-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+	--bwt-shadow-hover: 0 8px 24px rgba(15, 23, 42, 0.14);
+	--bwt-radius: 12px;
+	--bwt-transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bwt-bg: #{$bwt-bg-dark};
+		--bwt-surface: #{$bwt-surface-dark};
+		--bwt-surface-elevated: #243149;
+		--bwt-text: #{$bwt-text-dark};
+		--bwt-muted: #{$bwt-muted-dark};
+		--bwt-border: #{$bwt-border-dark};
+		--bwt-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+		--bwt-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.55);
+	}
+}
+
+[data-theme="dark"] {
+	--bwt-bg: #{$bwt-bg-dark};
+	--bwt-surface: #{$bwt-surface-dark};
+	--bwt-surface-elevated: #243149;
+	--bwt-text: #{$bwt-text-dark};
+	--bwt-muted: #{$bwt-muted-dark};
+	--bwt-border: #{$bwt-border-dark};
+	--bwt-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+	--bwt-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+
+// ---------------------------------------------------------------------
+// UIkit overrides — keep the legacy mixins working
+// ---------------------------------------------------------------------
+$global-link-color: $bwt-brand;
 
 @import "../../node_modules/uikit/src/scss/variables-theme.scss";
 @import "../../node_modules/uikit/src/scss/mixins-theme.scss";
 
 $button-secondary-background: #f8f8f8;
 $button-secondary-color: $global-color;
-
 $button-secondary-hover-background: darken($button-secondary-background, 5%);
 $button-secondary-hover-color: $button-secondary-color;
 
 @mixin hook-card-default() {
-  box-shadow: 0 5px 15px rgba($global-link-color, .333);
+	box-shadow: var(--bwt-shadow);
+	background: var(--bwt-surface);
+	color: var(--bwt-text);
+	border-radius: var(--bwt-radius);
+	transition: box-shadow var(--bwt-transition), transform var(--bwt-transition);
+}
+
+@mixin hook-card-default-hover() {
+	box-shadow: var(--bwt-shadow-hover);
+	transform: translateY(-2px);
 }
 
 @mixin hook-button-secondary() {
-  border: 1px solid lighten($button-secondary-color, 50%);
+	border: 1px solid lighten($button-secondary-color, 50%);
 }

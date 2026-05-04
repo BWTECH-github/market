@@ -5,6 +5,15 @@
 				router-link(:to="{ name: 'index' }") {{ t('Market') }}
 
 		.uk-card-body
+			.bwt-search
+				input(
+					type="search",
+					:value="searchQuery",
+					:placeholder="t('Search apps…')",
+					:aria-label="t('Search apps')",
+					@input="onSearch"
+				)
+
 			ul.uk-nav-default.uk-nav-parent-icon(uk-nav, :v-if="!loading && !failed")
 				li
 					router-link(:to="{ name: 'index' }") {{ t('Show all') }}
@@ -14,7 +23,7 @@
 				li.uk-nav-header {{ t('Categories') }}
 
 				li(v-for="category in categories")
-					router-link(:to="{ name: 'byCategory', params: { category: category.id }}") {{ category.translations.en.name }}
+					router-link(:to="{ name: 'byCategory', params: { category: category.id }}") {{ categoryLabel(category) }}
 
 				li(v-if="updateList.length > 0")
 					router-link(:to="{ name: 'UpdateList' }") {{ t('Updates') }}
@@ -42,6 +51,17 @@
 			},
 			invalidateCache () {
 				this.$store.dispatch('INVALIDATE_CACHE')
+			},
+			onSearch (event) {
+				this.$store.dispatch('UPDATE_SEARCH', event.target.value);
+			},
+			categoryLabel (category) {
+				if (!category || !category.translations) {
+					return ''
+				}
+				const locale = (typeof OC !== 'undefined' && OC.getLocale) ? OC.getLocale().slice(0, 2) : 'en';
+				const t = category.translations[locale] || category.translations.en;
+				return (t && t.name) ? t.name : category.id;
 			}
 		},
 		computed: {
@@ -54,12 +74,14 @@
 			categories() {
 				if (this.loading || this.failed) {
 					return []
-				} else {
-					return this.$store.state.categories.records
 				}
+				return this.$store.state.categories.records
 			},
 			updateList() {
 				return this.$store.getters.updateList
+			},
+			searchQuery() {
+				return this.$store.getters.searchQuery
 			}
 		},
 		components: {
@@ -74,10 +96,12 @@
 	h1 {
 		a {
 			text-decoration: none;
+			color: var(--bwt-text);
 		}
 	}
 
 	.uk-badge {
 		font-size: 0.75rem;
+		background: var(--bwt-brand);
 	}
 </style>
