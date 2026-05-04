@@ -1,7 +1,7 @@
 <template lang="pug">
 	div
 		.uk-position-fixed.uk-position-center(v-show="loading", uk-spinner, uk-icon="icon: spinner")
-		ul.uk-grid.uk-grid-match.uk-child-width-1-2\@m.uk-child-width-1-3\@xl(v-if="!loading && !failed && applications.length", uk-grid)
+		ul.uk-grid.uk-grid-match(class="uk-child-width-1-2@m uk-child-width-1-3@xl", v-if="!loading && !failed && applications.length", uk-grid)
 			Tile(v-for="application in applications", :application="application", :key="application.id")
 
 		transition(name="fade")
