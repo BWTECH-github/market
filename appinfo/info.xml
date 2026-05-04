@@ -2,20 +2,23 @@
 <info>
 	<id>market</id>
 	<name>Market</name>
-	<summary>Integrate the ownCloud marketplace into your ownCloud</summary>
-	<description>Easily manage ownCloud apps from within your ownCloud web interface. It connects your ownCloud with your marketplace account and lets you browse, install and update any apps from inside your ownCloud instance.
+	<summary>Browse, install and update apps from a local catalog inside ownCloud</summary>
+	<description>Easily manage ownCloud apps from within your ownCloud web interface. This BW-Tech fork ships with a fully self-contained, local app catalog (no external marketplace required) and a refreshed UI with dark mode and live search. Apps can be downloaded from any URL declared in `marketplace/apps.json` (for example GitHub releases).
 
-Please note: Since ownCloud X (10.0) every instance gets shipped with this app included. You do not need to install it separately.
-To use this application click on "Files" in the top left corner and click on "Market" (cart icon) (Administrator privileges required) </description>
+This is a community fork maintained by BW-Tech GmbH for owncloud.online. Original code by ownCloud GmbH.
+
+To use this application click on "Apps" in the top left corner and click on "Market" (cart icon) (Administrator privileges required).</description>
 	<licence>AGPL</licence>
-	<author>Thomas Müller, Felix Heidecke, Thomas Börger, Philipp Schaffrath, Viktar Dubiniuk</author>
+	<author>ownCloud GmbH, modified by BW-Tech GmbH</author>
 	<version>0.10.0</version>
 	<default_enable/>
 	<category>tools</category>
-	<screenshot>https://raw.githubusercontent.com/owncloud/screenshots/master/market/ownCloud-market-app.jpg</screenshot>
+	<website>https://bw.tech</website>
+	<bugs>https://github.com/BWTECH-github/owncloud.online/issues</bugs>
+	<repository type="git">https://github.com/BWTECH-github/owncloud.online.git</repository>
 	<dependencies>
 		<owncloud min-version="11" max-version="11" />
-                <php min-version="8.3" />
+		<php min-version="8.4" />
 	</dependencies>
 	<background-jobs>
 		<job>OCA\Market\CheckUpdateBackgroundJob</job>

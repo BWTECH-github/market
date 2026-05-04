@@ -1,26 +1,27 @@
 <template lang="pug">
 	transition(name="fade")
 		li(class='uk-width-1-2@m uk-width-1-3@xl', v-if="application").uk-animation-slide-top-small
-			.uk-card.uk-card-default
-				.uk-card-header
-					div(uk-grid)
-						.uk-width-expand
-							.uk-flex.uk-flex-middle
-								h3.uk-card-title.uk-text-truncate.uk-margin-remove-bottom.uk-float-left.uk-margin-small-right
-									router-link(:to="{ name: 'details', params: { id: application.id }}") {{ application.name }}
+			.uk-card.uk-card-default.bwt-tile
+				router-link.bwt-tile__media(
+					:to="{ name: 'details', params: { id: application.id }}",
+					:style="mediaStyle",
+					:aria-label="application.name"
+				)
+				.bwt-tile__body
+					h3.bwt-tile__title
+						router-link(:to="{ name: 'details', params: { id: application.id }}") {{ application.name }}
 
-							p.uk-text-meta.uk-margin-remove-top
-								span(uk-icon="icon: tag")
-								span.category &nbsp;{{ application.categories[0] }}
-								span.uk-position-bottom-right.uk-position-small(v-if="application.updateInfo").uk-box-shadow-small.uk-label.uk-label-warning.uk-margin-small-left {{ t('Update available') }}!
-								span.uk-position-bottom-right.uk-position-small(v-if="application.installed && !application.updateInfo").uk-box-shadow-small.uk-label.uk-margin-small-left {{ t('Installed') }}!
+					p.bwt-tile__summary(v-if="application.summary || application.description") {{ truncatedSummary }}
 
-						.uk-width-small.uk-text-right
-							rating(:rating="application.rating")
+					.bwt-tile__footer
+						span.bwt-tile__category
+							span(uk-icon="icon: tag; ratio: 0.7").uk-margin-xsmall-right
+							| {{ primaryCategory }}
 
-				.uk-card-media-top
-					router-link(:to="{ name: 'details', params: { id: application.id }}")
-						canvas(width="1600", height="900", :style="application.screenshots[0].url | cssBackgroundImage").app-preview
+						span.bwt-badge.bwt-badge--update(v-if="application.updateInfo") {{ t('Update') }}
+						span.bwt-badge.bwt-badge--installed(v-else-if="application.installed") {{ t('Installed') }}
+
+						rating(v-if="!application.installed && !application.updateInfo", :rating="application.rating")
 </template>
 
 <script>
@@ -35,9 +36,27 @@
 		props: [
 			'application'
 		],
-		filters: {
-			cssBackgroundImage (image) {
-				return 'background-image:url("' + image + '");';
+		computed: {
+			screenshot () {
+				const shots = this.application && this.application.screenshots;
+				return Array.isArray(shots) && shots.length ? shots[0].url : null;
+			},
+			mediaStyle () {
+				if (!this.screenshot) {
+					return {
+						background: 'linear-gradient(135deg, var(--bwt-brand) 0%, var(--bwt-accent) 100%)'
+					}
+				}
+				return { backgroundImage: `url("${this.screenshot}")` }
+			},
+			primaryCategory () {
+				const cats = this.application && this.application.categories;
+				return Array.isArray(cats) && cats.length ? cats[0] : '';
+			},
+			truncatedSummary () {
+				const text = this.application.summary || this.application.description || '';
+				const stripped = String(text).replace(/[#*_`]/g, '').trim();
+				return stripped.length > 140 ? stripped.slice(0, 137) + '…' : stripped;
 			}
 		}
 	}
@@ -46,18 +65,7 @@
 <style lang="scss" scoped>
 	@import "../styles/variables-theme";
 
-	.category {
+	.bwt-tile__category {
 		text-transform: capitalize;
-	}
-
-	.app-preview {
-		background: {
-			size: cover;
-			position: left center;
-		}
-	}
-
-	.uk-label {
-		border: 1px solid #fff;
 	}
 </style>

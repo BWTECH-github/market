@@ -3,6 +3,9 @@
  * @author Victor Dubiniuk <dubiniuk@owncloud.com>
  *
  * @copyright Copyright (c) 2017, ownCloud GmbH
+ *
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+ *
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -21,6 +24,7 @@
 
 namespace OCA\Market;
 
+use InvalidArgumentException;
 use OCP\App\IAppManager;
 use OCP\L10N\IFactory;
 use OCP\Notification\IManager;
@@ -28,53 +32,33 @@ use OCP\Notification\INotification;
 use OCP\Notification\INotifier;
 
 class Notifier implements INotifier {
-	/** @var IManager */
-	protected $notificationManager;
-
-	/** @var IAppManager */
-	protected $appManager;
-
-	/** @var IFactory */
-	protected $l10NFactory;
-
-	/**
-	 * Notifier constructor.
-	 *
-	 * @param IManager $notificationManager
-	 * @param IAppManager $appManager
-	 * @param IFactory $l10NFactory
-	 */
-	public function __construct(IManager $notificationManager, IAppManager $appManager, IFactory $l10NFactory) {
-		$this->notificationManager = $notificationManager;
-		$this->appManager = $appManager;
-		$this->l10NFactory = $l10NFactory;
+	public function __construct(
+		protected readonly IManager $notificationManager,
+		protected readonly IAppManager $appManager,
+		protected readonly IFactory $l10NFactory,
+	) {
 	}
 
 	/**
-	 * @param INotification $notification
-	 * @param string $languageCode The code of the language that should be used to prepare the notification
-	 * @return INotification
-	 * @throws \InvalidArgumentException When the notification was not prepared by a notifier
+	 * @throws InvalidArgumentException When the notification was not prepared by a notifier
 	 */
-	public function prepare(INotification $notification, $languageCode) {
+	#[\Override]
+	public function prepare(INotification $notification, $languageCode): INotification {
 		if (
 			$notification->getApp() !== 'market'
 			|| $notification->getObjectType() === 'core'
 		) {
-			throw new \InvalidArgumentException();
+			throw new InvalidArgumentException();
 		}
 
 		$l = $this->l10NFactory->get('market', $languageCode);
-		/**
-		 * @var array|null $appInfo
-		 */
 		$appInfo = $this->getAppInfo($notification->getObjectType());
 		$appName = ($appInfo === null) ? $notification->getObjectType() : $appInfo['name'];
 		$appVersions = $this->getAppVersions();
 		if (isset($appVersions[$notification->getObjectType()])) {
 			$this->updateAlreadyInstalledCheck($notification, $appVersions[$notification->getObjectType()]);
 		} else {
-			throw new \InvalidArgumentException();
+			throw new InvalidArgumentException();
 		}
 
 		$notification->setParsedSubject(
@@ -87,32 +71,32 @@ class Notifier implements INotifier {
 	}
 
 	/**
-	 * Remove the notification and prevent rendering,
-	 * when either the update is installed or app was removed
+	 * Remove the notification and prevent rendering
+	 * when either the update is installed or the app was removed.
 	 *
-	 * @param INotification $notification
-	 * @param string $installedVersion
-	 * @throws \InvalidArgumentException When the update is already installed
+	 * @throws InvalidArgumentException When the update is already installed
 	 */
-	protected function updateAlreadyInstalledCheck(INotification $notification, $installedVersion) {
+	protected function updateAlreadyInstalledCheck(INotification $notification, string $installedVersion): void {
 		if (
 			$this->appManager->getAppPath($notification->getObjectType()) === false
 			|| \version_compare($notification->getObjectId(), $installedVersion, '<=')
 		) {
 			$this->notificationManager->markProcessed($notification);
-			throw new \InvalidArgumentException();
+			throw new InvalidArgumentException();
 		}
 	}
 
-	protected function getAppVersions() {
+	/**
+	 * @return array<string, string>
+	 */
+	protected function getAppVersions(): array {
 		return \OC_App::getAppVersions();
 	}
 
 	/**
-	 * @param string $appId
-	 * @return string[]
+	 * @return array|null
 	 */
-	protected function getAppInfo($appId) {
+	protected function getAppInfo(string $appId) {
 		return $this->appManager->getAppInfo($appId);
 	}
 }

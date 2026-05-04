@@ -34,9 +34,27 @@ const state = {
         changeable : false
     },
 
+    // Live search query, applied to name + summary + description + categories
+    searchQuery: "",
+
     processing: [],
     installed: []
 };
+
+// Apply the search filter to a list of applications.
+function matchesSearch (application, query) {
+    if (!query) {
+        return true;
+    }
+    const needle = query.toLowerCase();
+    const haystack = [
+        application.name,
+        application.summary,
+        application.description,
+        Array.isArray(application.categories) ? application.categories.join(" ") : ""
+    ].filter(Boolean).join(" ").toLowerCase();
+    return haystack.indexOf(needle) !== -1;
+}
 
 // Retrieve computed values from state.
 const getters = {
@@ -55,14 +73,22 @@ const getters = {
         });
     },
 
-    applications: (state) => (category) => {
-        if (category === undefined) {
-            return state.applications.records;
-        }
+    searchQuery (state) {
+        return state.searchQuery;
+    },
 
-        return _.filter(state.applications.records, function (application) {
+    applications: (state) => (category) => {
+        const all = _.values(state.applications.records);
+        const filtered = all.filter(function (application) {
+            if (!matchesSearch(application, state.searchQuery)) {
+                return false;
+            }
+            if (category === undefined) {
+                return true;
+            }
             return _.contains(application.categories, category);
         });
+        return filtered;
     },
 
     installedApplications (state) {
@@ -190,6 +216,10 @@ const mutations = {
         })
     },
 
+    SET_SEARCH_QUERY (state, query) {
+        state.searchQuery = query || "";
+    },
+
     START_PROCESSING (state, id) {
         state["processing"].push(id)
     },
@@ -227,6 +257,10 @@ const actions = {
         }).catch((error) => {
             UIkit.notification(error.response.data.message, {status:"danger", pos: "bottom-right"});
         })
+    },
+
+    UPDATE_SEARCH (context, query) {
+        context.commit("SET_SEARCH_QUERY", query);
     },
 
     PROCESS_APPLICATION (context, payload) {
@@ -290,7 +324,7 @@ const actions = {
         return Axios.get(OC.generateUrl("/apps/market/request-license-key-from-market"))
             .then((response) => {
                 context.dispatch('FETCH_CONFIG');
-                UIkit.notification(error.response.data.message, {
+                UIkit.notification(response.data.message, {
                     status : "success",
                     pos    : "bottom-right"
                 });
@@ -308,8 +342,6 @@ const actions = {
     INSTALL_BUNDLE (context, payload) {
 
         let count = payload.length;
-
-        console.log(count);
 
         let install = (i) => {
 
@@ -371,13 +403,13 @@ const actions = {
                     "loading"    : false,
                     "processing" : false
 				});
-				
+
 				if (typeof callback === 'function')
 					callback(response.data);
             })
             .catch((error) => {
 				context.commit("APIKEY", {"loading": false });
-				
+
 				if (typeof callback === 'function')
 					callback(error);
             });

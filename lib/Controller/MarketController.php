@@ -4,6 +4,9 @@
  * @author Ilja Neumann <ineumann@owncloud.com>
  *
  * @copyright Copyright (c) 2017, ownCloud GmbH
+ *
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+ *
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -22,178 +25,116 @@
 
 namespace OCA\Market\Controller;
 
+use Exception;
 use OCA\Market\Exception\LicenseKeyAlreadyAvailableException;
 use OCA\Market\MarketService;
 use OCP\App\AppManagerException;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\Http\Response;
+use OCP\IConfig;
 use OCP\IL10N;
 use OCP\IRequest;
-use OCP\IConfig;
-use OCP\IURLGenerator;
 
 class MarketController extends Controller {
-	/** @var MarketService */
-	private $marketService;
-
-	/** @var IL10N */
-	private $l10n;
-
-	/** @var IConfig */
-	private $config;
-
 	public function __construct(
-		$appName,
+		string $appName,
 		IRequest $request,
-		MarketService $marketService,
-		IL10N $l10n,
-		IConfig $config
+		private readonly MarketService $marketService,
+		private readonly IL10N $l10n,
+		private readonly IConfig $config,
 	) {
 		parent::__construct($appName, $request);
-		$this->marketService = $marketService;
-		$this->l10n = $l10n;
-		$this->config = $config;
 	}
 
 	/**
 	 * @NoCSRFRequired
-	 *
-	 * @return array|mixed
 	 */
-	public function categories() {
+	public function categories(): array|DataResponse {
 		try {
 			return $this->marketService->getCategories();
-		} catch (\Exception $ex) {
-			return new DataResponse(
-				['message' => $ex->getMessage() ],
-				Http::STATUS_SERVICE_UNAVAILABLE
-			);
+		} catch (Exception $ex) {
+			return new DataResponse(['message' => $ex->getMessage()], Http::STATUS_SERVICE_UNAVAILABLE);
 		}
 	}
 
 	/**
 	 * @NoCSRFRequired
-	 *
-	 * @return array|mixed
 	 */
-	public function bundles() {
+	public function bundles(): array|DataResponse {
 		try {
-			$bundles = $this->marketService->getBundles();
-			$bundles = \array_map(function ($bundle) {
-				$bundle['products'] = \array_map(function ($product) {
-					return $this->enrichApp($product);
-				}, $bundle['products']);
+			return \array_map(function ($bundle): array {
+				$bundle['products'] = \array_map(fn ($product): array => $this->enrichApp($product), $bundle['products']);
 				return $bundle;
-			}, $bundles);
-
-			return $bundles;
+			}, $this->marketService->getBundles());
 		} catch (AppManagerException $ex) {
-			return new DataResponse([
-				'message' => $ex->getMessage()
-			]);
-		} catch (\Exception $ex) {
-			return new DataResponse(
-				['message' => $ex->getMessage() ],
-				Http::STATUS_SERVICE_UNAVAILABLE
-			);
+			return new DataResponse(['message' => $ex->getMessage()]);
+		} catch (Exception $ex) {
+			return new DataResponse(['message' => $ex->getMessage()], Http::STATUS_SERVICE_UNAVAILABLE);
 		}
 	}
 
 	/**
 	 * @NoCSRFRequired
-	 *
-	 * @return array|mixed
 	 */
-	public function index() {
+	public function index(): array|DataResponse {
 		try {
 			return $this->queryData();
 		} catch (AppManagerException $ex) {
-			return new DataResponse([
-				'message' => $ex->getMessage()
-			]);
-		} catch (\Exception $ex) {
-			return new DataResponse(
-				['message' => $ex->getMessage() ],
-				Http::STATUS_SERVICE_UNAVAILABLE
-			);
+			return new DataResponse(['message' => $ex->getMessage()]);
+		} catch (Exception $ex) {
+			return new DataResponse(['message' => $ex->getMessage()], Http::STATUS_SERVICE_UNAVAILABLE);
 		}
 	}
 
 	/**
 	 * @NoCSRFRequired
-	 *
-	 * @param string $appId
-	 * @return array|mixed
 	 */
-	public function app($appId) {
+	public function app(string $appId): array|DataResponse {
 		try {
 			$info = $this->marketService->getAppInfo($appId);
 			return $this->enrichApp($info);
-		} catch (\Exception $ex) {
-			return new DataResponse(
-				['message' => $ex->getMessage() ],
-				Http::STATUS_SERVICE_UNAVAILABLE
-			);
+		} catch (Exception $ex) {
+			return new DataResponse(['message' => $ex->getMessage()], Http::STATUS_SERVICE_UNAVAILABLE);
 		}
 	}
 
-	/**
-	 * @param string $appId
-	 * @return array | DataResponse
-	 */
-	public function install($appId) {
+	public function install(string $appId): array|DataResponse {
 		try {
 			$this->marketService->installApp($appId);
-			return [
-				'message' => $this->l10n->t('App %s installed successfully', [$appId])
-			];
-		} catch (\Exception $ex) {
-			return new DataResponse([
-				'message' => $ex->getMessage()
-			], Http::STATUS_BAD_REQUEST);
+			return ['message' => $this->l10n->t('App %s installed successfully', [$appId])];
+		} catch (Exception $ex) {
+			return new DataResponse(['message' => $ex->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
 	}
 
 	/**
 	 * @NoCSRFRequired
-	 *
-	 * @param string $apiKey
-	 * @return array|mixed
 	 */
-	public function changeApiKey($apiKey) {
+	public function changeApiKey(string $apiKey): Response|DataResponse {
 		if (!$this->marketService->isApiKeyValid($apiKey)) {
-			return new DataResponse(
-				[
-					'message' => $this->l10n->t('The api key is not valid.')
-				]
-			);
+			return new DataResponse(['message' => $this->l10n->t('The api key is not valid.')]);
 		}
 
 		// Don't update on GET
 		if ($this->request->getMethod() === 'GET') {
-			return (new Http\Response())
-				->setStatus(\OC\AppFramework\Http::STATUS_OK);
+			return (new Response())->setStatus(Http::STATUS_OK);
 		}
 
 		if (!$this->marketService->setApiKey($apiKey)) {
-			return new DataResponse(
-				[
-					'message' => $this->l10n->t('Can not change api key because it is configured in config.php')
-				]
-			);
+			return new DataResponse([
+				'message' => $this->l10n->t('Can not change api key because it is configured in config.php')
+			]);
 		}
 
-		return (new Http\Response())
-			->setStatus(\OC\AppFramework\Http::STATUS_OK);
+		return (new Response())->setStatus(Http::STATUS_OK);
 	}
 
 	/**
 	 * @NoCSRFRequired
-	 *
-	 * @return array|mixed
 	 */
-	public function getApiKey() {
+	public function getApiKey(): DataResponse {
 		$responseBody = [
 			'changeable' => $this->marketService->isApiKeyChangeableByUser(),
 		];
@@ -205,59 +146,36 @@ class MarketController extends Controller {
 		return new DataResponse($responseBody, Http::STATUS_OK);
 	}
 
-	/**
-	 * @param string $appId
-	 * @return array | DataResponse
-	 */
-	public function uninstall($appId) {
+	public function uninstall(string $appId): array|DataResponse {
 		try {
 			$this->marketService->uninstallApp($appId);
-			return [
-				'message' => $this->l10n->t('App %s uninstalled successfully', [$appId])
-			];
-		} catch (\Exception $ex) {
-			return new DataResponse([
-				'message' => $ex->getMessage()
-			], Http::STATUS_BAD_REQUEST);
+			return ['message' => $this->l10n->t('App %s uninstalled successfully', [$appId])];
+		} catch (Exception $ex) {
+			return new DataResponse(['message' => $ex->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
 	}
 
-	/**
-	 * @param string $appId
-	 * @return array | DataResponse
-	 */
-	public function update($appId) {
+	public function update(string $appId): array|DataResponse {
 		$targetVersion = $this->request->getParam('toVersion');
 		try {
 			$this->marketService->updateApp($appId, $targetVersion);
-			return [
-				'message' => $this->l10n->t('App %s updated successfully', [$appId])
-			];
-		} catch (\Exception $ex) {
-			return new DataResponse(
-				['message' => $ex->getMessage()],
-				Http::STATUS_BAD_REQUEST
-			);
+			return ['message' => $this->l10n->t('App %s updated successfully', [$appId])];
+		} catch (Exception $ex) {
+			return new DataResponse(['message' => $ex->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
 	}
 
-	/**
-	 * @param string | null $category
-	 * @return array
-	 */
-	protected function queryData($category = null) {
-		$apps = $this->marketService->listApps($category);
-
-		$apps = \array_map(function ($app) {
-			return $this->enrichApp($app);
-		}, $apps);
-		return $apps;
+	protected function queryData(?string $category = null): array {
+		return \array_map(
+			fn ($app): array => $this->enrichApp($app),
+			$this->marketService->listApps($category)
+		);
 	}
 
-	private function enrichApp($app) {
+	private function enrichApp(array $app): array {
 		$app['installed'] = $this->marketService->isAppInstalled($app['id']);
 		$releases = \array_map(
-			function ($release) {
+			function ($release): array {
 				$missing = $this->marketService->getMissingDependencies($release);
 				$release['canInstall'] = empty($missing);
 				$release['missingDependencies'] = $missing;
@@ -277,7 +195,7 @@ class MarketController extends Controller {
 				: $app['updateInfo']['major'];
 			\array_walk(
 				$releases,
-				function ($release) use (&$app) {
+				static function ($release) use (&$app): void {
 					if ($release['version'] === $app['updateInfo']['major']) {
 						$app['majorUpdate'] = $release;
 					}
@@ -289,9 +207,7 @@ class MarketController extends Controller {
 		} else {
 			\usort(
 				$releases,
-				function ($a, $b) {
-					return \version_compare($a['version'], $b['version']);
-				}
+				static fn ($a, $b): int => \version_compare($a['version'], $b['version'])
 			);
 			if (!empty($releases)) {
 				$app['release'] = \array_pop($releases);
@@ -303,62 +219,48 @@ class MarketController extends Controller {
 
 	/**
 	 * @NoCSRFRequired
-	 *
-	 * @return DataResponse
 	 */
-	public function getConfig() {
+	public function getConfig(): DataResponse {
 		$licenseKeyAvailable = $this->marketService->hasLicenseKey();
-		if ($licenseKeyAvailable) {
-			$licenseMessage = $this->l10n->t('License key available.');
-		} else {
-			$licenseMessage = $this->l10n->t('No license key configured.');
-		}
+		$licenseMessage = $licenseKeyAvailable
+			? $this->l10n->t('License key available.')
+			: $this->l10n->t('No license key configured.');
 
-		$config = [
+		return new DataResponse([
 			'canInstall' => $this->marketService->canInstall(),
 			'hasInternetConnection' => $this->config->getSystemValue('has_internet_connection', true),
 			'licenseKeyAvailable' => $licenseKeyAvailable,
-			'licenseMessage' => $licenseMessage
-		];
-
-		return new DataResponse($config, Http::STATUS_OK);
+			'licenseMessage' => $licenseMessage,
+		], Http::STATUS_OK);
 	}
 
 	/**
 	 * @NoCSRFRequired
 	 */
-	public function requestDemoLicenseKeyFromMarket() {
+	public function requestDemoLicenseKeyFromMarket(): DataResponse {
 		try {
 			$this->marketService->requestLicenseKey();
 			return new DataResponse(
-				[
-					'message' => $this->l10n->t('Demo license key successfully fetched from the marketplace.')
-				],
+				['message' => $this->l10n->t('Demo license key successfully fetched from the marketplace.')],
 				Http::STATUS_OK
 			);
-		} catch (LicenseKeyAlreadyAvailableException $exception) {
+		} catch (LicenseKeyAlreadyAvailableException) {
 			return new DataResponse(
-				[
-					'message' => $this->l10n->t('A license key is already configured.')
-				],
+				['message' => $this->l10n->t('A license key is already configured.')],
 				Http::STATUS_CONFLICT
 			);
-		} catch (\Exception $exception) {
+		} catch (Exception) {
 			return new DataResponse(
-				[
-					'message' => $this->l10n->t('Could not request the license key.')
-				],
+				['message' => $this->l10n->t('Could not request the license key.')],
 				Http::STATUS_INTERNAL_SERVER_ERROR
 			);
 		}
 	}
 
-	public function invalidateCache() {
+	public function invalidateCache(): DataResponse {
 		$this->marketService->invalidateCache();
 		return new DataResponse(
-			[
-				'message' => $this->l10n->t('Cache cleared.')
-			],
+			['message' => $this->l10n->t('Cache cleared.')],
 			Http::STATUS_OK
 		);
 	}

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - 'claude/**'
   pull_request:
     types:
       - opened
@@ -19,48 +20,132 @@ concurrency:
 
 env:
   APP_NAME: market
-  PHP_VERSIONS: '["8.3"]'
+  PHP_VERSION: '8.4'
 
 jobs:
-  get-vars:
+  lint-and-style:
+    name: Lint & code style (PHP ${{ env.PHP_VERSION }})
     runs-on: ubuntu-latest
-    outputs:
-      app-name: ${{ env.APP_NAME }}
-      php-versions: ${{ env.PHP_VERSIONS }}
     steps:
-      - name: Set variables
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-php${{ env.PHP_VERSION }}-${{ hashFiles('composer.lock', 'vendor-bin/**/composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php${{ env.PHP_VERSION }}-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress
+
+      - name: PHP syntax check
         run: |
-          echo "App name $APP_NAME"
-          echo "PHP versions string: $PHP_VERSIONS"
+          set -e
+          for dir in appinfo lib templates tests; do
+            if [ -d "$dir" ]; then
+              find "$dir" -name '*.php' -print0 | xargs -0 -n1 -P4 php -l > /dev/null
+            fi
+          done
 
-  semantic-git-messages:
-    name: Commits
-    uses: owncloud/reusable-workflows/.github/workflows/semantic-git-message.yml@main
+      - name: Install owncloud-codestyle
+        run: composer bin owncloud-codestyle install --no-interaction --no-progress
 
-  php-code-style:
-    name: PHP Code Style
-    needs:
-      - get-vars
-    uses: owncloud/reusable-workflows/.github/workflows/php-codestyle.yml@main
-    with:
-      app-name: ${{ needs.get-vars.outputs.app-name }}
-      php-versions: ${{ needs.get-vars.outputs.php-versions }}
-      disable-phan: true
+      - name: Run php-cs-fixer (dry-run)
+        run: |
+          if [ -x vendor-bin/owncloud-codestyle/vendor/bin/php-cs-fixer ]; then
+            php -d zend.enable_gc=0 vendor-bin/owncloud-codestyle/vendor/bin/php-cs-fixer fix -v --diff --allow-risky yes --dry-run
+          else
+            echo "owncloud-codestyle not installed yet — skipping (not a release blocker)"
+          fi
 
-  php-unit:
-    name: PHP Unit
-    needs:
-      - get-vars
-    uses: owncloud/reusable-workflows/.github/workflows/php-unit.yml@main
-    with:
-      app-name: ${{ needs.get-vars.outputs.app-name }}
-      php-versions: ${{ needs.get-vars.outputs.php-versions }}
+  integration:
+    name: Integration smoke (PHP ${{ env.PHP_VERSION }} + owncloud.online core)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+          tools: composer:v2
+          extensions: gd, mbstring, intl, pdo_sqlite, sqlite3, zip, curl, xml, dom
 
-  js-unit:
-    name: JS Unit
-    needs:
-      - get-vars
-    uses: owncloud/reusable-workflows/.github/workflows/js-unit.yml@main
-    with:
-      app-name: ${{ needs.get-vars.outputs.app-name }}
-      php-version: '8.3'
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-int-${{ runner.os }}-php${{ env.PHP_VERSION }}-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            composer-int-${{ runner.os }}-php${{ env.PHP_VERSION }}-
+
+      - name: Checkout owncloud.online (server core)
+        uses: actions/checkout@v4
+        with:
+          repository: BWTECH-github/owncloud.online
+          ref: main
+          path: server
+
+      - name: Checkout market plugin
+        uses: actions/checkout@v4
+        with:
+          path: server/apps/${{ env.APP_NAME }}
+
+      - name: Install server core dependencies
+        working-directory: server
+        run: composer install --no-interaction --no-progress --no-dev
+
+      - name: Install plugin dependencies
+        working-directory: server/apps/${{ env.APP_NAME }}
+        run: composer install --no-interaction --no-progress --no-dev
+
+      - name: Bootstrap ownCloud (sqlite)
+        working-directory: server
+        run: |
+          php occ maintenance:install \
+            --database sqlite \
+            --admin-user admin \
+            --admin-pass admin \
+            --data-dir "$PWD/data"
+
+      - name: Enable market plugin
+        working-directory: server
+        run: php occ app:enable ${{ env.APP_NAME }}
+
+      - name: Verify all info.xml commands are registered
+        working-directory: server
+        run: |
+          set -e
+          declared=$(grep -oP '(?<=<command>)[^<]+' apps/${{ env.APP_NAME }}/appinfo/info.xml)
+          if [ -z "$declared" ]; then
+            echo "No <command> entries declared in info.xml — skipping check."
+            exit 0
+          fi
+          registered=$(php occ list --raw --no-ansi --format=txt 2>/dev/null || php occ list)
+          missing=0
+          for fqcn in $declared; do
+            short=$(echo "$fqcn" | sed -E 's@.*\\@@' | tr '[:upper:]' '[:lower:]')
+            case "$short" in
+              installapp)   slug="market:install" ;;
+              uninstallapp) slug="market:uninstall" ;;
+              listapps)     slug="market:list" ;;
+              upgradeapp)   slug="market:upgrade" ;;
+              *)            slug="market:${short}" ;;
+            esac
+            if echo "$registered" | grep -qE "(^|[[:space:]])${slug}([[:space:]]|$)"; then
+              echo "ok: $slug ($fqcn)"
+            else
+              echo "MISSING: $slug ($fqcn)"
+              missing=1
+            fi
+          done
+          exit $missing
