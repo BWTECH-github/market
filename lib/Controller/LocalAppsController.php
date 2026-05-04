@@ -3,6 +3,9 @@
  * @author Thomas Müller <thomas.mueller@tmit.eu>
  *
  * @copyright Copyright (c) 2017, ownCloud GmbH
+ *
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+ *
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -28,40 +31,35 @@ use OCP\AppFramework\Controller;
 use OCP\IRequest;
 
 class LocalAppsController extends Controller {
-	/** @var IAppManager */
-	private $appManager;
-
-	public function __construct($appName, IRequest $request, IAppManager $appManager) {
+	public function __construct(
+		string $appName,
+		IRequest $request,
+		private readonly IAppManager $appManager,
+	) {
 		parent::__construct($appName, $request);
-		$this->appManager = $appManager;
 	}
 
 	/**
 	 * @NoCSRFRequired
-	 *
-	 * @return array|mixed
 	 */
-	public function index($state = 'enabled') {
+	public function index(string $state = 'enabled'): array {
 		$apps = \OC_App::listAllApps();
-		$apps = \array_filter($apps, function ($app) use ($state) {
-			if ($state === 'enabled') {
-				return $app['active'];
-			}
-			return !$app['active'];
-		});
+		$apps = \array_filter(
+			$apps,
+			static fn ($app): bool => $state === 'enabled' ? (bool) $app['active'] : !$app['active']
+		);
 
-		return \array_values(\array_map(function ($app) {
+		return \array_values(\array_map(function ($app): array {
 			$missing = $this->getMissingDependencies($app);
 			$app['canInstall'] = empty($missing);
 			$app['missingDependencies'] = $missing;
 			$app['installed'] = true;
 			$app['updateInfo'] = [];
-
 			return $app;
 		}, $apps));
 	}
 
-	private function getMissingDependencies($appInfo) {
+	private function getMissingDependencies(array $appInfo): array {
 		// bad hack - should use OCP
 		$l10n = \OC::$server->getL10N('settings');
 		$config = \OC::$server->getConfig();

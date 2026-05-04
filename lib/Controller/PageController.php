@@ -1,9 +1,11 @@
 <?php
-
 /**
  * @author Thomas Müller <thomas.mueller@tmit.eu>
  *
  * @copyright Copyright (c) 2016, ownCloud GmbH
+ *
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+ *
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -30,24 +32,27 @@ class PageController extends Controller {
 	/**
 	 * @NoCSRFRequired
 	 *
-	 * Required for marketplace login to generate a callbackurl with
-	 * hash sign, or else login token will be attached before it resulting
-	 * in a broken url.
+	 * Required for marketplace login to generate a callbackurl with hash sign,
+	 * or else the login token will be attached before it resulting in a broken url.
 	 */
-	public function indexHash() {
+	public function indexHash(): TemplateResponse {
 		return $this->index();
 	}
 
 	/**
 	 * @NoCSRFRequired
 	 */
-	public function index() {
+	public function index(): TemplateResponse {
 		$templateResponse = new TemplateResponse($this->appName, 'index', []);
 		$policy = new ContentSecurityPolicy();
-		// live storage
+		// remote marketplace storage (only used when an external `appstoreurl` is configured)
 		$policy->addAllowedImageDomain('https://marketplace-storage.owncloud.com');
-		// staging - for internal testing
 		$policy->addAllowedImageDomain('https://marketplace-storage.staging.owncloud.services');
+		// BW-Tech: allow images served alongside a static catalog from owncloud.online or GitHub
+		$policy->addAllowedImageDomain('https://owncloud.online');
+		$policy->addAllowedImageDomain('https://*.bw.tech');
+		$policy->addAllowedImageDomain('https://raw.githubusercontent.com');
+		$policy->addAllowedImageDomain('https://github.com');
 		// local dev storage
 		$policy->addAllowedImageDomain('http://minio:9000');
 		$templateResponse->setContentSecurityPolicy($policy);

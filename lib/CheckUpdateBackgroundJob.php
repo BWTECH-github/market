@@ -3,6 +3,9 @@
  * @author Victor Dubiniuk <dubiniuk@owncloud.com>
  *
  * @copyright Copyright (c) 2017, ownCloud GmbH
+ *
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+ *
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -21,6 +24,7 @@
 
 namespace OCA\Market;
 
+use DateTime;
 use OC\BackgroundJob\TimedJob;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IConfig;
@@ -30,66 +34,30 @@ use OCP\IURLGenerator;
 use OCP\Notification\IManager;
 
 /**
- * Class CheckUpdateBackgroundJob checks for updates for enabled apps at marketplace
- *
- * @package OCA\Market
+ * Checks for updates for enabled apps at the marketplace.
  */
-
 class CheckUpdateBackgroundJob extends TimedJob {
-	/** @var IConfig */
-	private $config;
-	/** @var ITimeFactory */
-	private $timeFactory;
-	/** @var IManager */
-	private $notificationManager;
-	/** @var IGroupManager */
-	protected $groupManager;
-	/** @var MarketService */
-	private $marketService;
-	/** @var IURLGenerator */
-	private $urlGenerator;
+	/** @var string[]|null cached on first call */
+	private ?array $users = null;
 
-	/** @var bool|string[] */
-	private $users;
-
-	/**
-	 * @param IConfig $config
-	 * @param ITimeFactory $timeFactory
-	 * @param IManager $notificationManager
-	 * @param IGroupManager $groupManager
-	 * @param MarketService $marketService
-	 * @param IURLGenerator $urlGenerator
-	 */
 	public function __construct(
-		IConfig $config,
-		ITimeFactory $timeFactory,
-		IManager $notificationManager,
-		IGroupManager $groupManager,
-		MarketService $marketService,
-		IURLGenerator $urlGenerator
+		private readonly IConfig $config,
+		private readonly ITimeFactory $timeFactory,
+		private readonly IManager $notificationManager,
+		protected readonly IGroupManager $groupManager,
+		private readonly MarketService $marketService,
+		private readonly IURLGenerator $urlGenerator,
 	) {
 		// Run daily
 		$this->setInterval(60 * 60 * 24);
-
-		$this->config = $config;
-		$this->notificationManager = $notificationManager;
-		$this->groupManager = $groupManager;
-		$this->timeFactory = $timeFactory;
-		$this->marketService = $marketService;
-		$this->urlGenerator = $urlGenerator;
 	}
 
-	/**
-	 * @param string $argument
-	 */
+	#[\Override]
 	protected function run($argument) {
 		$updates = $this->marketService->getUpdates();
 
 		foreach ($updates as $appId => $appInfo) {
-			$url = $this->urlGenerator->linkToRoute(
-				'market.page.index'
-			);
-			$url .= '#/app/' . $appId;
+			$url = $this->urlGenerator->linkToRoute('market.page.index') . '#/app/' . $appId;
 			if ($appInfo['major'] !== false) {
 				$this->createNotifications($appId, $appInfo['major'], $url);
 			}
@@ -99,19 +67,13 @@ class CheckUpdateBackgroundJob extends TimedJob {
 		}
 	}
 
-	/**
-	 * Create notifications for this app version
-	 *
-	 * @param string $app
-	 * @param string $version
-	 * @param string $url
-	 */
-	protected function createNotifications($app, $version, $url) {
+	protected function createNotifications(string $app, string $version, string $url): void {
 		$lastNotification = $this->config->getAppValue('market', $app, false);
 		if ($lastNotification === $version) {
 			// We already notified about this update
 			return;
-		} elseif ($lastNotification !== false) {
+		}
+		if ($lastNotification !== false) {
 			// Delete old updates
 			$this->deleteOutdatedNotifications($app, $lastNotification);
 		}
@@ -119,10 +81,7 @@ class CheckUpdateBackgroundJob extends TimedJob {
 		$notification = $this->notificationManager->createNotification();
 		$notification->setApp('market')
 			->setDateTime(
-				\DateTime::createFromFormat(
-					'U',
-					\strval($this->timeFactory->getTime())
-				)
+				DateTime::createFromFormat('U', \strval($this->timeFactory->getTime()))
 			)
 			->setObject($app, $version)
 			->setSubject('update_available')
@@ -139,37 +98,31 @@ class CheckUpdateBackgroundJob extends TimedJob {
 	/**
 	 * @return string[]
 	 */
-	protected function getUsersToNotify() {
+	protected function getUsersToNotify(): array {
 		if ($this->users !== null) {
 			return $this->users;
 		}
 
 		$notifyGroups = \json_decode($this->config->getAppValue('market', 'notify_groups', '["admin"]'), true);
-		$this->users = [];
+		$users = [];
 		foreach ($notifyGroups as $group) {
 			$groupToNotify = $this->groupManager->get($group);
 			if ($groupToNotify instanceof IGroup) {
 				foreach ($groupToNotify->getUsers() as $user) {
-					$this->users[$user->getUID()] = true;
+					$users[$user->getUID()] = true;
 				}
 			}
 		}
 
-		$this->users = \array_keys($this->users);
-
-		return $this->users;
+		return $this->users = \array_keys($users);
 	}
 
 	/**
-	 * Delete notifications for old updates
-	 *
-	 * @param string $app
-	 * @param string $version
+	 * Delete notifications for old updates.
 	 */
-	protected function deleteOutdatedNotifications($app, $version) {
+	protected function deleteOutdatedNotifications(string $app, string $version): void {
 		$notification = $this->notificationManager->createNotification();
-		$notification->setApp('market')
-			->setObject($app, $version);
+		$notification->setApp('market')->setObject($app, $version);
 		$this->notificationManager->markProcessed($notification);
 	}
 }

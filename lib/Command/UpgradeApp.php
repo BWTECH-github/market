@@ -3,6 +3,9 @@
  * @author Thomas Müller <thomas.mueller@tmit.eu>
  *
  * @copyright Copyright (c) 2016, ownCloud GmbH
+ *
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+ *
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -21,6 +24,8 @@
 
 namespace OCA\Market\Command;
 
+use DomainException;
+use Exception;
 use OCA\Market\MarketService;
 use OCA\Market\VersionHelper;
 use Symfony\Component\Console\Command\Command;
@@ -30,22 +35,17 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UpgradeApp extends Command {
-	/** @var MarketService */
-	private $marketService;
+	private int $exitCode = 0;
 
-	/** @var VersionHelper */
-	private $versionHelper;
-
-	/** @var int */
-	private $exitCode = 0;
-
-	public function __construct(MarketService $marketService, VersionHelper $versionHelper) {
+	public function __construct(
+		private readonly MarketService $marketService,
+		private readonly VersionHelper $versionHelper,
+	) {
 		parent::__construct();
-		$this->versionHelper = $versionHelper;
-		$this->marketService = $marketService;
 	}
 
-	protected function configure() {
+	#[\Override]
+	protected function configure(): void {
 		$this
 			->setName('market:upgrade')
 			->setDescription('Installs new app versions if available on the marketplace')
@@ -71,54 +71,26 @@ class UpgradeApp extends Command {
 	}
 
 	/**
-	 * @param InputInterface $input
-	 * @param OutputInterface $output
-	 *
-	 * @return int
-	 *
-	 * @throws \Exception
+	 * @throws Exception
 	 */
+	#[\Override]
 	protected function execute(InputInterface $input, OutputInterface $output): int {
 		if (!$this->marketService->canInstall()) {
-			throw new \Exception("Installing apps is not supported because the app folder is not writable.");
+			throw new Exception("Installing apps is not supported because the app folder is not writable.");
 		}
 
 		$isMajorUpdateAllowed = (bool) $input->getOption('major');
 
-		$localPackagesArray = $input->getOption('local');
-		$localPackagesArray = \array_unique($localPackagesArray);
+		$localPackagesArray = \array_unique($input->getOption('local'));
 		if (\count($localPackagesArray)) {
 			foreach ($localPackagesArray as $localPackage) {
-				$appInfo = $this->marketService->readAppPackage($localPackage);
-				$appId = $appInfo['id'];
-				try {
-					if ($this->marketService->isAppInstalled($appId)) {
-						$installedAppInfo = $this->marketService->getInstalledAppInfo($appId);
-						$currentVersion = (string) $installedAppInfo['version'];
-						$packageVersion = (string) $appInfo['version'];
-						try {
-							$this->checkVersion($currentVersion, $packageVersion, $isMajorUpdateAllowed);
-							$output->writeln("$appId: Installing new version from $localPackage.");
-							$this->marketService->updatePackage($localPackage);
-							$output->writeln("$appId: App updated.");
-						} catch (\DomainException $e) {
-							$errorMessage = $e->getMessage();
-							$output->writeln("$appId: $localPackage $errorMessage");
-						}
-					} else {
-						$output->writeln("$appId: Not installed ...");
-					}
-				} catch (\Exception $ex) {
-					$output->writeln("<error>$appId: {$ex->getMessage()}</error>");
-					$this->exitCode = 1;
-				}
+				$this->upgradeLocalPackage($localPackage, $isMajorUpdateAllowed, $output);
 			}
 			return $this->exitCode;
 		}
 
 		if ($input->getOption('list')) {
-			$updates = $this->marketService->getUpdates();
-			foreach ($updates as $name => $info) {
+			foreach ($this->marketService->getUpdates() as $name => $info) {
 				$versions = [];
 				if ($info['minor'] !== false) {
 					$versions[] = "minor:{$info['minor']}";
@@ -126,17 +98,15 @@ class UpgradeApp extends Command {
 				if ($info['major'] !== false) {
 					$versions[] = "major:{$info['major']}";
 				}
-				$versionStr = \implode(', ', $versions);
-				$output->writeln("$name : $versionStr");
+				$output->writeln("$name : " . \implode(', ', $versions));
 			}
 			return $this->exitCode;
 		}
+
 		$appIds = $input->getArgument('ids');
 		if ($input->getOption('all')) {
 			$appIds = \array_map(
-				function ($elem) {
-					return $elem['id'];
-				},
+				static fn ($elem) => $elem['id'],
 				$this->marketService->getUpdates()
 			);
 		}
@@ -148,57 +118,74 @@ class UpgradeApp extends Command {
 		}
 
 		foreach ($appIds as $appId) {
-			try {
-				if ($this->marketService->isAppInstalled($appId)) {
-					$updateVersions = $this->marketService->getAvailableUpdateVersions($appId);
-					$updateVersion = $this->marketService->chooseCandidate($updateVersions, $isMajorUpdateAllowed);
-					if ($updateVersion !== false) {
-						$output->writeln("$appId: Installing new version $updateVersion ...");
-						$this->marketService->updateApp($appId, $updateVersion);
-						$output->writeln("$appId: App updated.");
-					} elseif ($isMajorUpdateAllowed === false
-						&& $updateVersions['major'] !== false
-					) {
-						$major = $updateVersions['major'];
-						$output->writeln("$appId: update to $major requires --major option.");
-					} else {
-						$output->writeln("$appId: No update available.");
-					}
-				} else {
-					$output->writeln("$appId: Not installed ...");
-					$this->exitCode = 1;
-				}
-			} catch (\Exception $ex) {
-				$output->writeln("<error>$appId: {$ex->getMessage()}</error>");
-				$this->exitCode = 1;
-			}
+			$this->upgradeRemoteApp($appId, $isMajorUpdateAllowed, $output);
 		}
 		return $this->exitCode;
 	}
 
-	/**
-	 * @param string $installedVersion
-	 * @param string $packageVersion
-	 * @param bool $isMajorUpdateAllowed
-	 *
-	 * @return void
-	 *
-	 * @throws \DomainException
-	 */
-	protected function checkVersion($installedVersion, $packageVersion, $isMajorUpdateAllowed) {
-		// At first check if we are installing a new version
-		if ($this->versionHelper->lessThanOrEqualTo($packageVersion, $installedVersion)) {
-			throw new \DomainException('has the same or older version of the app.');
+	private function upgradeLocalPackage(string $localPackage, bool $isMajorUpdateAllowed, OutputInterface $output): void {
+		$appInfo = $this->marketService->readAppPackage($localPackage);
+		$appId = $appInfo['id'];
+		try {
+			if (!$this->marketService->isAppInstalled($appId)) {
+				$output->writeln("$appId: Not installed ...");
+				return;
+			}
+			$installedAppInfo = $this->marketService->getInstalledAppInfo($appId);
+			$currentVersion = (string) $installedAppInfo['version'];
+			$packageVersion = (string) $appInfo['version'];
+			try {
+				$this->checkVersion($currentVersion, $packageVersion, $isMajorUpdateAllowed);
+				$output->writeln("$appId: Installing new version from $localPackage.");
+				$this->marketService->updatePackage($localPackage);
+				$output->writeln("$appId: App updated.");
+			} catch (DomainException $e) {
+				$output->writeln("$appId: $localPackage {$e->getMessage()}");
+			}
+		} catch (Exception $ex) {
+			$output->writeln("<error>$appId: {$ex->getMessage()}</error>");
+			$this->exitCode = 1;
 		}
+	}
 
-		// Check if the major version is different
+	private function upgradeRemoteApp(string $appId, bool $isMajorUpdateAllowed, OutputInterface $output): void {
+		try {
+			if (!$this->marketService->isAppInstalled($appId)) {
+				$output->writeln("$appId: Not installed ...");
+				$this->exitCode = 1;
+				return;
+			}
+			$updateVersions = $this->marketService->getAvailableUpdateVersions($appId);
+			$updateVersion = $this->marketService->chooseCandidate($updateVersions, $isMajorUpdateAllowed);
+			if ($updateVersion !== false) {
+				$output->writeln("$appId: Installing new version $updateVersion ...");
+				$this->marketService->updateApp($appId, $updateVersion);
+				$output->writeln("$appId: App updated.");
+				return;
+			}
+			if ($isMajorUpdateAllowed === false && $updateVersions['major'] !== false) {
+				$major = $updateVersions['major'];
+				$output->writeln("$appId: update to $major requires --major option.");
+				return;
+			}
+			$output->writeln("$appId: No update available.");
+		} catch (Exception $ex) {
+			$output->writeln("<error>$appId: {$ex->getMessage()}</error>");
+			$this->exitCode = 1;
+		}
+	}
+
+	/**
+	 * @throws DomainException
+	 */
+	protected function checkVersion(string $installedVersion, string $packageVersion, bool $isMajorUpdateAllowed): void {
+		if ($this->versionHelper->lessThanOrEqualTo($packageVersion, $installedVersion)) {
+			throw new DomainException('has the same or older version of the app.');
+		}
 		if ($isMajorUpdateAllowed === false) {
-			$isMajorUpdate = !$this->versionHelper->isSameMajorVersion(
-				$installedVersion,
-				$packageVersion
-			);
+			$isMajorUpdate = !$this->versionHelper->isSameMajorVersion($installedVersion, $packageVersion);
 			if ($isMajorUpdate) {
-				throw new \DomainException('has a different major version, try with --major option.');
+				throw new DomainException('has a different major version, try with --major option.');
 			}
 		}
 	}

@@ -3,6 +3,9 @@
  * @author Thomas Müller <thomas.mueller@tmit.eu>
  *
  * @copyright Copyright (c) 2016, ownCloud GmbH
+ *
+ * Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+ *
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -21,15 +24,11 @@
 
 namespace OCA\Market;
 
-use OCA\Market\Notifier;
 use OCP\AppFramework\App;
 use OCP\Migration\IRepairStep;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 class Application extends App {
-	/**
-	 * @param array $urlParams
-	 */
 	public function __construct(array $urlParams = []) {
 		parent::__construct('market', $urlParams);
 		// needed for translation
@@ -39,11 +38,11 @@ class Application extends App {
 		$dispatcher = $this->getContainer()->getServer()->getEventDispatcher();
 		$dispatcher->addListener(
 			IRepairStep::class . '::upgradeAppStoreApp',
-			function ($event) use ($listener) {
+			static function ($event) use ($listener): void {
 				if ($event instanceof GenericEvent) {
 					try {
 						$isMajorUpdate = $event->getArgument('isMajorUpdate');
-					} catch (\InvalidArgumentException $e) {
+					} catch (\InvalidArgumentException) {
 						$isMajorUpdate = false;
 					}
 					$listener->upgradeAppStoreApp(
@@ -55,7 +54,7 @@ class Application extends App {
 		);
 		$dispatcher->addListener(
 			IRepairStep::class . '::reinstallAppStoreApp',
-			function ($event) use ($listener) {
+			static function ($event) use ($listener): void {
 				if ($event instanceof GenericEvent) {
 					$listener->reinstallAppStoreApp($event->getSubject());
 				}
@@ -63,18 +62,19 @@ class Application extends App {
 		);
 
 		$manager = \OC::$server->getNotificationManager();
-		$manager->registerNotifier(function () use ($manager) {
-			return new Notifier(
+		$manager->registerNotifier(
+			static fn (): Notifier => new Notifier(
 				$manager,
 				\OC::$server->getAppManager(),
 				\OC::$server->getL10NFactory()
-			);
-		}, function () {
-			$l = \OC::$server->getL10N('market');
-			return [
-				'id' => 'market',
-				'name' => $l->t('Market notifications'),
-			];
-		});
+			),
+			static function (): array {
+				$l = \OC::$server->getL10N('market');
+				return [
+					'id' => 'market',
+					'name' => $l->t('Market notifications'),
+				];
+			}
+		);
 	}
 }
