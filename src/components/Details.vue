@@ -1,24 +1,18 @@
 <template lang="pug">
 	div
 		.uk-position-fixed.uk-position-center(v-show="loading", uk-spinner, uk-icon="icon: spinner")
-		.uk-card.uk-card-default(v-if="!failed && application").uk-animation-slide-top-small
-			.uk-card-header
-				div(uk-grid)
-					.uk-width-expand
-						.uk-flex.uk-flex-middle
-							h3.uk-card-title.uk-text-truncate.uk-margin-remove-bottom.uk-float-left.uk-margin-small-right {{ application.name }}
-
-						p.uk-text-meta.uk-margin-remove-top
-							span(uk-icon="icon: tag").uk-margin-small-right
+		.uk-card.uk-card-default.bwt-detail(v-if="!failed && application").uk-animation-slide-top-small
+			.bwt-detail__hero(:style="heroStyle")
+				.bwt-detail__hero-overlay
+					router-link.bwt-detail__back(:to="{ name: 'index' }", :aria-label="t('Back')")
+						span(uk-icon="icon: arrow-left")
+					div.bwt-detail__hero-meta
+						span.bwt-tile__category(v-if="application.categories && application.categories[0]")
+							span(uk-icon="icon: tag; ratio: 0.7")
 							| {{ application.categories[0] }}
-
-					.uk-width-small.uk-text-right
-						rating(:rating="application.rating")
-
-			.uk-card-media-top
-				img(v-if="screenshot", :src="screenshot", :alt="application.name")
-				.bwt-detail-placeholder(v-else)
-					span {{ application.name }}
+						h1.bwt-detail__title {{ application.name }}
+						.bwt-detail__rating
+							rating(:rating="application.rating")
 
 			.uk-card-body
 				.article(v-html="markdown(application.description)")
@@ -137,6 +131,14 @@
 				const shots = this.application && this.application.screenshots;
 				return Array.isArray(shots) && shots.length ? shots[0].url : null;
 			},
+			heroStyle () {
+				if (!this.screenshot) {
+					return {
+						background: 'linear-gradient(135deg, var(--bwt-brand) 0%, var(--bwt-accent) 100%)'
+					}
+				}
+				return { backgroundImage: `url("${this.screenshot}")` }
+			},
 			publisher () {
 				const publisher = this.application && this.application.publisher;
 				return publisher || {
@@ -232,13 +234,83 @@
 </script>
 
 <style lang="scss" scoped>
+	@import "../styles/variables-theme";
+
 	main {
 		position: relative;
 	}
 
-	.uk-card {
+	.bwt-detail {
 		max-width: 960px;
 		margin: 0 auto;
+		overflow: hidden;
+	}
+
+	.bwt-detail__hero {
+		position: relative;
+		min-height: 240px;
+		background-size: cover;
+		background-position: center;
+	}
+
+	.bwt-detail__hero-overlay {
+		position: relative;
+		min-height: 240px;
+		padding: 1.25rem 1.5rem 1.5rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: 1rem;
+		background: linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.55) 100%);
+		color: #ffffff;
+	}
+
+	.bwt-detail__back {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		border-radius: var(--bwt-radius-pill);
+		background: rgba(255, 255, 255, 0.16);
+		color: #ffffff;
+		backdrop-filter: blur(6px);
+		text-decoration: none;
+		transition: background-color var(--bwt-transition);
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.28);
+			color: #ffffff;
+		}
+	}
+
+	.bwt-detail__hero-meta {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+	}
+
+	.bwt-detail__title {
+		font-size: 2rem;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		margin: 0;
+		color: #ffffff;
+	}
+
+	.bwt-detail__hero-meta .bwt-tile__category {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		font-size: 0.72rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-weight: 600;
+		color: rgba(255, 255, 255, 0.85);
+	}
+
+	.bwt-detail__rating {
+		display: inline-flex;
 	}
 
 	.uk-label {
@@ -252,18 +324,5 @@
 	._multiupdate-dropdown {
 		padding-left: 10px;
 		padding-right: 10px;
-	}
-
-	.bwt-detail-placeholder {
-		min-height: 220px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: linear-gradient(135deg, var(--bwt-brand) 0%, var(--bwt-accent) 100%);
-		color: white;
-		font-size: 1.5rem;
-		font-weight: 600;
-		text-align: center;
-		padding: 2rem;
 	}
 </style>

@@ -1,13 +1,13 @@
 <template lang="pug">
 	transition(name="fade")
-		li(v-if="bundle").uk-animation-slide-top-small
+		li(v-if="bundle").uk-animation-slide-top-small.bwt-bundle
 			.uk-card.uk-card-default
 				.uk-card-header
-					h3.uk-card-title.uk-text-truncate.uk-margin-remove-bottom.uk-float-left.uk-margin-small-right {{ bundle.title }}
+					h3.bwt-page-head__title.uk-margin-remove-bottom {{ bundle.title }}
+					p.uk-text-meta.uk-margin-small-top(v-html="t('Contains <strong>%{no}</strong> Application(s)', { no : this.bundle.products.length })")
 
 				.uk-card-body
-					p {{ bundle.description }}
-					p(v-html="t('Contains <strong>%{no}</strong> Application(s)', { no : this.bundle.products.length })")
+					p.bwt-bundle__desc {{ bundle.description }}
 
 					table.uk-table.uk-table-divider.uk-table-middle.uk-table-justify
 						thead
@@ -22,9 +22,10 @@
 								td
 									span {{ (application.release) ? application.release.version : application.installInfo.version }}
 								td
-									span(v-if="isInstalled(application.id) || application.installed").uk-label {{ t('installed') }}
+									span.bwt-badge.bwt-badge--installed(v-if="isInstalled(application.id) || application.installed") {{ t('installed') }}
 									span(v-else-if="isProcessing(application.id)", :title="t('installing')" uk-tooltip)
 										span(uk-spinner, uk-icon="icon: spinner; ratio: 0.8")
+				.uk-card-footer
 					button(v-if="bundle.downloadable && installableApps.length > 0", @click="install").uk-button.uk-button-primary {{ t('install bundle') }}
 					a(v-else-if="!bundle.downloadable && installableApps.length === 0", :href="bundle.marketplace", target="_blank").uk-button.uk-button-default {{ t('view in marketplace') }}
 </template>
@@ -86,18 +87,15 @@
 <style lang="scss" scoped>
 	@import "../styles/variables-theme";
 
-	.category {
-		text-transform: capitalize;
+	.bwt-bundle {
+		list-style: none;
+		display: block;
+		margin-bottom: 1.25rem;
 	}
 
-	.app-preview {
-		background: {
-			size: cover;
-			position: left center;
-		}
-	}
-
-	.uk-label {
-		border: 1px solid #fff;
+	.bwt-bundle__desc {
+		margin: 0 0 0.85rem;
+		color: var(--bwt-muted);
+		line-height: 1.5;
 	}
 </style>
