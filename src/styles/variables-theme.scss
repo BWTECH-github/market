@@ -1,10 +1,10 @@
 // =====================================================================
 // BW-Tech / owncloud.online theme variables
 // ---------------------------------------------------------------------
-// All chrome colours are exposed as CSS custom properties so we can
-// flip the whole UI to dark mode via `prefers-color-scheme: dark`
-// (or by toggling `data-theme="dark"` on <html>) without recompiling
-// SCSS.
+// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+// The market intentionally follows the light ownCloud shell. Do not bind it
+// to browser/OS dark-mode preferences because ownCloud 10 does not switch
+// the surrounding UI with the same signal.
 // =====================================================================
 
 // Brand
@@ -21,15 +21,6 @@ $bwt-text-light: #0f172a;
 $bwt-muted-light: #64748b;
 $bwt-border-light: #e2e8f0;
 $bwt-border-soft-light: #eef2f7;
-
-// Dark surface
-$bwt-bg-dark: #0b1020;
-$bwt-surface-dark: #131a2c;
-$bwt-surface-elev-dark: #1a2238;
-$bwt-text-dark: #e6ecf5;
-$bwt-muted-dark: #94a3b8;
-$bwt-border-dark: #25314a;
-$bwt-border-soft-dark: #1d2742;
 
 // Status palette
 $bwt-success: #16a34a;
@@ -68,36 +59,6 @@ $bwt-danger:  #dc2626;
 
 	--bwt-sidebar-width: 280px;
 	--bwt-content-max:   1280px;
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--bwt-bg: #{$bwt-bg-dark};
-		--bwt-surface: #{$bwt-surface-dark};
-		--bwt-surface-elevated: #{$bwt-surface-elev-dark};
-		--bwt-text: #{$bwt-text-dark};
-		--bwt-muted: #{$bwt-muted-dark};
-		--bwt-border: #{$bwt-border-dark};
-		--bwt-border-soft: #{$bwt-border-soft-dark};
-		--bwt-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-		--bwt-shadow:    0 4px 14px rgba(0, 0, 0, 0.45);
-		--bwt-shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.55);
-		--bwt-ring:      0 0 0 3px rgba(99, 102, 241, 0.35);
-	}
-}
-
-[data-theme="dark"] {
-	--bwt-bg: #{$bwt-bg-dark};
-	--bwt-surface: #{$bwt-surface-dark};
-	--bwt-surface-elevated: #{$bwt-surface-elev-dark};
-	--bwt-text: #{$bwt-text-dark};
-	--bwt-muted: #{$bwt-muted-dark};
-	--bwt-border: #{$bwt-border-dark};
-	--bwt-border-soft: #{$bwt-border-soft-dark};
-	--bwt-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-	--bwt-shadow:    0 4px 14px rgba(0, 0, 0, 0.45);
-	--bwt-shadow-hover: 0 12px 28px rgba(0, 0, 0, 0.55);
-	--bwt-ring:      0 0 0 3px rgba(99, 102, 241, 0.35);
 }
 
 // ---------------------------------------------------------------------
