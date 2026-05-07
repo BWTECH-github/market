@@ -1,44 +1,43 @@
 <template lang="pug">
-	.uk-card.uk-card-default.uk-margin-bottom
-		.uk-card-header
-			h1.uk-h3
-				router-link(:to="{ name: 'index' }") {{ t('Market') }}
+	nav.bwt-sidebar(aria-label="Market navigation")
+		.bwt-search
+			input(
+				type="search",
+				:value="searchQuery",
+				:placeholder="t('Search apps…')",
+				:aria-label="t('Search apps')",
+				@input="onSearch"
+			)
 
-		.uk-card-body
-			.bwt-search
-				input(
-					type="search",
-					:value="searchQuery",
-					:placeholder="t('Search apps…')",
-					:aria-label="t('Search apps')",
-					@input="onSearch"
-				)
+		ul.bwt-sidebar__nav
+			li
+				router-link(:to="{ name: 'index' }", exact)
+					span {{ t('Discover') }}
+			li
+				router-link(:to="{ name: 'InstalledApps' }")
+					span {{ t('Installed Apps') }}
+					span.bwt-sidebar__count(v-if="localAppCount > 0") {{ localAppCount }}
+			li
+				router-link(:to="{ name: 'Bundles' }")
+					span {{ t('App Bundles') }}
+			li(v-if="updateList.length > 0")
+				router-link(:to="{ name: 'UpdateList' }")
+					span {{ t('Updates') }}
+					span.bwt-sidebar__count {{ updateList.length }}
 
-			ul.uk-nav-default.uk-nav-parent-icon(uk-nav, :v-if="!loading && !failed")
-				li
-					router-link(:to="{ name: 'index' }") {{ t('Show all') }}
-				li
-					router-link(:to="{ name: 'InstalledApps' }") {{ t('Installed Apps') }}
-						span.uk-badge.uk-margin-small-left(v-if="localAppCount > 0") {{ localAppCount }}
-				li
-					router-link(:to="{ name: 'Bundles' }") {{ t('App Bundles') }}
+			li.bwt-sidebar__section(v-if="!loading && !failed && categories.length") {{ t('Categories') }}
 
-				li.uk-nav-header {{ t('Categories') }}
+			li(v-for="category in categories")
+				router-link(:to="{ name: 'byCategory', params: { category: category.id }}")
+					span {{ categoryLabel(category) }}
 
-				li(v-for="category in categories")
-					router-link(:to="{ name: 'byCategory', params: { category: category.id }}") {{ categoryLabel(category) }}
+			li.bwt-sidebar__section {{ t('Settings') }}
 
-				li(v-if="updateList.length > 0")
-					router-link(:to="{ name: 'UpdateList' }") {{ t('Updates') }}
-						span.uk-badge.uk-margin-small-left {{ updateList.length }}
+			apiform
 
-				li.uk-nav-header {{ t('Settings') }}
-
-				apiform
-
-				li
-					a(href="", @click.prevent="invalidateCache") {{ t('Clear cache') }}
-
+			li
+				a(href="", @click.prevent="invalidateCache")
+					span {{ t('Clear cache') }}
 </template>
 
 <script>
@@ -101,15 +100,7 @@
 <style lang="scss" scoped>
 	@import "../styles/variables-theme";
 
-	h1 {
-		a {
-			text-decoration: none;
-			color: var(--bwt-text);
-		}
-	}
-
-	.uk-badge {
-		font-size: 0.75rem;
-		background: var(--bwt-brand);
+	.bwt-sidebar__section {
+		display: block;
 	}
 </style>

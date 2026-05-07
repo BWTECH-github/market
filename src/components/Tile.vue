@@ -14,14 +14,14 @@
 					p.bwt-tile__summary(v-if="application.summary || application.description") {{ truncatedSummary }}
 
 					.bwt-tile__footer
-						span.bwt-tile__category
-							span(uk-icon="icon: tag; ratio: 0.7").uk-margin-xsmall-right
+						span.bwt-tile__category(v-if="primaryCategory")
+							span(uk-icon="icon: tag; ratio: 0.7")
 							| {{ primaryCategory }}
+						span.bwt-tile__category(v-else) &nbsp;
 
 						span.bwt-badge.bwt-badge--update(v-if="application.updateInfo") {{ t('Update') }}
 						span.bwt-badge.bwt-badge--installed(v-else-if="application.installed") {{ t('Installed') }}
-
-						rating(v-if="!application.installed && !application.updateInfo", :rating="application.rating")
+						rating(v-else, :rating="application.rating")
 </template>
 
 <script>

@@ -5,13 +5,13 @@
 			.uk-card-header
 				div(uk-grid)
 					.uk-width-expand
-						h2.uk-h3.uk-margin-remove-bottom {{ t('Installed Apps') }}
+						h2.bwt-page-head__title.uk-margin-remove-bottom {{ t('Installed Apps') }}
 						p.uk-text-meta.uk-margin-small-top {{ t('Apps currently present in this owncloud.online instance.') }}
 					.uk-width-auto
-						.uk-button-group
-							button.uk-button.uk-button-small(:class="filterClass('all')", @click="filter = 'all'") {{ t('All') }}
-							button.uk-button.uk-button-small(:class="filterClass('enabled')", @click="filter = 'enabled'") {{ t('Enabled') }}
-							button.uk-button.uk-button-small(:class="filterClass('disabled')", @click="filter = 'disabled'") {{ t('Disabled') }}
+						.bwt-segmented
+							button.bwt-segmented__item(:class="{ 'is-active': filter === 'all' }", @click="filter = 'all'") {{ t('All') }}
+							button.bwt-segmented__item(:class="{ 'is-active': filter === 'enabled' }", @click="filter = 'enabled'") {{ t('Enabled') }}
+							button.bwt-segmented__item(:class="{ 'is-active': filter === 'disabled' }", @click="filter = 'disabled'") {{ t('Disabled') }}
 
 			.uk-card-body
 				table.uk-table.uk-table-hover.uk-table-divider.uk-table-middle(v-if="applications.length")
@@ -45,9 +45,9 @@
 								) {{ t('Details') }}
 								span.uk-text-meta(v-else) {{ t('Local only') }}
 
-				.uk-text-center.uk-padding(v-else-if="!loading")
-					p.uk-text-meta(v-if="searchQuery") {{ t('No installed apps match "%{query}"', { query: searchQuery }) }}
-					p.uk-text-meta(v-else) {{ t('No installed apps found') }}
+				.bwt-empty.uk-card-body(v-else-if="!loading")
+					p.uk-text-center(v-if="searchQuery") {{ t('No installed apps match "%{query}"', { query: searchQuery }) }}
+					p.uk-text-center(v-else) {{ t('No installed apps found') }}
 </template>
 
 <script>
@@ -77,9 +77,6 @@
 			},
 			catalogApplication (id) {
 				return this.$store.getters.application(id)
-			},
-			filterClass (filter) {
-				return this.filter === filter ? 'uk-button-primary' : 'uk-button-default'
 			}
 		},
 		computed: {
@@ -109,12 +106,39 @@
 <style lang="scss" scoped>
 	@import "../styles/variables-theme";
 
-	.bwt-badge--disabled {
-		background: rgba(100, 116, 139, 0.16);
-		color: var(--bwt-muted);
-	}
-
 	.uk-table td {
 		vertical-align: top;
+	}
+
+	.bwt-segmented {
+		display: inline-flex;
+		padding: 0.2rem;
+		background: var(--bwt-bg);
+		border: 1px solid var(--bwt-border);
+		border-radius: var(--bwt-radius-pill);
+		gap: 0.15rem;
+	}
+
+	.bwt-segmented__item {
+		appearance: none;
+		border: 0;
+		background: transparent;
+		color: var(--bwt-muted);
+		padding: 0.35rem 0.85rem;
+		font-size: 0.85rem;
+		font-weight: 500;
+		border-radius: var(--bwt-radius-pill);
+		cursor: pointer;
+		transition: background-color var(--bwt-transition), color var(--bwt-transition);
+
+		&:hover {
+			color: var(--bwt-text);
+		}
+
+		&.is-active {
+			background: var(--bwt-surface);
+			color: var(--bwt-text);
+			box-shadow: var(--bwt-shadow-sm);
+		}
 	}
 </style>

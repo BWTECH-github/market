@@ -3,10 +3,11 @@
 		transition(name="fade")
 			.uk-card.uk-card-default(v-if="!failed && applications")
 				.uk-card-header
-					h2.uk-h3 {{ t('Updates') }}
+					h2.bwt-page-head__title.uk-margin-remove-bottom {{ t('Updates') }}
+					p.uk-text-meta.uk-margin-small-top(v-if="applications.length") {{ t('Apps with newer versions available.') }}
 
 				.uk-card-body
-					table.uk-table.uk-table-hover.uk-table-divider.uk-table-middle
+					table.uk-table.uk-table-hover.uk-table-divider.uk-table-middle(v-if="applications.length")
 						thead
 							tr
 								th {{ t('App') }}
@@ -36,12 +37,12 @@
 											span.uk-margin-small-left &nbsp;&nbsp; {{ t('updating') }}
 										span(v-else)
 											| {{ t('update') }}
-							tr(v-if="applications.length === 0 && !loading")
-								td(colspan="4").uk-text-center
-									span.uk-text-primary {{ t('All apps are up to date') }}
 							tr(v-show="loading")
 								td(colspan="4").uk-text-center
 									span(uk-spinner, uk-icon="icon: spinner")
+
+					.bwt-empty.uk-card-body(v-else-if="!loading")
+						p.uk-text-center {{ t('All apps are up to date') }}
 
 </template>
 
