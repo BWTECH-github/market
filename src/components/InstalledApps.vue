@@ -1,7 +1,7 @@
 <template lang="pug">
 	div
 		.uk-position-fixed.uk-position-center(v-show="loading", uk-spinner, uk-icon="icon: spinner")
-		.uk-card.uk-card-default(v-if="!failed").uk-animation-slide-top-small
+		.uk-card.uk-card-default.bwt-installed-card(v-if="!failed").uk-animation-slide-top-small
 			.uk-card-header
 				div(uk-grid)
 					.uk-width-expand
@@ -14,36 +14,37 @@
 							button.bwt-segmented__item(:class="{ 'is-active': filter === 'disabled' }", @click="filter = 'disabled'") {{ t('Disabled') }}
 
 			.uk-card-body
-				table.uk-table.uk-table-hover.uk-table-divider.uk-table-middle(v-if="applications.length")
-					thead
-						tr
-							th {{ t('App') }}
-							th {{ t('Version') }}
-							th {{ t('Author') }}
-							th {{ t('State') }}
-							th {{ t('Compatibility') }}
-							th &nbsp;
-					tbody
-						tr(v-for="application in applications", :key="application.id")
-							td
-								strong {{ appName(application) }}
-								div.uk-text-meta {{ application.id }}
-							td {{ application.version || '-' }}
-							td {{ author(application) }}
-							td
-								span.bwt-badge.bwt-badge--installed(v-if="application.active") {{ t('Enabled') }}
-								span.bwt-badge.bwt-badge--disabled(v-else) {{ t('Disabled') }}
-							td
-								span(v-if="application.canInstall") {{ t('OK') }}
-								span.uk-text-danger(v-else) {{ t('Missing dependencies') }}
-								ul.uk-list.uk-list-collapse.uk-margin-small-top(v-if="application.missingDependencies && application.missingDependencies.length")
-									li(v-for="dependency in application.missingDependencies") {{ dependency }}
-							td.uk-text-right
-								router-link.uk-button.uk-button-small.uk-button-secondary(
-									v-if="catalogApplication(application.id)",
-									:to="{ name: 'details', params: { id: application.id }}"
-								) {{ t('Details') }}
-								span.uk-text-meta(v-else) {{ t('Local only') }}
+				.bwt-installed-table-wrap(v-if="applications.length")
+					table.uk-table.uk-table-hover.uk-table-divider.uk-table-middle.bwt-installed-table
+						thead
+							tr
+								th {{ t('App') }}
+								th {{ t('Version') }}
+								th {{ t('Author') }}
+								th {{ t('State') }}
+								th {{ t('Compatibility') }}
+								th &nbsp;
+						tbody
+							tr(v-for="application in applications", :key="application.id")
+								td
+									strong {{ appName(application) }}
+									div.uk-text-meta {{ application.id }}
+								td {{ application.version || '-' }}
+								td {{ author(application) }}
+								td
+									span.bwt-badge.bwt-badge--installed(v-if="application.active") {{ t('Enabled') }}
+									span.bwt-badge.bwt-badge--disabled(v-else) {{ t('Disabled') }}
+								td
+									span(v-if="application.canInstall") {{ t('OK') }}
+									span.uk-text-danger(v-else) {{ t('Missing dependencies') }}
+									ul.uk-list.uk-list-collapse.uk-margin-small-top(v-if="application.missingDependencies && application.missingDependencies.length")
+										li(v-for="dependency in application.missingDependencies") {{ dependency }}
+								td.uk-text-right
+									router-link.uk-button.uk-button-small.uk-button-secondary(
+										v-if="catalogApplication(application.id)",
+										:to="{ name: 'details', params: { id: application.id }}"
+									) {{ t('Details') }}
+									span.uk-text-meta(v-else) {{ t('Local only') }}
 
 				.bwt-empty.uk-card-body(v-else-if="!loading")
 					p.uk-text-center(v-if="searchQuery") {{ t('No installed apps match "%{query}"', { query: searchQuery }) }}
@@ -108,6 +109,59 @@
 
 	.uk-table td {
 		vertical-align: top;
+	}
+
+	.bwt-installed-card {
+		width: 100%;
+		overflow: hidden;
+	}
+
+	.bwt-installed-table-wrap {
+		width: 100%;
+		overflow-x: auto;
+		background: var(--bwt-surface);
+	}
+
+	.bwt-installed-table {
+		width: 100%;
+		min-width: 760px;
+		table-layout: fixed;
+
+		th,
+		td {
+			white-space: normal;
+			word-break: break-word;
+		}
+
+		th:nth-child(1),
+		td:nth-child(1) {
+			width: 24%;
+		}
+
+		th:nth-child(2),
+		td:nth-child(2) {
+			width: 12%;
+		}
+
+		th:nth-child(3),
+		td:nth-child(3) {
+			width: 22%;
+		}
+
+		th:nth-child(4),
+		td:nth-child(4) {
+			width: 12%;
+		}
+
+		th:nth-child(5),
+		td:nth-child(5) {
+			width: 20%;
+		}
+
+		th:nth-child(6),
+		td:nth-child(6) {
+			width: 10%;
+		}
 	}
 
 	.bwt-segmented {
