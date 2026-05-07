@@ -2,6 +2,8 @@
 
 namespace OCA\Market\Tests\Unit;
 
+// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+
 use OCA\Market\HttpService;
 use OCA\Market\VersionHelper;
 use OCP\App\AppManagerException;
@@ -85,7 +87,7 @@ class MarketServiceTest extends TestCase {
 		$this->expectException(\Exception::class);
 		$this->expectExceptionMessage('Please enter a license-key in to config.php');
 
-		$this->versionHelper->method('compare')->willReturn('true');
+		$this->versionHelper->method('compare')->willReturn(true);
 		$this->appManager->method('getAllApps')->willReturn([]);
 		$this->appManager->method('canInstall')->willReturn(true);
 		$this->httpService->method('getApps')->willReturn(

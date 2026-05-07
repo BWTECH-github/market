@@ -178,7 +178,7 @@ class HttpService {
 		$hasInternetConnection = $this->config->getSystemValue('has_internet_connection', true);
 		if ($hasInternetConnection !== true) {
 			throw new AppManagerException(
-				$this->l10n->t('The Internet connection is disabled.')
+				(string) $this->l10n->t('The Internet connection is disabled.')
 			);
 		}
 	}

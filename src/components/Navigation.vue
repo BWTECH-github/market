@@ -18,6 +18,9 @@
 				li
 					router-link(:to="{ name: 'index' }") {{ t('Show all') }}
 				li
+					router-link(:to="{ name: 'InstalledApps' }") {{ t('Installed Apps') }}
+						span.uk-badge.uk-margin-small-left(v-if="localAppCount > 0") {{ localAppCount }}
+				li
 					router-link(:to="{ name: 'Bundles' }") {{ t('App Bundles') }}
 
 				li.uk-nav-header {{ t('Categories') }}
@@ -39,6 +42,8 @@
 </template>
 
 <script>
+	// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+
 	import Apiform from './ApiForm.vue'
 
 	export default {
@@ -79,6 +84,9 @@
 			},
 			updateList() {
 				return this.$store.getters.updateList
+			},
+			localAppCount() {
+				return this.$store.getters.localApplications.length
 			},
 			searchQuery() {
 				return this.$store.getters.searchQuery

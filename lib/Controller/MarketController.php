@@ -94,6 +94,12 @@ class MarketController extends Controller {
 	public function app(string $appId): array|DataResponse {
 		try {
 			$info = $this->marketService->getAppInfo($appId);
+			if ($info === null) {
+				return new DataResponse(
+					['message' => $this->l10n->t('App %s was not found in the marketplace catalog.', [$appId])],
+					Http::STATUS_NOT_FOUND
+				);
+			}
 			return $this->enrichApp($info);
 		} catch (Exception $ex) {
 			return new DataResponse(['message' => $ex->getMessage()], Http::STATUS_SERVICE_UNAVAILABLE);

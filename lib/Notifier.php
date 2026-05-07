@@ -90,7 +90,14 @@ class Notifier implements INotifier {
 	 * @return array<string, string>
 	 */
 	protected function getAppVersions(): array {
-		return \OC_App::getAppVersions();
+		$versions = [];
+		foreach ((array) $this->appManager->getAllApps() as $appId) {
+			$appInfo = $this->appManager->getAppInfo($appId);
+			if (\is_array($appInfo) && isset($appInfo['version'])) {
+				$versions[$appId] = (string) $appInfo['version'];
+			}
+		}
+		return $versions;
 	}
 
 	/**

@@ -21,6 +21,8 @@
 
 namespace OCA\Market\Tests\Unit;
 
+// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+
 use OCA\Market\HttpService;
 use OCA\Market\VersionHelper;
 use OCP\App\AppManagerException;
@@ -72,8 +74,13 @@ class HttpServiceTest extends TestCase {
 	 */
 	public function testCheckInternetConnection($connectionStatus, $expectedExceptionClass) {
 		$this->config->method('getSystemValue')
-			->with('has_internet_connection', true)
-			->willReturn($connectionStatus);
+			->willReturnCallback(
+				static fn (string $key, $default = null) => match ($key) {
+					'appstoreurl' => 'https://marketplace.example.test',
+					'has_internet_connection' => $connectionStatus,
+					default => $default,
+				}
+			);
 		if ($expectedExceptionClass !== '') {
 			$this->expectException($expectedExceptionClass);
 		}
@@ -92,11 +99,14 @@ class HttpServiceTest extends TestCase {
 		$this->config
 			->expects($this->any())
 			->method('getSystemValue')
-			->withConsecutive(
-				['has_internet_connection', true],
-				['marketplace.key', null],
-			)
-			->willReturnOnConsecutiveCalls(true, '');
+			->willReturnCallback(
+				static fn (string $key, $default = null) => match ($key) {
+					'appstoreurl' => 'https://marketplace.example.test',
+					'has_internet_connection' => true,
+					'marketplace.key' => '',
+					default => $default,
+				}
+			);
 
 		$clientMock = $this->getClientResponseMockForGet(\json_encode($expectedApps));
 		$this->httpClientService->method('newClient')->willReturn($clientMock);

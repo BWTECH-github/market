@@ -13,6 +13,8 @@
 </template>
 
 <script>
+	// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+
 	import Mixins from './mixins.js'
 	import Navigation from './components/Navigation.vue'
 
@@ -26,6 +28,7 @@
 		mounted () {
 			this.$store.dispatch('FETCH_CONFIG');
 			this.$store.dispatch('FETCH_APPLICATIONS');
+			this.$store.dispatch('FETCH_LOCAL_APPS');
 
 			this.$store.watch(
 				(state)  => {
