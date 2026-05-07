@@ -16,7 +16,9 @@
 						rating(:rating="application.rating")
 
 			.uk-card-media-top
-				img(:src="application.screenshots[0].url", :alt="application.title")
+				img(v-if="screenshot", :src="screenshot", :alt="application.name")
+				.bwt-detail-placeholder(v-else)
+					span {{ application.name }}
 
 			.uk-card-body
 				.article(v-html="markdown(application.description)")
@@ -37,8 +39,8 @@
 
 					tr
 						td
-							a(v-if="application.publisher.isPagePublic", :href="application.publisher.url", target="_blank") {{ application.publisher.name }}
-							span(v-else) {{ application.publisher.name }}
+							a(v-if="publisher.isPagePublic", :href="publisher.url", target="_blank") {{ publisher.name }}
+							span(v-else) {{ publisher.name }}
 
 						td {{ details.version }}
 
@@ -73,7 +75,7 @@
 				div(v-else)
 					// Install
 					div(v-if="!installed")
-						button.uk-button.uk-button-primary.uk-align-right.uk-margin-remove-bottom.uk-margin-small-left.uk-position-relative(:disabled="processing && !installable", @click="install")
+						button.uk-button.uk-button-primary.uk-align-right.uk-margin-remove-bottom.uk-margin-small-left.uk-position-relative(:disabled="processing || !installable", @click="install")
 							| {{ t('install') }}
 
 					// Uninstall
@@ -99,6 +101,8 @@
 
 </template>
 <script>
+
+	// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
 
 	import Mixins from '../mixins.js'
 	import Rating from './Rating.vue'
@@ -126,8 +130,19 @@
 			application() {
 				if (this.failed) {
 					return []
-				} else {
-					return this.$store.getters.application(this.$route.params.id)
+				}
+				return this.$store.getters.application(this.$route.params.id)
+			},
+			screenshot () {
+				const shots = this.application && this.application.screenshots;
+				return Array.isArray(shots) && shots.length ? shots[0].url : null;
+			},
+			publisher () {
+				const publisher = this.application && this.application.publisher;
+				return publisher || {
+					name: this.t('Unknown'),
+					url: '#',
+					isPagePublic: false
 				}
 			},
 			installed() {
@@ -152,8 +167,8 @@
 					return false
 				}
 				else {
-					if (this.application.releases)
-						return this.application.releases
+					if (this.application.release)
+						return this.application.release
 					return false
 				}
 			},
@@ -237,5 +252,18 @@
 	._multiupdate-dropdown {
 		padding-left: 10px;
 		padding-right: 10px;
+	}
+
+	.bwt-detail-placeholder {
+		min-height: 220px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: linear-gradient(135deg, var(--bwt-brand) 0%, var(--bwt-accent) 100%);
+		color: white;
+		font-size: 1.5rem;
+		font-weight: 600;
+		text-align: center;
+		padding: 2rem;
 	}
 </style>

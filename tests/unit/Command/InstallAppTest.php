@@ -21,6 +21,8 @@
 
 namespace OCA\Market\Tests\Unit\Command;
 
+// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+
 use OCA\Market\Command\InstallApp;
 use OCA\Market\MarketService;
 use OCA\Market\VersionHelper;
@@ -117,7 +119,7 @@ class InstallAppTest extends TestCase {
 		]);
 		$this->marketService->expects($withHigherVersion ? $this->once() : $this->never())->method('updatePackage');
 		$this->versionHelper->method('lessThanOrEqualTo')->willReturn(!$withHigherVersion);
-		$this->versionHelper->method('isSameMajorVersion')->willReturn('true');
+		$this->versionHelper->method('isSameMajorVersion')->willReturn(true);
 		$this->commandTester->execute([
 			'-l' => ['bla.tar.gz']
 		]);

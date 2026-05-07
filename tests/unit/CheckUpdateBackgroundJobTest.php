@@ -2,6 +2,8 @@
 
 namespace OCA\Market\Tests\Unit;
 
+// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+
 use OCA\Market\CheckUpdateBackgroundJob;
 use OCA\Market\MarketService;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -108,8 +110,7 @@ class CheckUpdateBackgroundJobTest extends TestCase {
 				->willReturn('meow');
 
 			$job->expects($this->once())
-				->method('createNotifications')
-				->willReturn(null);
+				->method('createNotifications');
 		} else {
 			$this->urlGenerator->expects($this->never())
 				->method('linkToRoute');

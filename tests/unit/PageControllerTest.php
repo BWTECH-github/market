@@ -2,6 +2,8 @@
 
 namespace OCA\Market\Tests\Unit;
 
+// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+
 use OCA\Market\Controller\PageController;
 use OCP\IRequest;
 use Test\TestCase;
@@ -26,6 +28,10 @@ class PageControllerTest extends TestCase {
 		$policy = new \OCP\AppFramework\Http\ContentSecurityPolicy();
 		$policy->addAllowedImageDomain('https://marketplace-storage.owncloud.com');
 		$policy->addAllowedImageDomain('https://marketplace-storage.staging.owncloud.services');
+		$policy->addAllowedImageDomain('https://owncloud.online');
+		$policy->addAllowedImageDomain('https://*.bw.tech');
+		$policy->addAllowedImageDomain('https://raw.githubusercontent.com');
+		$policy->addAllowedImageDomain('https://github.com');
 		$policy->addAllowedImageDomain('http://minio:9000');
 		$this->assertEquals($policy, $response->getContentSecurityPolicy());
 
@@ -38,6 +44,10 @@ class PageControllerTest extends TestCase {
 		$policy = new \OCP\AppFramework\Http\ContentSecurityPolicy();
 		$policy->addAllowedImageDomain('https://marketplace-storage.owncloud.com');
 		$policy->addAllowedImageDomain('https://marketplace-storage.staging.owncloud.services');
+		$policy->addAllowedImageDomain('https://owncloud.online');
+		$policy->addAllowedImageDomain('https://*.bw.tech');
+		$policy->addAllowedImageDomain('https://raw.githubusercontent.com');
+		$policy->addAllowedImageDomain('https://github.com');
 		$policy->addAllowedImageDomain('http://minio:9000');
 		$this->assertEquals($policy, $response->getContentSecurityPolicy());
 

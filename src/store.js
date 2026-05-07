@@ -3,6 +3,8 @@ import Vuex from "vuex";
 import Axios from "axios";
 import _ from "underscore";
 
+// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+
 Vue.use(Vuex);
 
 const state = {
@@ -19,6 +21,12 @@ const state = {
         loading: false,
         failed: false,
         records: {}
+    },
+
+    localApps: {
+        loading: false,
+        failed: false,
+        records: []
     },
 
     bundles: {
@@ -48,9 +56,12 @@ function matchesSearch (application, query) {
     }
     const needle = query.toLowerCase();
     const haystack = [
+        application.id,
         application.name,
         application.summary,
         application.description,
+        application.version,
+        application.author,
         Array.isArray(application.categories) ? application.categories.join(" ") : ""
     ].filter(Boolean).join(" ").toLowerCase();
     return haystack.indexOf(needle) !== -1;
@@ -93,6 +104,12 @@ const getters = {
 
     installedApplications (state) {
         return _.filter(state.applications.records, "installed");
+    },
+
+    localApplications (state) {
+        return state.localApps.records.filter(function (application) {
+            return matchesSearch(application, state.searchQuery);
+        });
     },
 
     applicationsByLicense: (state) => (license) => {
@@ -155,6 +172,34 @@ const mutations = {
 
     SET_APPLICATIONS (state, content) {
         _.extend(state["applications"], {
+            records: content
+        })
+    },
+
+    LOADING_LOCAL_APPS (state) {
+        _.extend(state["localApps"], {
+            loading: true,
+            failed: false
+        })
+    },
+
+    FAILED_LOCAL_APPS (state) {
+        _.extend(state["localApps"], {
+            loading: false,
+            failed: true,
+            records: []
+        })
+    },
+
+    FINISH_LOCAL_APPS (state) {
+        _.extend(state["localApps"], {
+            loading: false,
+            failed: false
+        })
+    },
+
+    SET_LOCAL_APPS (state, content) {
+        _.extend(state["localApps"], {
             records: content
         })
     },
@@ -318,6 +363,37 @@ const actions = {
                 UIkit.notification(error.response.data.message, {status:"danger", pos: "bottom-right"});
                 context.commit("FAILED_APPLICATIONS");
             });
+    },
+
+    FETCH_LOCAL_APPS (context) {
+        context.commit("LOADING_LOCAL_APPS");
+
+        return Promise.all([
+            Axios.get(OC.generateUrl("/apps/market/installed-apps/enabled")),
+            Axios.get(OC.generateUrl("/apps/market/installed-apps/disabled"))
+        ]).then((responses) => {
+            const records = {};
+            responses.forEach((response) => {
+                const apps = Array.isArray(response.data) ? response.data : [];
+                apps.forEach((app) => {
+                    if (app && app.id) {
+                        records[app.id] = app;
+                    }
+                });
+            });
+
+            const apps = _.values(records).sort(function (first, second) {
+                return String(first.name || first.id).localeCompare(String(second.name || second.id));
+            });
+
+            context.commit("SET_LOCAL_APPS", apps);
+            context.commit("FINISH_LOCAL_APPS");
+        }).catch((error) => {
+            const response = error && error.response ? error.response : {};
+            const data = response.data || {};
+            UIkit.notification(data.message || "Could not load installed apps.", {status:"danger", pos: "bottom-right"});
+            context.commit("FAILED_LOCAL_APPS");
+        });
     },
 
     REQUEST_LICENSE_KEY (context) {

@@ -43,10 +43,19 @@ class LocalAppsController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function index(string $state = 'enabled'): array {
-		$apps = \OC_App::listAllApps();
+		$apps = [];
+		foreach ($this->appManager->getAllApps() as $appId) {
+			$app = $this->appManager->getAppInfo($appId);
+			if (!\is_array($app) || empty($app['id'])) {
+				continue;
+			}
+			$app['active'] = $this->appManager->isEnabledForUser($appId);
+			$apps[] = $app;
+		}
+
 		$apps = \array_filter(
 			$apps,
-			static fn ($app): bool => $state === 'enabled' ? (bool) $app['active'] : !$app['active']
+			static fn ($app): bool => $state === 'enabled' ? (bool) $app['active'] : !(bool) $app['active']
 		);
 
 		return \array_values(\array_map(function ($app): array {

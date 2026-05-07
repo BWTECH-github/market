@@ -21,6 +21,8 @@
 
 namespace OCA\Market\Tests\Unit\Command;
 
+// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+
 use OCA\Market\Command\UpgradeApp;
 use OCA\Market\MarketService;
 use OCA\Market\VersionHelper;
@@ -160,7 +162,7 @@ class UpgradeAppTest extends TestCase {
 		$this->marketService->expects($this->any())->method('getAvailableUpdateVersions')->willReturn(
 			[ 'major' => false, 'minor' => '1.2.3']
 		);
-		$this->marketService->expects($this->any())->method('updateApp')->willReturn(true);
+		$this->marketService->expects($this->any())->method('updateApp');
 		$this->marketService->expects($this->once())->method('getUpdates')->willReturn(
 			[
 			'foo' => [

@@ -5,6 +5,8 @@ require('./styles/theme.scss');
 import UIkit from 'uikit';
 import Icons from 'uikit/dist/js/uikit-icons';
 
+// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
+
 UIkit.use(Icons);
 
 // ------------------------------------------------------------- Vue plugins ---
@@ -29,6 +31,7 @@ import Details     from './components/Details.vue'
 import List        from './components/List.vue'
 import BundlesList from './components/BundlesList.vue'
 import UpdateList  from './components/UpdateList.vue'
+import InstalledApps from './components/InstalledApps.vue'
 
 // Store
 import store from './store'
@@ -43,6 +46,10 @@ const routes = [
         path: '/by/category/:category',
         component: List,
         name: 'byCategory'
+    }, {
+        path: '/installed',
+        component: InstalledApps,
+        name: 'InstalledApps'
     }, {
         path: '/bundles',
         component: BundlesList,

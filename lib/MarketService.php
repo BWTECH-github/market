@@ -38,6 +38,9 @@ use OCP\App\AppUpdateNotFoundException;
 use OCP\App\IAppManager;
 use OCP\IConfig;
 use OCP\IL10N;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RuntimeException;
 
 class MarketService {
 	private ?array $apps = null;
@@ -57,10 +60,6 @@ class MarketService {
 	 * Check if we can install apps in general.
 	 */
 	public function canInstall(): bool {
-		if (!\method_exists($this->appManager, 'canInstall')) {
-			$appsFolder = \OC_App::getInstallPath();
-			return $appsFolder !== null && \is_writable($appsFolder) && \is_readable($appsFolder);
-		}
 		return $this->appManager->canInstall();
 	}
 
@@ -93,11 +92,16 @@ class MarketService {
 			throw new Exception("Installing apps is not supported because the app folder is not writable.");
 		}
 
+		$marketInfo = $this->getAppInfo($appId);
+		if ($marketInfo === null) {
+			throw new AppNotFoundException($this->l10n->t('Unknown app (%s)', [$appId]));
+		}
+
 		$platformVersion = $this->versionHelper->getPlatformVersion(2);
 
 		// Platform versions less than 10.5 don't require enterprise-key app
 		if ($this->versionHelper->compare($platformVersion, "10.5", "<")) {
-			$availableReleases = \array_column($this->getApps(), 'releases', 'id')[$appId];
+			$availableReleases = $marketInfo['releases'];
 			if (\array_shift($availableReleases)['license'] === 'ownCloud Commercial License') {
 				$license = $this->getLicenseKey();
 				if ($license === null) {
@@ -143,7 +147,7 @@ class MarketService {
 			throw new AppManagerException($this->l10n->t('Market app can not uninstall itself.'));
 		}
 
-		if (!\OC_App::removeApp($appId)) {
+		if (!$this->removeDownloadedApp($appId)) {
 			throw new AppManagerException($this->l10n->t('App (%s) could not be uninstalled. Please check the server logs.', [$appId]));
 		}
 	}
@@ -171,11 +175,11 @@ class MarketService {
 	/**
 	 * Install downloaded package.
 	 */
-	public function installPackage(string $package, bool $skipMigrations = false): string {
+	public function installPackage(string $package, bool $skipMigrations = false): string|false|null {
 		return $this->appManager->installApp($package, $skipMigrations);
 	}
 
-	public function updatePackage(string $package): string {
+	public function updatePackage(string $package): string|false|null {
 		return $this->appManager->updateApp($package);
 	}
 
@@ -444,5 +448,58 @@ class MarketService {
 		$path = \OC::$server->getTempManager()->getTemporaryFile($extension);
 		$this->httpService->downloadApp($downloadLink, $path);
 		return $path;
+	}
+
+	private function removeDownloadedApp(string $appId): bool {
+		$appPath = $this->appManager->getAppPath($appId);
+		if ($appPath === false) {
+			return false;
+		}
+
+		$realPath = \realpath($appPath);
+		if ($realPath === false || \basename($realPath) !== $appId || !\is_dir($realPath)) {
+			return false;
+		}
+		if (\is_dir($realPath . '/.git')) {
+			throw new AppAlreadyInstalledException("App <$appId> is a git clone - it will not be deleted.");
+		}
+
+		try {
+			if ($this->appManager->isEnabledForUser($appId)) {
+				$this->appManager->disableApp($appId);
+			}
+		} catch (Exception) {
+			// Continue with file removal; disabled or broken apps can still be removed.
+		}
+
+		$this->removeDirectory($realPath);
+		$this->appManager->clearAppsCache();
+		return !\file_exists($realPath);
+	}
+
+	private function removeDirectory(string $path): void {
+		if (!\is_dir($path)) {
+			throw new RuntimeException("Path <$path> is not a directory.");
+		}
+
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS),
+			RecursiveIteratorIterator::CHILD_FIRST
+		);
+		foreach ($iterator as $item) {
+			$itemPath = $item->getPathname();
+			if ($item->isDir() && !$item->isLink()) {
+				if (!@\rmdir($itemPath)) {
+					throw new RuntimeException("Could not remove directory <$itemPath>.");
+				}
+				continue;
+			}
+			if (!@\unlink($itemPath)) {
+				throw new RuntimeException("Could not remove file <$itemPath>.");
+			}
+		}
+		if (!@\rmdir($path)) {
+			throw new RuntimeException("Could not remove directory <$path>.");
+		}
 	}
 }

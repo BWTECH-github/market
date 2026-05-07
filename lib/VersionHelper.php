@@ -41,7 +41,10 @@ class VersionHelper {
 	/**
 	 * Check if both versions has the same major part
 	 */
-	public function isSameMajorVersion(string $first, string $second): bool {
+	public function isSameMajorVersion(?string $first, ?string $second): bool {
+		if ($first === null || $second === null) {
+			return false;
+		}
 		return $this->getMajorVersion($first) === $this->getMajorVersion($second);
 	}
 
