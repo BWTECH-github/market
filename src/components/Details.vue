@@ -268,6 +268,28 @@
 		overflow: hidden;
 	}
 
+	.bwt-detail__body {
+		padding: 1.75rem 2rem 1.5rem !important;
+	}
+
+	::v-deep .uk-card-footer {
+		padding: 1.25rem 2rem 1.5rem;
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+
+	@media (max-width: 640px) {
+		.bwt-detail__body {
+			padding: 1.25rem 1rem 1rem !important;
+		}
+
+		::v-deep .uk-card-footer {
+			padding: 1rem 1rem 1.25rem;
+		}
+	}
+
 	.bwt-detail__hero {
 		position: relative;
 		min-height: 280px;
@@ -318,7 +340,7 @@
 		font-weight: 700;
 		letter-spacing: 0;
 		margin: 0;
-		color: #ffffff;
+		color: #ffffff !important;
 		line-height: 1.12;
 		text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
 	}
@@ -338,10 +360,6 @@
 		background: rgba(255, 255, 255, 0.16);
 		color: #ffffff;
 		overflow-wrap: anywhere;
-	}
-
-	.bwt-detail__body {
-		padding-top: 1.75rem !important;
 	}
 
 	.article {
