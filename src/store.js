@@ -50,21 +50,26 @@ const state = {
 };
 
 // Apply the search filter to a list of applications.
+// Match only against id, name and summary so short queries like "log" do not
+// drag in every app that mentions "log" inside its long description.
 function matchesSearch (application, query) {
     if (!query) {
         return true;
     }
-    const needle = query.toLowerCase();
-    const haystack = [
-        application.id,
-        application.name,
-        application.summary,
-        application.description,
-        application.version,
-        application.author,
-        Array.isArray(application.categories) ? application.categories.join(" ") : ""
-    ].filter(Boolean).join(" ").toLowerCase();
-    return haystack.indexOf(needle) !== -1;
+    const needle = String(query).trim().toLowerCase();
+    if (!needle) {
+        return true;
+    }
+    const id = String(application.id || "").toLowerCase();
+    const name = String(application.name || "").toLowerCase();
+    const summary = String(application.summary || "").toLowerCase();
+    if (id.indexOf(needle) !== -1 || name.indexOf(needle) !== -1) {
+        return true;
+    }
+    if (needle.length >= 4 && summary.indexOf(needle) !== -1) {
+        return true;
+    }
+    return false;
 }
 
 // Retrieve computed values from state.
@@ -132,7 +137,7 @@ const getters = {
 
     updateList: (state) => {
         return _.filter(state.applications.records, function (application) {
-            return application.updateInfo !== false;
+            return application.updateInfo === true;
         });
     },
 
@@ -284,24 +289,47 @@ const mutations = {
 
 // Request content from the remote API.
 const actions = {
-    INVALIDATE_CACHE (context) {
-        Axios.post(OC.generateUrl("/apps/market/cache/invalidate"),
+    INVALIDATE_CACHE (context, options) {
+        const silent = options && options.silent === true;
+
+        return Axios.post(OC.generateUrl("/apps/market/cache/invalidate"),
             {}, {
                 headers: {
                     requesttoken: OC.requestToken
                 }
             }
         ).then((response) => {
-            UIkit.notification(response.data.message, {
-                status: "success",
-                pos: "bottom-right"
-            });
+            if (!silent) {
+                UIkit.notification(response.data.message, {
+                    status: "success",
+                    pos: "bottom-right"
+                });
+            }
 
-            context.dispatch("FETCH_APPLICATIONS")
+            return Promise.all([
+                context.dispatch("FETCH_APPLICATIONS"),
+                context.dispatch("FETCH_LOCAL_APPS")
+            ]);
 
         }).catch((error) => {
-            UIkit.notification(error.response.data.message, {status:"danger", pos: "bottom-right"});
+            const response = error && error.response ? error.response : {};
+            const data = response.data || {};
+
+            if (!silent) {
+                UIkit.notification(data.message || "Could not refresh the market cache.", {status:"danger", pos: "bottom-right"});
+            }
+
+            return Promise.reject(error);
         })
+    },
+
+    REFRESH_MARKET (context) {
+        return context.dispatch("INVALIDATE_CACHE", {silent: true}).catch(() => {
+            return Promise.all([
+                context.dispatch("FETCH_APPLICATIONS"),
+                context.dispatch("FETCH_LOCAL_APPS")
+            ]);
+        });
     },
 
     UPDATE_SEARCH (context, query) {
@@ -325,7 +353,7 @@ const actions = {
             }
         ).then((response) => {
 			if (!options.suppressRefetch) {
-				context.dispatch("FETCH_APPLICATIONS");
+				context.dispatch("REFRESH_MARKET");
 			}
 
 			if (!options.suppressNotifications) {
@@ -354,14 +382,17 @@ const actions = {
     FETCH_APPLICATIONS (context) {
         context.commit("LOADING_APPLICATIONS");
 
-        Axios.get(OC.generateUrl("/apps/market/apps"))
+        return Axios.get(OC.generateUrl("/apps/market/apps"))
             .then((response) => {
                 context.commit("SET_APPLICATIONS", response.data);
                 context.commit("FINISH_APPLICATIONS")
             })
             .catch((error) => {
-                UIkit.notification(error.response.data.message, {status:"danger", pos: "bottom-right"});
+                const response = error && error.response ? error.response : {};
+                const data = response.data || {};
+                UIkit.notification(data.message || "Could not load apps from the market.", {status:"danger", pos: "bottom-right"});
                 context.commit("FAILED_APPLICATIONS");
+                return Promise.reject(error);
             });
     },
 
@@ -434,7 +465,7 @@ const actions = {
                 });
             }
             else {
-				context.dispatch('FETCH_APPLICATIONS');
+				context.dispatch('REFRESH_MARKET');
             }
         };
 
@@ -525,7 +556,7 @@ const actions = {
             else {
                 context.commit("APIKEY", {"valid" : true });
                 context.dispatch("FETCH_APIKEY");
-                context.dispatch("FETCH_APPLICATIONS");
+                context.dispatch("REFRESH_MARKET");
                 context.dispatch("FETCH_CATEGORIES");
                 context.dispatch("FETCH_BUNDLES");
             }
