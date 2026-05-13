@@ -27,8 +27,7 @@
 		},
 		mounted () {
 			this.$store.dispatch('FETCH_CONFIG');
-			this.$store.dispatch('FETCH_APPLICATIONS');
-			this.$store.dispatch('FETCH_LOCAL_APPS');
+			this.$store.dispatch('REFRESH_MARKET');
 
 			this.$store.watch(
 				(state)  => {

@@ -9,12 +9,12 @@
 					div.bwt-detail__hero-meta
 						span.bwt-tile__category(v-if="application.categories && application.categories[0]")
 							span(uk-icon="icon: tag; ratio: 0.7")
-							| {{ application.categories[0] }}
+							| {{ primaryCategoryLabel }}
 						h1.bwt-detail__title {{ application.name }}
 						.bwt-detail__rating
 							rating(:rating="application.rating")
 
-			.uk-card-body
+			.uk-card-body.bwt-detail__body
 				.article(v-html="markdown(application.description)")
 
 				table.uk-table.uk-table-divider.uk-table-responsive.uk-table-justify(v-if="!processing && !loading")
@@ -48,6 +48,7 @@
 						strong {{ t('Version %{version} available', {version: update.version}) }}&nbsp;
 						span {{ t('published on ') }} {{ update.created | formatDate }}.&nbsp;
 						a(:href="application.marketplace", target="_blank") {{ t('Get more info') }}
+						.bwt-update-changelog(v-if="update.changelog", v-html="markdown(update.changelog)")
 						.uk-alert.uk-alert-danger(v-if="!update.canInstall")
 							ul(v-if="!update.canInstall").uk-list
 								li(v-for="dependency in update.missingDependencies")
@@ -139,6 +140,12 @@
 				}
 				return { backgroundImage: `url("${this.screenshot}")` }
 			},
+			primaryCategoryLabel () {
+				const categories = this.application && this.application.categories;
+				const id = Array.isArray(categories) && categories.length ? categories[0] : '';
+				const category = this.$store.getters.category(id) || { id };
+				return this.categoryLabel(category);
+			},
 			publisher () {
 				const publisher = this.application && this.application.publisher;
 				return publisher || {
@@ -228,6 +235,20 @@
 			setUpdateVersion (version) {
 				UIkit.dropdown('._multiupdate-uikit-element').hide();
 				this.updateVersion = parseInt(version);
+			},
+			categoryLabel (category) {
+				if (!category) {
+					return ''
+				}
+				if (category.translations) {
+					const locale = (typeof OC !== 'undefined' && OC.getLocale) ? OC.getLocale().slice(0, 2) : 'en';
+					const translated = category.translations[locale] || category.translations.en;
+					if (translated && translated.name) {
+						return translated.name;
+					}
+				}
+				const label = category.name || category.displayName || category.label || category.id || '';
+				return String(label).replace(/[-_]+/g, ' ');
 			}
 		}
 	}
@@ -249,20 +270,20 @@
 
 	.bwt-detail__hero {
 		position: relative;
-		min-height: 240px;
+		min-height: 280px;
 		background-size: cover;
 		background-position: center;
 	}
 
 	.bwt-detail__hero-overlay {
 		position: relative;
-		min-height: 240px;
-		padding: 1.25rem 1.5rem 1.5rem;
+		min-height: 280px;
+		padding: 1.6rem 2rem 1.8rem;
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
 		gap: 1rem;
-		background: linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.55) 100%);
+		background: linear-gradient(90deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.72) 56%, rgba(15, 23, 42, 0.42) 100%);
 		color: #ffffff;
 	}
 
@@ -288,15 +309,18 @@
 	.bwt-detail__hero-meta {
 		display: flex;
 		flex-direction: column;
-		gap: 0.4rem;
+		gap: 0.55rem;
+		max-width: 760px;
 	}
 
 	.bwt-detail__title {
-		font-size: 2rem;
+		font-size: 2.25rem;
 		font-weight: 700;
-		letter-spacing: -0.02em;
+		letter-spacing: 0;
 		margin: 0;
 		color: #ffffff;
+		line-height: 1.12;
+		text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
 	}
 
 	.bwt-detail__hero-meta .bwt-tile__category {
@@ -305,9 +329,65 @@
 		gap: 0.3rem;
 		font-size: 0.72rem;
 		text-transform: uppercase;
-		letter-spacing: 0.08em;
+		letter-spacing: 0;
 		font-weight: 600;
-		color: rgba(255, 255, 255, 0.85);
+		width: fit-content;
+		max-width: 100%;
+		padding: 0.25rem 0.55rem;
+		border-radius: var(--bwt-radius-pill);
+		background: rgba(255, 255, 255, 0.16);
+		color: #ffffff;
+		overflow-wrap: anywhere;
+	}
+
+	.bwt-detail__body {
+		padding-top: 1.75rem !important;
+	}
+
+	.article {
+		max-width: none;
+		font-size: 0.98rem;
+		line-height: 1.7;
+		color: var(--bwt-text);
+
+		::v-deep h2,
+		::v-deep h3,
+		::v-deep h4 {
+			margin: 1.6rem 0 0.75rem;
+			letter-spacing: 0;
+		}
+
+		::v-deep p,
+		::v-deep ul,
+		::v-deep ol {
+			margin-top: 0.75rem;
+			margin-bottom: 0.75rem;
+		}
+	}
+
+	.bwt-update-changelog {
+		margin-top: 0.65rem;
+		padding: 0.75rem 0.85rem;
+		background: rgba(255, 255, 255, 0.65);
+		border: 1px solid var(--bwt-border-soft);
+		border-radius: var(--bwt-radius-sm);
+		line-height: 1.55;
+	}
+
+	@media (max-width: 640px) {
+		.bwt-detail__hero,
+		.bwt-detail__hero-overlay {
+			min-height: 230px;
+		}
+
+		.bwt-detail__hero-overlay {
+			padding: 1.2rem;
+			background: linear-gradient(180deg, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.68) 100%);
+		}
+
+		.bwt-detail__title {
+			font-size: 1.65rem;
+		}
 	}
 
 	.bwt-detail__rating {

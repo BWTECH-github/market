@@ -4,7 +4,7 @@
 			input(
 				type="search",
 				:value="searchQuery",
-				:placeholder="t('Search apps…')",
+				:placeholder="t('Search apps...')",
 				:aria-label="t('Search apps')",
 				@input="onSearch"
 			)
@@ -20,14 +20,14 @@
 			li
 				router-link(:to="{ name: 'Bundles' }")
 					span {{ t('App Bundles') }}
-			li(v-if="updateList.length > 0")
+			li
 				router-link(:to="{ name: 'UpdateList' }")
 					span {{ t('Updates') }}
-					span.bwt-sidebar__count {{ updateList.length }}
+					span.bwt-sidebar__count(v-if="updateList.length > 0") {{ updateList.length }}
 
 			li.bwt-sidebar__section(v-if="!loading && !failed && categories.length") {{ t('Categories') }}
 
-			li(v-for="category in categories")
+			li(v-for="category in categories", :key="category.id")
 				router-link(:to="{ name: 'byCategory', params: { category: category.id }}")
 					span {{ categoryLabel(category) }}
 
@@ -60,12 +60,27 @@
 				this.$store.dispatch('UPDATE_SEARCH', event.target.value);
 			},
 			categoryLabel (category) {
-				if (!category || !category.translations) {
+				if (!category) {
 					return ''
 				}
-				const locale = (typeof OC !== 'undefined' && OC.getLocale) ? OC.getLocale().slice(0, 2) : 'en';
-				const t = category.translations[locale] || category.translations.en;
-				return (t && t.name) ? t.name : category.id;
+				if (category.translations) {
+					const locale = (typeof OC !== 'undefined' && OC.getLocale) ? OC.getLocale().slice(0, 2) : 'en';
+					const translated = category.translations[locale] || category.translations.en;
+					if (translated && translated.name) {
+						return translated.name;
+					}
+				}
+				return category.name || category.displayName || category.label || this.formatCategory(category.id);
+			},
+			formatCategory (id) {
+				if (!id) {
+					return ''
+				}
+				return String(id)
+					.replace(/[-_]+/g, ' ')
+					.replace(/\b\w/g, function (character) {
+						return character.toUpperCase();
+					});
 			}
 		},
 		computed: {
@@ -79,7 +94,8 @@
 				if (this.loading || this.failed) {
 					return []
 				}
-				return this.$store.state.categories.records
+				const records = this.$store.state.categories.records || []
+				return Array.isArray(records) ? records : Object.keys(records).map((key) => records[key])
 			},
 			updateList() {
 				return this.$store.getters.updateList
