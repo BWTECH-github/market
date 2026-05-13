@@ -171,7 +171,7 @@
 	overflow: visible;
 }
 
-.bwt-shell__main > div > .uk-card-default:not(.bwt-tile) {
+.bwt-shell__main > div > .uk-card-default:not(.bwt-tile):not(.bwt-detail) {
 	width: 100%;
 	background: transparent;
 	border: 0;
