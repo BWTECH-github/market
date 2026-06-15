@@ -545,18 +545,18 @@
 	text-transform: uppercase;
 
 	&--installed {
-		background: rgba(22, 163, 74, 0.14);
-		color: #15803d;
+		background: #dcfce7;
+		color: #166534;
 	}
 
 	&--update {
-		background: rgba(217, 119, 6, 0.16);
-		color: #b45309;
+		background: #fef3c7;
+		color: #92400e;
 	}
 
 	&--disabled {
-		background: rgba(100, 116, 139, 0.16);
-		color: var(--bwt-muted);
+		background: #e2e8f0;
+		color: #475569;
 	}
 }
 

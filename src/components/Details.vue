@@ -43,7 +43,7 @@
 						td {{ license }}
 
 				.uk-alert-primary(v-if="updateable && !processing && !loading", uk-alert)
-					a.uk-alert-close.uk-close
+					button.uk-alert-close(type="button", uk-close, :aria-label="t('Close')")
 					div(v-for="update in releases")
 						strong {{ t('Version %{version} available', {version: update.version}) }}&nbsp;
 						span {{ t('published on ') }} {{ update.created | formatDate }}.&nbsp;
@@ -83,7 +83,7 @@
 						button.uk-button.uk-button-primary._multiupdate-button(:disabled="processing", @click="update")
 							| {{ t('Update to') }} {{ releases[updateVersion].version }}
 						.uk-inline
-							button.uk-button.uk-button-primary._multiupdate-dropdown(:disabled="processing")
+							button.uk-button.uk-button-primary._multiupdate-dropdown(:disabled="processing", :aria-label="t('Choose version')", aria-haspopup="true")
 								span(uk-icon='icon:  triangle-down')
 							div(uk-dropdown='mode: click; boundary: ! .uk-button-group; boundary-align: true; pos: top-center;')._multiupdate-uikit-element
 								ul.uk-nav.uk-dropdown-nav
