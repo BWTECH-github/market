@@ -107,6 +107,12 @@
 <style lang="scss" scoped>
 	@import "../styles/variables-theme";
 
+	// AA-Kontrast: UIkit-Standardrot (#f0506e) erreicht nur 3,46:1 auf Weiss.
+	// Dunkleres Rot erzwingen (>=4,5:1 fuer Normaltext).
+	.uk-text-danger {
+		color: var(--bwt-danger) !important;
+	}
+
 	.uk-table td {
 		vertical-align: top;
 	}
