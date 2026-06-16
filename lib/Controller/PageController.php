@@ -50,6 +50,9 @@ class PageController extends Controller {
 		$policy->addAllowedImageDomain('https://marketplace-storage.staging.owncloud.services');
 		// BW-Tech: allow images served alongside a static catalog from owncloud.online or GitHub
 		$policy->addAllowedImageDomain('https://owncloud.online');
+		// BW-Tech: owncloud.online marketplace serves app icons + screenshots under
+		// marketplace.owncloud.online (covers any owncloud.online subdomain)
+		$policy->addAllowedImageDomain('https://*.owncloud.online');
 		$policy->addAllowedImageDomain('https://*.bw.tech');
 		$policy->addAllowedImageDomain('https://raw.githubusercontent.com');
 		$policy->addAllowedImageDomain('https://github.com');
