@@ -183,7 +183,9 @@
 		appearance: none;
 		border: 0;
 		background: transparent;
-		color: var(--bwt-muted);
+		// WCAG 1.4.3: --bwt-muted (#64748b) auf --bwt-bg (#f6f7fb) ergibt nur 4,45:1.
+		// Slate-600 (#475569) hebt den inaktiven Tab-Text auf >=4,5:1 an.
+		color: #475569;
 		padding: 0.35rem 0.85rem;
 		font-size: 0.85rem;
 		font-weight: 500;

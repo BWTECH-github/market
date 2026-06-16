@@ -2,11 +2,17 @@
 	transition(name="fade")
 		li(v-if="application").bwt-app-grid__item.uk-animation-slide-top-small
 			.uk-card.uk-card-default.bwt-tile
+				//- WCAG 2.4.4/4.1.2: Die Media-Flaeche verlinkt auf dasselbe Detail-Ziel
+				//- wie der Titel darunter. Um doppelte Tab-Stops und redundante
+				//- Screenreader-Ausgaben zu vermeiden, wird dieser Link aus dem Tab-Flow
+				//- genommen und fuer assistive Technik versteckt; der Titel-Link bleibt
+				//- der einzige zugaengliche Einstieg.
 				router-link.bwt-tile__media(
 					:to="{ name: 'details', params: { id: application.id }}",
 					:style="mediaStyle",
 					:class="{ 'bwt-tile__media--placeholder': !screenshot }",
-					:aria-label="application.name"
+					tabindex="-1",
+					aria-hidden="true"
 				)
 					span.bwt-tile__initial(v-if="!screenshot") {{ initial }}
 				.bwt-tile__body

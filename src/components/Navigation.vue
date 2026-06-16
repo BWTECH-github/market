@@ -36,7 +36,10 @@
 			apiform
 
 			li
-				a(href="", @click.prevent="invalidateCache")
+				//- WCAG 4.1.2: leeres href="" zeigt auf die aktuelle URL und kann bei
+				//- ausbleibendem preventDefault einen Reload ausloesen. href="#" + @click.prevent
+				//- haelt die vorhandene Sidebar-Link-Optik, ohne ein gueltiges Ziel vorzutaeuschen.
+				a(href="#", @click.prevent="invalidateCache")
 					span {{ t('Clear cache') }}
 </template>
 

@@ -23,8 +23,9 @@
 									span {{ (application.release) ? application.release.version : application.installInfo.version }}
 								td
 									span.bwt-badge.bwt-badge--installed(v-if="isInstalled(application.id) || application.installed") {{ t('installed') }}
-									span(v-else-if="isProcessing(application.id)", :title="t('installing')" uk-tooltip)
-										span(uk-spinner, uk-icon="icon: spinner; ratio: 0.8")
+									span(v-else-if="isProcessing(application.id)", role="status", :title="t('installing')" uk-tooltip)
+										span(uk-spinner, uk-icon="icon: spinner; ratio: 0.8", aria-hidden="true")
+										span.uk-hidden-visually {{ t('installing') }}
 				.uk-card-footer
 					button(v-if="bundle.downloadable && installableApps.length > 0", @click="install").uk-button.uk-button-primary {{ t('install bundle') }}
 					a(v-else-if="!bundle.downloadable && installableApps.length === 0", :href="bundle.marketplace", target="_blank").uk-button.uk-button-default {{ t('view in marketplace') }}

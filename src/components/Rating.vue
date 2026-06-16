@@ -1,11 +1,19 @@
 <template lang="pug">
-	ul.uk-padding-remove.uk-margin-remove.uk-inline-block(uk-tooltip, :title="overall | rating")
-		li(v-for="n in stars").uk-inline-block
+	ul.uk-padding-remove.uk-margin-remove.uk-inline-block(
+		uk-tooltip,
+		:title="ratingLabel",
+		role="img",
+		:aria-label="ratingLabel"
+	)
+		li(v-for="n in stars", aria-hidden="true").uk-inline-block
 			span(:class="(n <= overall) ? '-on' : '-off'", uk-icon="icon: star; ratio: 0.8").star
 </template>
 
 <script>
+	import Mixins from '../mixins';
+
 	export default {
+		mixins: [Mixins],
 		props: [
 			'rating'
 		],
@@ -17,9 +25,14 @@
 				stars: 5
 			}
 		},
-		filters: {
-			rating (float) {
-				return "&Oslash " + (Math.round(float * 100) / 100) + " stars"
+		computed: {
+			// WCAG 1.1.1 / 4.1.2: Die Bewertung steckte nur im Tooltip eines nicht
+			// fokussierbaren <ul>. Eine echte Textalternative (role=img + aria-label)
+			// macht den Wert fuer Screenreader/Tastatur zugaenglich. Die fruehere,
+			// kaputte Entity "&Oslash " (ohne Semikolon) entfaellt.
+			ratingLabel () {
+				const value = Math.round(this.overall * 100) / 100;
+				return this.t('Rated %{n} of 5 stars', { n: value });
 			}
 		}
 	}
