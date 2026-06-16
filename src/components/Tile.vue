@@ -2,34 +2,31 @@
 	transition(name="fade")
 		li(v-if="application").bwt-app-grid__item.uk-animation-slide-top-small
 			.uk-card.uk-card-default.bwt-tile
-				//- WCAG 2.4.4/4.1.2: Die Media-Flaeche verlinkt auf dasselbe Detail-Ziel
-				//- wie der Titel darunter. Um doppelte Tab-Stops und redundante
-				//- Screenreader-Ausgaben zu vermeiden, wird dieser Link aus dem Tab-Flow
-				//- genommen und fuer assistive Technik versteckt; der Titel-Link bleibt
-				//- der einzige zugaengliche Einstieg.
-				router-link.bwt-tile__media(
+				//- WCAG 2.4.4/4.1.2: Voll-Karten-Overlay-Link aus dem Tab-Flow genommen;
+				//- der Titel-Link bleibt der einzige zugaengliche Einstieg.
+				router-link.bwt-tile__overlay(
 					:to="{ name: 'details', params: { id: application.id }}",
-					:style="mediaStyle",
-					:class="{ 'bwt-tile__media--placeholder': !screenshot }",
 					tabindex="-1",
 					aria-hidden="true"
 				)
-					span.bwt-tile__initial(v-if="!screenshot") {{ initial }}
-				.bwt-tile__body
+				span.bwt-tile__icon(aria-hidden="true")
+					span.bwt-tile__icon-fallback {{ initial }}
+					img(v-if="iconUrl", :src="iconUrl", alt="", loading="lazy")
+				.bwt-tile__content
+					.bwt-tile__labels
+						span.bwt-tile__label(v-if="primaryCategory") {{ primaryCategoryLabel }}
+						span.bwt-tile__label.bwt-tile__label--installed(v-if="application.installed && !application.updateInfo") {{ t('Installed') }}
+						span.bwt-tile__label.bwt-tile__label--update(v-if="application.updateInfo") {{ t('Update') }}
+
 					h3.bwt-tile__title
 						router-link(:to="{ name: 'details', params: { id: application.id }}") {{ application.name }}
 
 					p.bwt-tile__summary(v-if="application.summary || application.description") {{ truncatedSummary }}
 
 					.bwt-tile__footer
-						span.bwt-tile__category(v-if="primaryCategory")
-							span(uk-icon="icon: tag; ratio: 0.7")
-							| {{ primaryCategoryLabel }}
-						span.bwt-tile__category(v-else) &nbsp;
-
-						span.bwt-badge.bwt-badge--update(v-if="application.updateInfo") {{ t('Update') }}
-						span.bwt-badge.bwt-badge--installed(v-else-if="application.installed") {{ t('Installed') }}
-						rating(v-else, :rating="application.rating")
+						rating(v-if="application.rating", :rating="application.rating")
+						span(v-else) &nbsp;
+						strong.bwt-tile__details {{ t('Details') }} →
 </template>
 
 <script>
@@ -45,30 +42,15 @@
 			'application'
 		],
 		computed: {
-			screenshot () {
-				const shots = this.application && this.application.screenshots;
-				return Array.isArray(shots) && shots.length ? shots[0].url : null;
-			},
-			mediaStyle () {
-				if (!this.screenshot) {
-					return { background: this.placeholderGradient }
-				}
-				return { backgroundImage: `url("${this.screenshot}")` }
+			iconUrl () {
+				// Small marketplace app icon (shown in the compact list, storefront style)
+				return (this.application && this.application.icon) ? this.application.icon : null;
 			},
 			initial () {
-				const source = this.application && (this.application.name || this.application.id) || '';
-				return String(source).trim().charAt(0).toUpperCase() || '?';
-			},
-			placeholderGradient () {
-				// Deterministic per-app hue so the placeholders are not all the same blue.
-				const source = this.application && (this.application.id || this.application.name) || '';
-				let hash = 0;
-				for (let i = 0; i < source.length; i++) {
-					hash = (hash * 31 + source.charCodeAt(i)) | 0;
-				}
-				const hue = Math.abs(hash) % 360;
-				const hueB = (hue + 45) % 360;
-				return `linear-gradient(135deg, hsl(${hue}, 60%, 52%) 0%, hsl(${hueB}, 65%, 42%) 100%)`;
+				// Up to two initials (storefront style)
+				const source = String((this.application && (this.application.name || this.application.id)) || '').trim();
+				const ini = source.split(/\s+/).slice(0, 2).map(w => w.charAt(0)).join('').toUpperCase();
+				return ini || '?';
 			},
 			primaryCategory () {
 				const cats = this.application && this.application.categories;
@@ -81,7 +63,7 @@
 			truncatedSummary () {
 				const text = this.application.summary || this.application.description || '';
 				const stripped = String(text).replace(/[#*_`]/g, '').trim();
-				return stripped.length > 140 ? stripped.slice(0, 137) + '...' : stripped;
+				return stripped.length > 130 ? stripped.slice(0, 127) + '...' : stripped;
 			}
 		},
 		methods: {
@@ -106,7 +88,7 @@
 <style lang="scss" scoped>
 	@import "../styles/variables-theme";
 
-	.bwt-tile__category {
+	.bwt-tile__label {
 		text-transform: capitalize;
 	}
 </style>
