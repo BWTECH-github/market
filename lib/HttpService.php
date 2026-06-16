@@ -48,9 +48,16 @@ class HttpService {
 
 	/**
 	 * Sentinel value for `appstoreurl` which forces the bundled local catalog
-	 * shipped at `<plugin>/marketplace/`. This is the BW-Tech fork default.
+	 * shipped at `<plugin>/marketplace/`.
 	 */
 	public const LOCAL_CATALOG_MARKER = 'local';
+
+	/**
+	 * Default marketplace endpoint when no `appstoreurl` is configured, so a fresh
+	 * owncloud.online install connects to the public marketplace out of the box.
+	 * Set `appstoreurl` to 'local' (or a file:// path) to use the bundled offline catalog.
+	 */
+	public const DEFAULT_STORE_URL = 'https://marketplace.owncloud.online';
 
 	/** @var array<string, string> */
 	private array $urlConfig = [
@@ -256,7 +263,7 @@ class HttpService {
 	}
 
 	private function getAbsoluteUrl(string $relativeUrl): string {
-		$storeUrl = $this->config->getSystemValue('appstoreurl', self::LOCAL_CATALOG_MARKER);
+		$storeUrl = $this->config->getSystemValue('appstoreurl', self::DEFAULT_STORE_URL);
 		return \rtrim($storeUrl, '/') . $relativeUrl;
 	}
 
@@ -265,12 +272,12 @@ class HttpService {
 	 * (default `local`) or when the URL points at a `file://` location.
 	 */
 	private function isLocalCatalog(): bool {
-		$url = $this->config->getSystemValue('appstoreurl', self::LOCAL_CATALOG_MARKER);
+		$url = $this->config->getSystemValue('appstoreurl', self::DEFAULT_STORE_URL);
 		return $url === self::LOCAL_CATALOG_MARKER || \str_starts_with((string) $url, 'file://');
 	}
 
 	private function getLocalCatalogPath(): string {
-		$url = (string) $this->config->getSystemValue('appstoreurl', self::LOCAL_CATALOG_MARKER);
+		$url = (string) $this->config->getSystemValue('appstoreurl', self::DEFAULT_STORE_URL);
 		if (\str_starts_with($url, 'file://')) {
 			return \rtrim(\substr($url, 7), '/');
 		}
