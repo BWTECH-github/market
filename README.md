@@ -66,7 +66,7 @@ $CONFIG = [
     'appstoreurl' => 'file:///srv/owncloud-catalog',
 
     // (3) remote HTTPS marketplace (classic mode)
-    // 'appstoreurl' => 'https://market.owncloud.online',
+    // 'appstoreurl' => 'https://marketplace.owncloud.online',
     // 'marketplace.key' => 'your-api-key',
     // 'marketplace.ca' => '/etc/ssl/custom-ca.pem',
 
