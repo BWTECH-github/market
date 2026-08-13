@@ -40,7 +40,7 @@
     "sass-loader": "^13.3.2",
     "showdown": "^2.1.0",
     "style-loader": "^3.3.3",
-    "uglify-js": "3.17.4",
+    "uglify-js": "3.19.3",
     "uikit": "3.24.2",
     "underscore": "1.13.6",
     "vue": "2.5.21",
