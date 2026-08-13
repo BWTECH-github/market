@@ -40,7 +40,7 @@ This is a community fork maintained by **BW-Tech GmbH** for
 
 ```bash
 cd /var/www/owncloud/apps
-git clone https://github.com/BWTECH-github/owncloud.online.git market
+git clone https://github.com/BWTECH-github/market.git
 cd market
 composer install --no-dev
 sudo chown -R www-data:www-data .
@@ -48,7 +48,7 @@ sudo -u www-data php /var/www/owncloud/occ app:enable market
 ```
 
 If you prefer the prebuilt artifact, download the latest release archive from
-the [Releases page](https://github.com/BWTECH-github/owncloud.online/releases)
+the [Releases page](https://github.com/BWTECH-github/market/releases)
 and extract it into `apps/market/`.
 
 ## Configuration
