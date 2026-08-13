@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.10.7] - 2026-08-13
+
+### Fixed
+
+- Beschriftung der Knoepfe bricht in der schmalen Aktionsspalte der App-Liste
+  nicht mehr mitten im Wort um.
+
 ## [0.10.6] - 2026-08-13
 
 ### Changed
