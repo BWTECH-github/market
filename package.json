@@ -27,7 +27,7 @@
     "core-js": "^3.33.1",
     "jquery": "3.6.0",
     "showdown": "^2.1.0",
-    "uikit": "3.24.2",
+    "uikit": "3.25.21",
     "underscore": "^1.13.8",
     "vue": "2.5.21",
     "vue-gettext": "2.1.12",
