@@ -56,7 +56,7 @@
     "sass": "^1.69.0",
     "sass-loader": "^13.3.2",
     "scss-tokenizer": "0.4.3",
-    "set-value": "2.0.1",
+    "set-value": "4.1.0",
     "style-loader": "^3.3.3",
     "uglify-js": "3.17.4",
     "vue-loader": "^15.11.1",
