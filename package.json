@@ -54,7 +54,7 @@
     "minimist": "1.2.8",
     "pug": "3.0.3",
     "sass": "^1.69.0",
-    "sass-loader": "^13.3.2",
+    "sass-loader": "^17.0.1",
     "scss-tokenizer": "0.4.3",
     "set-value": "2.0.1",
     "style-loader": "^3.3.3",
