@@ -645,6 +645,15 @@
 	z-index: 3100;
 }
 
+// Aufklapper (Fassungswahl im Aktualisieren-Menü) und Hinweisblasen
+// (Bewertung, Installationsanzeige) hängt UIkit ebenfalls an <body>; mit
+// 1020/1030 lagen sie auf Telefonen unter der Reiterleiste. Über dem Dialog,
+// damit ein Aufklapper in einem Dialog nicht dahinter verschwindet.
+.uk-dropdown,
+.uk-tooltip {
+	z-index: 3150;
+}
+
 .uk-notification {
 	z-index: 3350;
 }

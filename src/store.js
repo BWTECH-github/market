@@ -668,6 +668,9 @@ const actions = {
                     .appendTo($liste);
             });
             $liste.append($extras);
+        }).catch(() => {
+            // Seitenleiste bleibt dann, wie sie ist; beim nächsten
+            // Seitenaufruf baut der Kern sie ohnehin neu.
         })
     }
 };

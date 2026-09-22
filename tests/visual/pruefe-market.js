@@ -230,6 +230,18 @@ function obenauf(seite, wahl, punkte) {
 	});
 	pruefe('400 px: Meldung über der Reiterleiste', !!lage && lage.unten <= lage.leiste, JSON.stringify(lage));
 	pruefe('400 px: Meldung obenauf', await obenauf(t, '.uk-notification-message') === true);
+	const ebenen = await t.evaluate(() => {
+		const leiste = parseInt(getComputedStyle(document.querySelector('.oco-tabbar')).zIndex, 10);
+		return ['uk-dropdown', 'uk-tooltip', 'uk-modal'].map((k) => {
+			const e = document.createElement('div');
+			e.className = k;
+			document.body.appendChild(e);
+			const z = parseInt(getComputedStyle(e).zIndex, 10);
+			e.remove();
+			return { k, z, ueber: z > leiste };
+		});
+	});
+	pruefe('400 px: Aufklapper, Hinweisblasen und Dialoge über der Reiterleiste', ebenen.every((e) => e.ueber), JSON.stringify(ebenen));
 	await t.waitForTimeout(5500);
 	await t.locator('#market-app .bwt-shell__sidebar a:has-text("API")').first().scrollIntoViewIfNeeded();
 	await t.locator('#market-app .bwt-shell__sidebar a:has-text("API")').first().click();

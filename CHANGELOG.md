@@ -16,9 +16,9 @@ Redesign-Linie (owncloud.online 11.1). Für 11.0 gilt weiter der Zweig `main`.
   ihre Symbole. Jetzt wird nur die Gruppe „Menü“ nachgeführt; Start und
   Dateien bleiben unberührt, Theming bleibt hinten stehen.
 - Meldungen des Marktes (auch „Installation fehlgeschlagen“) lagen auf
-  schmalen Fenstern unter der Reiterleiste, Dialoge unter ihr und der
-  Seitenleiste. Stapelhöhen an die Schale angepasst, Meldungen unten stehen
-  über der Reiterleiste.
+  schmalen Fenstern unter der Reiterleiste, Dialoge, Aufklapper und
+  Hinweisblasen unter ihr und der Seitenleiste. Stapelhöhen an die Schale
+  angepasst, Meldungen unten stehen über der Reiterleiste.
 - App-Bundles: Ohne Bundles blieb die Seite völlig leer – der Leerhinweis hing
   an einer Bedingung, die für eine leere Liste nie zutraf. Jetzt mit Kopf und
   „Keine Bundles“.
@@ -32,7 +32,7 @@ Redesign-Linie (owncloud.online 11.1). Für 11.0 gilt weiter der Zweig `main`.
 
 ### Added
 
-- `tests/visual/pruefe-market.js` (22 Prüfungen in 1440 und 400 px).
+- `tests/visual/pruefe-market.js` (23 Prüfungen in 1440 und 400 px).
 
 ## [0.10.8] - 2026-08-13
 
