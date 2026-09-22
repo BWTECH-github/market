@@ -53,6 +53,25 @@ class HttpServiceTest extends TestCase {
 	/** @var HttpService */
 	private $httpService;
 
+	/** @var string[] */
+	private $createdPaths = [];
+
+	protected function tearDown(): void {
+		foreach (\array_reverse($this->createdPaths) as $path) {
+			if (\is_file($path)) {
+				@\unlink($path);
+			} elseif (\is_dir($path)) {
+				foreach ((array)\glob($path . '/*') as $file) {
+					@\unlink($file);
+				}
+				@\rmdir($path);
+				@\rmdir(\dirname($path));
+			}
+		}
+		$this->createdPaths = [];
+		parent::tearDown();
+	}
+
 	protected function setUp(): void {
 		parent::setUp();
 		$this->httpClientService = $this->createMock(IClientService::class);
@@ -112,6 +131,117 @@ class HttpServiceTest extends TestCase {
 		$this->httpClientService->method('newClient')->willReturn($clientMock);
 		$apps = $this->httpService->getApps();
 		$this->assertEquals($expectedApps, $apps);
+	}
+
+	// -----------------------------------------------------------------------
+	// downloadApp: die Adresse steht im Katalog, stammt also von der
+	// Gegenstelle. Ein lokaler Pfad darf daraus nur im lokalen Katalogbetrieb
+	// werden - und nur auf eine Datei im Katalogverzeichnis. Sonst koennte ein
+	// Marktplatz mit 'file:///.../config.php' eine beliebige lokale Datei in
+	// den App-Installer schieben, statt ein Paket zu liefern.
+	// -----------------------------------------------------------------------
+
+	public function testRemoteCatalogRefusesAFileUrlFromTheCatalog() {
+		$this->givenAppstoreUrl('https://marketplace.example.test');
+
+		$this->httpClientService->expects($this->never())->method('newClient');
+		$this->expectException(AppManagerException::class);
+
+		$this->httpService->downloadApp('file:///etc/passwd', $this->targetPath());
+	}
+
+	public function testRemoteCatalogRefusesABarePathFromTheCatalog() {
+		$this->givenAppstoreUrl('https://marketplace.example.test');
+
+		$this->httpClientService->expects($this->never())->method('newClient');
+		$this->expectException(AppManagerException::class);
+
+		$this->httpService->downloadApp('/etc/passwd', $this->targetPath());
+	}
+
+	public function testRemoteCatalogRefusesASchemeThatMerelyStartsWithHttp() {
+		// 'httpfoo://' beginnt mit 'http' - eine Pruefung auf das Praefix
+		// allein liesse es durch.
+		$this->givenAppstoreUrl('https://marketplace.example.test');
+
+		$this->httpClientService->expects($this->never())->method('newClient');
+		$this->expectException(AppManagerException::class);
+
+		$this->httpService->downloadApp('httpfoo://example.test/app.tar.gz', $this->targetPath());
+	}
+
+	public function testLocalCatalogCopiesAnArchiveFromTheCatalogDirectory() {
+		$catalog = $this->givenLocalCatalog();
+		\file_put_contents($catalog . '/app.tar.gz', 'payload');
+		$target = $this->targetPath();
+
+		$this->httpService->downloadApp('app.tar.gz', $target);
+
+		$this->assertSame('payload', \file_get_contents($target));
+	}
+
+	public function testLocalCatalogAcceptsAFileUrlInsideTheCatalogDirectory() {
+		$catalog = $this->givenLocalCatalog();
+		\file_put_contents($catalog . '/app.tar.gz', 'payload');
+		$target = $this->targetPath();
+
+		$this->httpService->downloadApp('file://' . $catalog . '/app.tar.gz', $target);
+
+		$this->assertSame('payload', \file_get_contents($target));
+	}
+
+	public function testLocalCatalogRefusesATraversalOutOfTheCatalogDirectory() {
+		$catalog = $this->givenLocalCatalog();
+		$outside = \dirname($catalog) . '/secret.txt';
+		\file_put_contents($outside, 'secret');
+
+		$this->expectException(AppManagerException::class);
+		try {
+			$this->httpService->downloadApp('../secret.txt', $this->targetPath());
+		} finally {
+			@\unlink($outside);
+		}
+	}
+
+	public function testLocalCatalogRefusesAnAbsolutePathOutsideTheCatalogDirectory() {
+		$this->givenLocalCatalog();
+
+		$this->expectException(AppManagerException::class);
+		$this->httpService->downloadApp('/etc/passwd', $this->targetPath());
+	}
+
+	public function testLocalCatalogRefusesAFileUrlOutsideTheCatalogDirectory() {
+		$this->givenLocalCatalog();
+
+		$this->expectException(AppManagerException::class);
+		$this->httpService->downloadApp('file:///etc/passwd', $this->targetPath());
+	}
+
+	private function givenAppstoreUrl(string $url): void {
+		$this->config->method('getSystemValue')
+			->willReturnCallback(
+				static fn (string $key, $default = null) => match ($key) {
+					'appstoreurl' => $url,
+					default => $default,
+				}
+			);
+		$this->l10n->method('t')->willReturnArgument(0);
+	}
+
+	private function givenLocalCatalog(): string {
+		$catalog = \sys_get_temp_dir() . '/market-catalog-' . \uniqid('', true) . '/catalog';
+		\mkdir($catalog, 0o700, true);
+		$this->createdPaths[] = $catalog;
+		$this->givenAppstoreUrl('file://' . $catalog);
+
+		return $catalog;
+	}
+
+	private function targetPath(): string {
+		$path = \sys_get_temp_dir() . '/market-target-' . \uniqid('', true);
+		$this->createdPaths[] = $path;
+
+		return $path;
 	}
 
 	private function getClientResponseMockForGet($body) {

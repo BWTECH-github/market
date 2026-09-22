@@ -29,6 +29,7 @@ class PageControllerTest extends TestCase {
 		$policy->addAllowedImageDomain('https://marketplace-storage.owncloud.com');
 		$policy->addAllowedImageDomain('https://marketplace-storage.staging.owncloud.services');
 		$policy->addAllowedImageDomain('https://owncloud.online');
+		$policy->addAllowedImageDomain('https://*.owncloud.online');
 		$policy->addAllowedImageDomain('https://*.bw.tech');
 		$policy->addAllowedImageDomain('https://raw.githubusercontent.com');
 		$policy->addAllowedImageDomain('https://github.com');
@@ -45,6 +46,7 @@ class PageControllerTest extends TestCase {
 		$policy->addAllowedImageDomain('https://marketplace-storage.owncloud.com');
 		$policy->addAllowedImageDomain('https://marketplace-storage.staging.owncloud.services');
 		$policy->addAllowedImageDomain('https://owncloud.online');
+		$policy->addAllowedImageDomain('https://*.owncloud.online');
 		$policy->addAllowedImageDomain('https://*.bw.tech');
 		$policy->addAllowedImageDomain('https://raw.githubusercontent.com');
 		$policy->addAllowedImageDomain('https://github.com');
