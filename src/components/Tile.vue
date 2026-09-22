@@ -3,7 +3,7 @@
 		li(v-if="application").bwt-app-grid__item.uk-animation-slide-top-small
 			.uk-card.uk-card-default.bwt-tile
 				//- WCAG 2.4.4/4.1.2: Voll-Karten-Overlay-Link aus dem Tab-Flow genommen;
-				//- der Titel-Link bleibt der einzige zugaengliche Einstieg.
+				//- der Titel-Link bleibt der einzige zugängliche Einstieg.
 				router-link.bwt-tile__overlay(
 					:to="{ name: 'details', params: { id: application.id }}",
 					tabindex="-1",

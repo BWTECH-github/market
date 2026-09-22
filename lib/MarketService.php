@@ -492,8 +492,8 @@ class MarketService {
 		}
 		// Downgrade-Schutz: Ist die App bereits installiert und wurde keine
 		// explizite Ziel-Version verlangt, nur echte Updates (> installiert) zulassen.
-		// Verhindert, dass ein versehentliches Update auf ein aelteres Katalog-Release
-		// zurueckfaellt und dessen (evtl. entfernte) Datei einen 404 wirft.
+		// Verhindert, dass ein versehentliches Update auf ein älteres Katalog-Release
+		// zurückfällt und dessen (evtl. entfernte) Datei einen 404 wirft.
 		if ($targetVersion === null) {
 			$installed = $this->getInstalledAppInfo($appId);
 			if ($installed !== null && !empty($installed['version'])) {

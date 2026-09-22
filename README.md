@@ -31,20 +31,20 @@ This is a community fork maintained by **BW-Tech GmbH** for
 
 ## Requirements
 
-- owncloud.online Server **10.x** (10.11+ recommended)
+- owncloud.online Server **11.1** or newer within 11.x (redesign line; the `main` branch serves 11.0)
 - **PHP 8.4** or newer
 - Composer 2.x (only for development / building the dist artifact)
-- Node.js 20 (only for building the JS bundle)
+- Node.js 20 or newer (only for building the JS bundle: `npm ci`, then `npx webpack --mode=production`)
 
 ## Installation
 
 ```bash
-cd /var/www/owncloud/apps
+cd /var/www/owncloud.online/apps
 git clone https://github.com/BWTECH-github/market.git
 cd market
 composer install --no-dev
 sudo chown -R www-data:www-data .
-sudo -u www-data php /var/www/owncloud/occ app:enable market
+sudo -u www-data php /var/www/owncloud.online/occ app:enable market
 ```
 
 If you prefer the prebuilt artifact, download the latest release archive from

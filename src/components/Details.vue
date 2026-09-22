@@ -91,12 +91,12 @@
 							div(uk-dropdown='mode: click; boundary: ! .uk-button-group; boundary-align: true; pos: top-center;')._multiupdate-uikit-element
 								ul.uk-nav.uk-dropdown-nav
 									li(v-for="(release, rid) in releases")
-										//- Ohne href war dieser Eintrag ueberhaupt nicht ansteuerbar: weder mit
-										//- der Tabtaste noch fuer eine Sprachausgabe. Er fuehrt nirgendwohin,
-										//- sondern waehlt eine Fassung - deshalb role="button". Den Druck auf
-										//- die Leertaste ergaenzt der Kern zentral (OCO.wireButtonAnchors); der
-										//- Handler haengt am document und greift damit auch fuer diesen erst
-										//- spaeter von Vue erzeugten Knoten.
+										//- Ohne href war dieser Eintrag überhaupt nicht ansteuerbar: weder mit
+										//- der Tabtaste noch für eine Sprachausgabe. Er führt nirgendwohin,
+										//- sondern wählt eine Fassung - deshalb role="button". Den Druck auf
+										//- die Leertaste ergänzt der Kern zentral (OCO.wireButtonAnchors); der
+										//- Handler hängt am document und greift damit auch für diesen erst
+										//- später von Vue erzeugten Knoten.
 										a(href="#", role="button", @click.prevent="setUpdateVersion(rid)") {{ t('version') }} {{ release.version }}
 
 					div(v-else-if="updateable && releases.length === 1")

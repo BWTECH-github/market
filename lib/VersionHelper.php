@@ -28,7 +28,7 @@ use OCP\Util;
 
 class VersionHelper {
 	/**
-	 * Get the current ownCloud version
+	 * Get the current owncloud.online version
 	 */
 	public function getPlatformVersion(?int $cutTo = null): string {
 		$v = Util::getVersion();

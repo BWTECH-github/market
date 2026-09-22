@@ -630,3 +630,30 @@
 	@extend .uk-list;
 	@extend .uk-list-bullet;
 }
+
+// ---------------------------------------------------------------------
+// Redesign (owncloud.online 11.1): Stapelhöhen der Schale
+//
+// UIkit rechnet mit einer Seite ohne eigene Ebenen (Dialog 1010, Meldungen
+// 1040). Die Schale des Redesigns legt die untere Reiterleiste (2800), die
+// ausgeklappte Seitenleiste samt Abdunklung (2900/3000) und ihre eigenen
+// Meldungen (3300) darüber. Auf Fenstern bis 767 px lag damit jede
+// Markt-Meldung – auch „Installation fehlgeschlagen“ – unsichtbar unter der
+// Reiterleiste, und die Leiste stand über der Abdunklung des Dialogs.
+// ---------------------------------------------------------------------
+.uk-modal {
+	z-index: 3100;
+}
+
+.uk-notification {
+	z-index: 3350;
+}
+
+@media (max-width: 767px) {
+	// Meldungen unten stehen über der Reiterleiste, nicht dahinter.
+	.uk-notification-bottom-left,
+	.uk-notification-bottom-center,
+	.uk-notification-bottom-right {
+		bottom: calc(var(--oco-tabbar-height, 84px) + 10px);
+	}
+}

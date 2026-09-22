@@ -37,8 +37,8 @@
 
 			li
 				//- WCAG 4.1.2: leeres href="" zeigt auf die aktuelle URL und kann bei
-				//- ausbleibendem preventDefault einen Reload ausloesen. href="#" + @click.prevent
-				//- haelt die vorhandene Sidebar-Link-Optik, ohne ein gueltiges Ziel vorzutaeuschen.
+				//- ausbleibendem preventDefault einen Reload auslösen. href="#" + @click.prevent
+				//- hält die vorhandene Sidebar-Link-Optik, ohne ein gültiges Ziel vorzutäuschen.
 				a(href="#", role="button", @click.prevent="invalidateCache")
 					span {{ t('Clear cache') }}
 </template>

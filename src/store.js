@@ -606,6 +606,16 @@ const actions = {
         })
     },
 
+    // Nach Installieren, Aktualisieren oder Entfernen einer App die
+    // App-Einträge der Seitenleiste nachführen.
+    //
+    // Im Redesign ist die Seitenleiste zweigeteilt (TemplateLayout::
+    // groupNavigation): in #apps stehen fest nur Start und Dateien, alle
+    // übrigen Apps in der aufklappbaren Gruppe „Menü“ (#oco-apps-liste).
+    // Früher wurde #apps geleert und mit ALLEN Apps neu gefüllt – danach stand
+    // jede App doppelt in der Leiste, „Dateien“ tauchte neben „Alle Dateien“
+    // wieder auf, und Start und Dateien verloren ihre Symbole. Jetzt bleibt
+    // #apps unberührt; neu gebaut wird nur die Gruppe, im Markup des Kerns.
     REBUILD_NAVIGATION() {
         Axios.get(OC.filePath('settings', 'ajax', 'navigationdetect.php'),
             {
@@ -614,29 +624,50 @@ const actions = {
                 }
             }
         ).then((response) => {
+            let $liste = $('#oco-apps-liste');
+            // Ohne Gruppe (noch keine App mit eigenem Eintrag) gibt es nichts
+            // nachzuführen – der Kern baut sie beim nächsten Seitenaufruf.
+            if (!$liste.length) {
+                return;
+            }
 
-            let navEntries   = response.data.nav_entries;
-            let $container   = $('#apps ul').html("");
-            let $iconLoading = $('<div>', { "class" : "icon-loading-dark" });
+            let feste = $('#apps li[data-id]').map(function () {
+                return $(this).attr('data-id');
+            }).get();
 
-            _.each(navEntries, function (e) {
-                let $li   = $('<li>',   { "data-id" : e.id }),
-                    $link = $('<a>',    { "href" : e.href }),
-                    $icon = $('<img>',  { "class" : "app-icon", "src" : e.icon }),
+            // Einträge ohne App-Navigation hängt der Kern hinten an
+            // (TemplateLayout::menueExtras, heute nur Theming – eine Sektion der
+            // Administration). In nav_entries stehen sie nicht; sie bleiben, wie
+            // sie sind. Apps, deren Eintrag selbst auf eine Einstellungsseite
+            // zeigt (Gruppen → settings/personal?sectionid=customgroups), stehen
+            // dagegen in nav_entries und dürfen nicht zusätzlich erhalten
+            // bleiben – sonst stünden sie nach jedem Neuaufbau einmal mehr da.
+            let neueZiele = _.pluck(response.data.nav_entries, 'href');
+            let $extras = $liste.children('li').filter(function () {
+                let ziel = $(this).find('a').attr('href') || '';
+                return /\/settings\/admin\b[^#]*[?&]sectionid=/.test(ziel) && !_.contains(neueZiele, ziel);
+            }).detach();
+
+            $liste.empty();
+            _.each(response.data.nav_entries, function (e) {
+                if (_.contains(feste, e.id)) {
+                    return;
+                }
+                let $link = $('<a>', { "href" : e.href }),
+                    $icon = $('<img>', { "src" : e.icon, "alt" : "", "aria-hidden" : "true" }),
                     $name = $('<span>', { "text" : e.name });
 
-                $link
-                    .append($icon, $iconLoading.clone().hide(), $name);
-
-                $li
-                    .append($link)
-                    .appendTo($container);
-
-                if (!OC.Util.hasSVGSupport() && e.icon.match(/\.svg$/i)) {
-                    $icon.addClass('svg');
-                    OC.Util.replaceSVG();
+                // Die Liste entsteht auf der Seite des Marktes: nur dessen
+                // Eintrag ist der aktive.
+                if (e.id === 'market') {
+                    $link.addClass('active');
                 }
+
+                $('<li>')
+                    .append($link.append($icon, $name))
+                    .appendTo($liste);
             });
+            $liste.append($extras);
         })
     }
 };

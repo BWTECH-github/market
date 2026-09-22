@@ -30,8 +30,8 @@
 		computed: {
 			// WCAG 1.1.1 / 4.1.2: Die Bewertung steckte nur im Tooltip eines nicht
 			// fokussierbaren <ul>. Eine echte Textalternative (role=img + aria-label)
-			// macht den Wert fuer Screenreader/Tastatur zugaenglich. Die fruehere,
-			// kaputte Entity "&Oslash " (ohne Semikolon) entfaellt.
+			// macht den Wert für Screenreader/Tastatur zugänglich. Die frühere,
+			// kaputte Entity "&Oslash " (ohne Semikolon) entfällt.
 			ratingLabel () {
 				const value = Math.round(this.overall * 100) / 100;
 				return this.t('Rated %{n} of 5 stars', { n: value });

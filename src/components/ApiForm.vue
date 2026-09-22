@@ -1,8 +1,8 @@
 <template lang="pug">
 	li(v-if="changeable")
-		//- role="button": der Anker fuehrt nirgendwohin, er oeffnet einen Dialog.
+		//- role="button": der Anker führt nirgendwohin, er öffnet einen Dialog.
 		//- Ohne die Rolle meldet eine Sprachausgabe "Verweis" und die Leertaste tut
-		//- nichts (den Tastendruck ergaenzt der Kern, OCO.wireButtonAnchors).
+		//- nichts (den Tastendruck ergänzt der Kern, OCO.wireButtonAnchors).
 		a(href="#", role="button", @click.prevent="openModalEditKey") {{ key ? t('Edit API Key') : t('Add API Key') }}
 
 		#edit-api-key(uk-modal='center: true')

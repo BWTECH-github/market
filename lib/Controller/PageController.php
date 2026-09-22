@@ -45,9 +45,6 @@ class PageController extends Controller {
 	public function index(): TemplateResponse {
 		$templateResponse = new TemplateResponse($this->appName, 'index', []);
 		$policy = new ContentSecurityPolicy();
-		// remote marketplace storage (only used when an external `appstoreurl` is configured)
-		$policy->addAllowedImageDomain('https://marketplace-storage.owncloud.com');
-		$policy->addAllowedImageDomain('https://marketplace-storage.staging.owncloud.services');
 		// BW-Tech: allow images served alongside a static catalog from owncloud.online or GitHub
 		$policy->addAllowedImageDomain('https://owncloud.online');
 		// BW-Tech: owncloud.online marketplace serves app icons + screenshots under

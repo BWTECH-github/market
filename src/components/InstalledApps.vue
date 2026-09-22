@@ -108,7 +108,7 @@
 <style lang="scss" scoped>
 	@import "../styles/variables-theme";
 
-	// Installierte App per Namensklick zur Detailseite (analog verfuegbare Apps).
+	// Installierte App per Namensklick zur Detailseite (analog verfügbare Apps).
 	.bwt-installed-app-link {
 		color: inherit;
 		text-decoration: none;
@@ -120,7 +120,7 @@
 	}
 
 	// AA-Kontrast: UIkit-Standardrot (#f0506e) erreicht nur 3,46:1 auf Weiss.
-	// Dunkleres Rot erzwingen (>=4,5:1 fuer Normaltext).
+	// Dunkleres Rot erzwingen (>=4,5:1 für Normaltext).
 	.uk-text-danger {
 		color: var(--bwt-danger) !important;
 	}
