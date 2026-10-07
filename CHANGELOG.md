@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [1.0.2] - 2026-10-07
+
+### Fixed
+
+- Sprache: Der Markt las die Sprache aus `OC.getLocale()`, also aus `<html lang>`. Der Redesign-Kern schreibt dort „de-DE“, „de-AT“, „de-CH“ mit Bindestrich; vue-gettext fand dazu keinen Katalog und fällt nur am Unterstrich auf die Grundsprache zurück – der Markt war für alle außer „de“ englisch. Die Kennung wird jetzt auf „de_DE“ usw. umgesetzt (de_AT fällt so auf de zurück).
+- Sprache: „No installed apps match …“, „Showing results for …“, „No apps match …“ und die Sprachausgabe der Seitenleiste („Market navigation“, war fest eingetragen) ergänzt; 16 Meldungen des Servers (Katalog, Verbindung, Prüfsumme, lokale Paketquelle) in de, de_DE und de_CH übersetzt.
+- de_CH: Der Vue-Katalog hatte 35 von 110 Texten; die übrigen aus de übernommen (ohne ß).
+- Anrede: „Prüfen Sie die Server-Logs“ im Du-Katalog → „Prüfe die Server-Logs“.
+- Bündel `js/market.bundle.js` aus den geänderten Quellen neu gebaut (webpack 5.105.2, Abhängigkeiten aus package-lock.json).
+
 ## [1.0.1] - 2026-09-23
 
 ### Fixed

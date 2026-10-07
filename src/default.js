@@ -20,7 +20,10 @@ import GetTextPlugin from 'vue-gettext'
 import translations from '../l10n/translations.json'
 
 Vue.use(GetTextPlugin, {translations: translations})
-Vue.config.language = OC.getLocale()
+// Sprache aus <html lang>: der Kern schreibt sie mit Bindestrich ("de-DE",
+// "de-AT"), die Kataloge heißen "de_DE" usw. vue-gettext fällt bei unbekannter
+// Kennung nur auf den Teil vor "_" zurück (de_AT -> de), nicht vor "-".
+Vue.config.language = (OC.getLocale() || 'en').replace(/-/g, '_')
 
 // TODO: Write plugin for global t() method
 
