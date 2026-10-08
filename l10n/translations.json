@@ -314,7 +314,15 @@
     "No installed apps match \"%{query}\"": "Keine installierten Apps passen zu „%{query}“",
     "Showing results for \"%{query}\"": "Ergebnisse für „%{query}“",
     "No apps match \"%{query}\"": "Keine Apps passen zu „%{query}“",
-    "Market navigation": "Market-Navigation"
+    "Market navigation": "Market-Navigation",
+    "Could not refresh the market cache.": "Der Markt-Zwischenspeicher konnte nicht aktualisiert werden.",
+    "Could not complete the operation.": "Der Vorgang konnte nicht abgeschlossen werden.",
+    "Could not load apps from the market.": "Apps konnten nicht aus dem Markt geladen werden.",
+    "Could not load installed apps.": "Installierte Apps konnten nicht geladen werden.",
+    "Could not request a license key.": "Es konnte kein Lizenzschlüssel angefordert werden.",
+    "Could not load bundles from the market.": "Bundles konnten nicht aus dem Markt geladen werden.",
+    "Could not load categories from the market.": "Kategorien konnten nicht aus dem Markt geladen werden.",
+    "Could not load the market configuration.": "Die Markt-Konfiguration konnte nicht geladen werden."
   },
   "de_DE": {
     "Installing and updating Apps is not supported!": "Das Installieren und Updaten von Apps wird nicht unterstützt!",
@@ -381,14 +389,14 @@
     "Marketplace API key missing": "API-Key für den Marktplatz nicht vorhanden",
     "Active subscription on marketplace required": "Aktives Abonnement auf dem Marktplatz erforderlich",
     "Installed Apps": "Installierte Apps",
-    "Browse and install apps for your owncloud.online": "Apps für deine owncloud.online durchsuchen und installieren",
+    "Browse and install apps for your owncloud.online": "Apps für Ihre owncloud.online durchsuchen und installieren",
     "Details": "Details",
     "Search apps...": "Apps suchen …",
     "Search apps": "Apps suchen",
     "Discover": "Entdecken",
     "Marketplace API Key": "Marketplace-API-Key",
-    "Your API-Key is needed inside the owncloud.online Market App. Copy and paste it to retrieve your purchased products inside your owncloud.online instance.": "Dein API-Key wird in der owncloud.online Market-App benötigt. Kopiere ihn und füge ihn ein, um deine erworbenen Produkte in deiner owncloud.online-Instanz abzurufen.",
-    "Your personal API Key": "Dein persönlicher API-Key",
+    "Your API-Key is needed inside the owncloud.online Market App. Copy and paste it to retrieve your purchased products inside your owncloud.online instance.": "Ihr API-Key wird in der owncloud.online Market-App benötigt. Kopieren Sie ihn und fügen Sie ihn ein, um Ihre erworbenen Produkte in Ihrer owncloud.online-Instanz abzurufen.",
+    "Your personal API Key": "Ihr persönlicher API-Key",
     "Close": "Schließen",
     "saving": "speichert …",
     "Save": "Speichern",
@@ -430,7 +438,15 @@
     "No installed apps match \"%{query}\"": "Keine installierten Apps passen zu „%{query}“",
     "Showing results for \"%{query}\"": "Ergebnisse für „%{query}“",
     "No apps match \"%{query}\"": "Keine Apps passen zu „%{query}“",
-    "Market navigation": "Market-Navigation"
+    "Market navigation": "Market-Navigation",
+    "Could not refresh the market cache.": "Der Markt-Zwischenspeicher konnte nicht aktualisiert werden.",
+    "Could not complete the operation.": "Der Vorgang konnte nicht abgeschlossen werden.",
+    "Could not load apps from the market.": "Apps konnten nicht aus dem Markt geladen werden.",
+    "Could not load installed apps.": "Installierte Apps konnten nicht geladen werden.",
+    "Could not request a license key.": "Es konnte kein Lizenzschlüssel angefordert werden.",
+    "Could not load bundles from the market.": "Bundles konnten nicht aus dem Markt geladen werden.",
+    "Could not load categories from the market.": "Kategorien konnten nicht aus dem Markt geladen werden.",
+    "Could not load the market configuration.": "Die Markt-Konfiguration konnte nicht geladen werden."
   },
   "el": {
     "Installing and updating Apps is not supported!": "Η εγκατάσταση και η ενημέρωση των εφαρμογών δεν υποστηρίζονται!",
@@ -1887,6 +1903,14 @@
     "No installed apps match \"%{query}\"": "Keine installierten Apps passen zu „%{query}“",
     "Showing results for \"%{query}\"": "Ergebnisse für „%{query}“",
     "No apps match \"%{query}\"": "Keine Apps passen zu „%{query}“",
-    "Market navigation": "Market-Navigation"
+    "Market navigation": "Market-Navigation",
+    "Could not refresh the market cache.": "Der Markt-Zwischenspeicher konnte nicht aktualisiert werden.",
+    "Could not complete the operation.": "Der Vorgang konnte nicht abgeschlossen werden.",
+    "Could not load apps from the market.": "Apps konnten nicht aus dem Markt geladen werden.",
+    "Could not load installed apps.": "Installierte Apps konnten nicht geladen werden.",
+    "Could not request a license key.": "Es konnte kein Lizenzschlüssel angefordert werden.",
+    "Could not load bundles from the market.": "Bundles konnten nicht aus dem Markt geladen werden.",
+    "Could not load categories from the market.": "Kategorien konnten nicht aus dem Markt geladen werden.",
+    "Could not load the market configuration.": "Die Markt-Konfiguration konnte nicht geladen werden."
   }
 }

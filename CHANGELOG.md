@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [1.0.3] - 2026-10-08
+
+### Fixed
+
+- API-Schlüssel: Ein ungültiger Schlüssel galt in deutscher Oberfläche als gültig. Die Oberfläche erkannte ihn am englischen Wortlaut der Servermeldung („The api key is not valid.“), der Server übersetzt diese Meldung aber. Der Server liefert jetzt zusätzlich `valid: false`, die Oberfläche prüft dieses Feld.
+- Sprache: Die acht Rückfallmeldungen der Oberfläche („Could not load apps from the market.“ usw.), die erscheinen, wenn der Server keinen Text mitschickt, waren fest englisch. Sie laufen jetzt über den Vue-Katalog (de, de_DE, de_CH).
+- Anrede: drei Texte im Sie-Katalog de_DE standen in Du-Form („Dein persönlicher API-Key“ u. a.).
+- Kataloge: `l10n/de*.js` enthalten wieder dieselben Einträge wie `l10n/de*.json` (35 fehlten).
+- Bündel `js/market.bundle.js` aus den geänderten Quellen neu gebaut.
+
 ## [1.0.2] - 2026-10-07
 
 ### Fixed

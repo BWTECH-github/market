@@ -127,7 +127,9 @@ class MarketController extends Controller {
 	 */
 	public function changeApiKey(string $apiKey): Response|DataResponse {
 		if (!$this->marketService->isApiKeyValid($apiKey)) {
-			return new DataResponse(['message' => $this->l10n->t('The api key is not valid.')]);
+			// Die Oberfläche erkennt den ungültigen Schlüssel an 'valid', nicht am
+			// (übersetzten) Text der Meldung.
+			return new DataResponse(['message' => $this->l10n->t('The api key is not valid.'), 'valid' => false]);
 		}
 
 		// Don't update on GET

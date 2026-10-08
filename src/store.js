@@ -7,6 +7,10 @@ import _ from "underscore";
 
 Vue.use(Vuex);
 
+// Meldungen aus dem Store übersetzen: vue-gettext hängt $gettext an den
+// Vue-Prototyp (default.js, Vue.use(GetTextPlugin)); Aufruf erst zur Laufzeit.
+const t = (text) => (Vue.prototype.$gettext ? Vue.prototype.$gettext(text) : text);
+
 const state = {
 
     config: {},
@@ -331,7 +335,7 @@ const actions = {
             const data = response.data || {};
 
             if (!silent) {
-                UIkit.notification(data.message || "Could not refresh the market cache.", {status:"danger", pos: "bottom-right"});
+                UIkit.notification(data.message || t("Could not refresh the market cache."), {status:"danger", pos: "bottom-right"});
             }
 
             return Promise.reject(error);
@@ -399,7 +403,7 @@ const actions = {
             const data = response.data || {};
 
             if (!options.suppressNotifications) {
-                UIkit.notification(data.message || "Could not complete the operation.", {
+                UIkit.notification(data.message || t("Could not complete the operation."), {
                     status:"danger",
                     pos: "bottom-right"
                 });
@@ -420,7 +424,7 @@ const actions = {
             .catch((error) => {
                 const response = error && error.response ? error.response : {};
                 const data = response.data || {};
-                UIkit.notification(data.message || "Could not load apps from the market.", {status:"danger", pos: "bottom-right"});
+                UIkit.notification(data.message || t("Could not load apps from the market."), {status:"danger", pos: "bottom-right"});
                 context.commit("FAILED_APPLICATIONS");
                 return Promise.reject(error);
             });
@@ -455,7 +459,7 @@ const actions = {
         }).catch((error) => {
             const response = error && error.response ? error.response : {};
             const data = response.data || {};
-            UIkit.notification(data.message || "Could not load installed apps.", {status:"danger", pos: "bottom-right"});
+            UIkit.notification(data.message || t("Could not load installed apps."), {status:"danger", pos: "bottom-right"});
             context.commit("FAILED_LOCAL_APPS");
         });
     },
@@ -472,7 +476,7 @@ const actions = {
             .catch((error) => {
                 const response = (error && error.response) ? error.response : {};
                 const data = response.data || {};
-                UIkit.notification(data.message || "Could not request a license key.", {
+                UIkit.notification(data.message || t("Could not request a license key."), {
                     status : "danger",
                     pos    : "bottom-right"
                 });
@@ -519,7 +523,7 @@ const actions = {
                 context.commit("FAILED_BUNDLES");
                 const response = (error && error.response) ? error.response : {};
                 const data = response.data || {};
-                UIkit.notification(data.message || "Could not load bundles from the market.", {status:"danger", pos: "bottom-right"});
+                UIkit.notification(data.message || t("Could not load bundles from the market."), {status:"danger", pos: "bottom-right"});
             });
     },
 
@@ -535,7 +539,7 @@ const actions = {
                 context.commit("FAILED_CATEGORIES");
                 const response = (error && error.response) ? error.response : {};
                 const data = response.data || {};
-                UIkit.notification(data.message || "Could not load categories from the market.", {status:"danger", pos: "bottom-right"});
+                UIkit.notification(data.message || t("Could not load categories from the market."), {status:"danger", pos: "bottom-right"});
             });
     },
 
@@ -569,7 +573,7 @@ const actions = {
             .catch((error) => {
                 const response = (error && error.response) ? error.response : {};
                 const data = response.data || {};
-                UIkit.notification(data.message || "Could not load the market configuration.", {
+                UIkit.notification(data.message || t("Could not load the market configuration."), {
                     status:"danger",
                     pos: "bottom-right"
                 });
@@ -588,7 +592,9 @@ const actions = {
                 }
             }
         ).then((response) => {
-            if (response.data.message == "The api key is not valid.") {
+            // Der Server meldet einen ungültigen Schlüssel im Feld "valid"; die
+            // Meldung selbst ist übersetzt und taugt nicht als Erkennungsmerkmal.
+            if (response.data.valid === false) {
                 context.commit("APIKEY", {
                     "loading": false,
                     "valid"  : false
