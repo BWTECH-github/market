@@ -21,7 +21,7 @@
 					h3.bwt-tile__title
 						router-link(:to="{ name: 'details', params: { id: application.id }}") {{ application.name }}
 
-					p.bwt-tile__summary(v-if="application.summary || application.description") {{ truncatedSummary }}
+					p.bwt-tile__summary(v-if="application.summary || application.description") {{ summaryText }}
 
 					.bwt-tile__footer
 						rating(v-if="application.rating", :rating="application.rating")
@@ -60,10 +60,26 @@
 				const category = this.$store.getters.category(this.primaryCategory) || { id: this.primaryCategory };
 				return this.categoryLabel(category);
 			},
-			truncatedSummary () {
+			// Kurzbeschreibung der Kachel in ganzen Sätzen. Bisher wurde nach 127
+			// Zeichen mit „...“ abgeschnitten und zusätzlich per Zeilenbegrenzung
+			// auf zwei Zeilen gekürzt. Manche Kataloge tragen die ganze
+			// Beschreibung als summary ein (encryption: 2586 Zeichen) – dann stehen
+			// so viele ganze Sätze da, wie in den Richtwert passen, mindestens
+			// der erste; den Volltext zeigt die Detailseite. Mitten im Satz wird
+			// nie gekürzt.
+			summaryText () {
 				const text = this.application.summary || this.application.description || '';
-				const stripped = String(text).replace(/[#*_`]/g, '').trim();
-				return stripped.length > 130 ? stripped.slice(0, 127) + '...' : stripped;
+				const stripped = String(text).replace(/[#*_`]/g, '').replace(/\s+/g, ' ').trim();
+				const richtwert = 160;
+				if (stripped.length <= richtwert) {
+					return stripped;
+				}
+				const saetze = stripped.replace(/([.!?])\s+/g, '$1\u0000').split('\u0000');
+				let teaser = saetze[0];
+				for (let i = 1; i < saetze.length && (teaser + ' ' + saetze[i]).length <= richtwert; i++) {
+					teaser += ' ' + saetze[i];
+				}
+				return teaser;
 			}
 		},
 		methods: {
