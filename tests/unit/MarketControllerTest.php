@@ -70,4 +70,24 @@ class MarketControllerTest extends TestCase {
 		$response = $this->controller->getApiKey()->getData();
 		$this->assertArrayHasKey('apiKey', $response);
 	}
+
+	public function testInvalidApiKeyIsFlaggedIndependentOfTranslation() {
+		$l10n = $this->createMock(IL10N::class);
+		// Übersetzte Meldung: die Oberfläche darf sich nicht am Wortlaut orientieren
+		$l10n->method('t')->willReturn('Der API-Key ist ungültig.');
+		$controller = new MarketController(
+			'market',
+			$this->request,
+			$this->marketService,
+			$l10n,
+			$this->createMock(IConfig::class)
+		);
+		$this->marketService->method('isApiKeyValid')->willReturn(false);
+		$this->marketService->expects($this->never())->method('setApiKey');
+
+		/** @var array */
+		$response = $controller->changeApiKey('ungueltig')->getData();
+		$this->assertFalse($response['valid']);
+		$this->assertSame('Der API-Key ist ungültig.', $response['message']);
+	}
 }

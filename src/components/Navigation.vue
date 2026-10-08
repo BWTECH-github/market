@@ -1,5 +1,5 @@
 <template lang="pug">
-	nav.bwt-sidebar(aria-label="Market navigation")
+	nav.bwt-sidebar(:aria-label="t('Market navigation')")
 		.bwt-search
 			input(
 				type="search",
