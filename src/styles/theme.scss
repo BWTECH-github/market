@@ -536,10 +536,9 @@
 		color: var(--bwt-muted);
 		font-size: 12.5px;
 		line-height: 1.5;
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-		overflow: hidden;
+		// Keine Zeilenbegrenzung mehr: die Kachel wird höher, statt den Text
+		// nach zwei Zeilen abzuschneiden (Tile.vue kürzt nur auf ganze Sätze).
+		overflow-wrap: break-word;
 	}
 
 	.bwt-tile__footer {

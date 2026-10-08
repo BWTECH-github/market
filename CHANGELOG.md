@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [1.0.4] - 2026-10-08
+
+Führt die Sprachrunde (1.0.2, 1.0.3) und den Überlauf-Fix zusammen; der
+Überlauf-Fix stand auf seinem Zweig ebenfalls als 1.0.3.
+
+### Fixed
+
+- Kacheln: die Kurzbeschreibung wurde doppelt gekürzt – im Programm nach
+  127 Zeichen mit „...“ und zusätzlich per Zeilenbegrenzung auf zwei Zeilen
+  (bei 320–1440 px je nach Kachelbreite 1 bis 26 Kacheln). Jetzt steht sie
+  ohne Zeilenbegrenzung da; die Kachel wird höher. Ist sie länger als 160
+  Zeichen (manche Apps tragen die ganze Beschreibung als summary ein,
+  encryption 2586 Zeichen), stehen so viele ganze Sätze da, wie in diesen
+  Richtwert passen, mindestens der erste – mitten im Satz wird nie gekürzt.
+  Den Volltext zeigt weiter die Detailseite.
+- Bündel `js/market.bundle.js` aus den zusammengeführten Quellen neu gebaut.
+
 ## [1.0.3] - 2026-10-08
 
 ### Fixed
