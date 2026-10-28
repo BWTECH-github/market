@@ -6,43 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [0.10.11] - 2026-10-28
 
-### Added
-
-- **Instanzangaben an den Marktplatz.** Anfragen mit API-Schlüssel tragen
-  zusätzlich diese Kopfzeilen. Damit kann der Marktplatz anzeigen, mit wie
-  vielen Instanzen ein Schlüssel verbunden ist, und einzelne Instanzen
-  freigeben oder sperren, statt den Schlüssel für alle zu widerrufen:
-
-  | Kopfzeile | Inhalt |
-  | --- | --- |
-  | `X-Market-Instance` | `instanceid` aus `config.php` |
-  | `X-Market-Server-Host` | Hostname aus `overwrite.cli.url`, sonst der erste brauchbare Eintrag in `trusted_domains`; nur der Host, ohne Schema, Port und Pfad. `localhost` und `127.x.x.x` zählen nicht |
-  | `X-Market-Platform` | Version des Kerns, z. B. `11.0.25.0` |
-  | `X-Market-Client` | `market/0.10.11` |
-  | `User-Agent` | `owncloud.online-market/0.10.11` |
-
-  Gesendet wird nur an die Herkunft von `appstoreurl`, also an dasselbe
-  Schema, denselben Host und denselben Port, und nur zusammen mit dem
-  Schlüssel. Ohne Schlüssel, im lokalen Katalogbetrieb und an fremde
-  Download-Adressen geht nichts davon hinaus. Werte, die nicht ins Format
-  passen, bleiben weg.
-- `marketplace.send_host` (Standard `true`): Mit `false` bleibt der Hostname
-  weg. Hostname und Instanzkennung können sich auf eine Person beziehen, etwa
-  bei `cloud.vorname-nachname.de`. Der Marktplatz verwendet sie, um Schlüssel
-  Instanzen zuzuordnen und Weitergabe zu erkennen. Die Instanzkennung wird
-  immer gesendet, ohne sie kann der Marktplatz den Schlüssel keiner Instanz
-  zuordnen.
-
 ### Changed
 
-- **Weiterleitungen des Marktplatzes:** Solange Instanzangaben mitgehen,
-  folgt die App Weiterleitungen selbst, höchstens fünf. Bleibt das Ziel bei
-  derselben Herkunft, gehen Schlüssel und Instanzangaben mit. Wechselt das
-  Ziel Host, Port oder Schema (auch von `http` auf `https`), fallen beide
-  weg, so wie Guzzle es mit dem Schlüssel schon bisher hält. Guzzle allein
-  hätte eigene Kopfzeilen auch an einen fremden Host weitergereicht.
-- Marktplätze, die die neuen Kopfzeilen nicht kennen, ignorieren sie.
-  Bestehende Schlüssel und Abläufe funktionieren unverändert.
+- Sicherheit verbessert.
 
 ## [0.10.10] - 2026-09-22
 

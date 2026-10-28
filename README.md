@@ -85,10 +85,8 @@ $CONFIG = [
 
 ### Data sent to the marketplace
 
-When an API key is configured, every request to the marketplace also tells
-it which instance is using the key. This lets the marketplace show how many
-instances a key is connected to, and approve or block a single instance
-instead of revoking the key for everyone.
+When an API key is configured, requests to the marketplace also identify
+the instance:
 
 | Header                 | Value                                                                 |
 | ---------------------- | --------------------------------------------------------------------- |
