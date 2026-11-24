@@ -264,16 +264,93 @@ class HttpServiceTest extends TestCase {
 		], $this->sortedHeaders(0));
 	}
 
-	public function testMarketplaceRequestWithoutKeyIsSentAsBefore() {
+	public function testMarketplaceRequestWithoutKeyCarriesOnlyTheClientHeader() {
 		$this->givenSystemConfig(['marketplace.key' => null]);
 		$this->givenServerResponds();
 
 		$this->httpService->getCategories();
 
+		// Ohne Schlüssel nur die eigene Fassung: Daran erkennt der Marktplatz,
+		// dass diese App Apps mit Support-Vertrag gesperrt anzeigen kann.
+		// Angaben zur Instanz bleiben weg.
+		$this->assertSame([
+			'User-Agent' => 'owncloud.online-market/0.10.11',
+			'X-Market-Client' => 'market/0.10.11',
+		], $this->sortedHeaders(0));
+		$this->assertFalse($this->requests[0]['options']['allow_redirects']);
+	}
+
+	public function testDownloadFromAnotherHostWithoutKeyIsSentAsBefore() {
+		$this->givenSystemConfig(['marketplace.key' => null]);
+		$this->givenServerResponds();
+
+		$this->httpService->downloadApp('https://github.example.test/wnd.tar.gz', $this->targetPath());
+
 		// Kein eigenes headers-Feld: Der Kern setzt weiter seinen User-Agent,
 		// und Weiterleitungen folgt Guzzle wie bisher.
 		$this->assertArrayNotHasKey('headers', $this->requests[0]['options']);
 		$this->assertArrayNotHasKey('allow_redirects', $this->requests[0]['options']);
+	}
+
+	public function testSupportContactIsReadFromTheMarketplace() {
+		$this->givenSystemConfig(['marketplace.key' => null]);
+		$this->givenServerResponds([], '{"email":"support@example.test","url":"https://example.test"}');
+
+		$support = $this->httpService->getSupport();
+
+		$this->assertSame(self::STORE . '/api/v1/support.json', $this->requests[0]['url']);
+		$this->assertSame(['email' => 'support@example.test', 'url' => 'https://example.test'], $support);
+	}
+
+	public function testKeyStatusIsAskedWithKeyAndInstanceHeaders() {
+		$this->givenSystemConfig([]);
+		$this->givenServerResponds([], '{"status":"valid","instances":{"used":1,"max":10}}');
+
+		$result = $this->httpService->fetchKeyStatus(self::KEY);
+
+		$this->assertSame(self::STORE . '/api/v1/key/status', $this->requests[0]['url']);
+		$this->assertSame('apikey: ' . self::KEY, $this->requests[0]['options']['headers']['Authorization']);
+		$this->assertSame(self::INSTANCE_ID, $this->requests[0]['options']['headers']['X-Market-Instance']);
+		$this->assertSame(['status' => 200, 'body' => ['status' => 'valid', 'instances' => ['used' => 1, 'max' => 10]]], $result);
+	}
+
+	public function testRejectedKeyStatusComesBackAsStatusWithBody() {
+		$url = self::STORE . '/api/v1/key/status';
+		$this->givenSystemConfig([]);
+		$client = $this->createMock(IClient::class);
+		$client->method('get')->willThrowException(new ClientException(
+			'401 Unauthorized',
+			new Request('GET', $url),
+			new Response(401, [], '{"message":"Schlüssel ungültig. (Invalid key.)","error":"invalid_key"}')
+		));
+		$this->httpClientService->method('newClient')->willReturn($client);
+
+		$result = $this->httpService->fetchKeyStatus('bwmp_wrong');
+
+		$this->assertSame(401, $result['status']);
+		$this->assertSame('invalid_key', $result['body']['error']);
+	}
+
+	public function testKeyStatusWithoutConnectionThrows() {
+		$this->givenSystemConfig(['has_internet_connection' => false]);
+		$this->httpClientService->expects($this->never())->method('newClient');
+
+		$this->expectException(AppManagerException::class);
+		$this->httpService->fetchKeyStatus(self::KEY);
+	}
+
+	public function testCatalogCacheDependsOnTheOwnVersion() {
+		// Nach einem Update dieser App darf der Katalog der alten Fassung
+		// (ohne gesperrte Apps) nicht noch 30 Minuten aus dem Cache kommen.
+		$this->givenSystemConfig([]);
+		$this->givenServerResponds();
+		$cache = $this->createMock(\OCP\ICache::class);
+		$cache->expects($this->once())->method('get')->with('apps_11.0.25@0.10.11')->willReturn(null);
+		$cache->expects($this->once())->method('set')->with('apps_11.0.25@0.10.11', '[]', 1800);
+		$this->cacheFactory->method('isAvailable')->willReturn(true);
+		$this->cacheFactory->method('create')->willReturn($cache);
+
+		$this->assertSame([], $this->httpService->getApps());
 	}
 
 	public function testDownloadFromTheMarketplaceCarriesTheInstanceHeaders() {

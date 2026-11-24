@@ -310,7 +310,15 @@
     "Updating": "Wird aktualisiert",
     "installing": "wird installiert",
     "published on": "veröffentlicht am",
-    "version": "Version"
+    "version": "Version",
+    "Support contract": "Support-Vertrag",
+    "Support contract key": "Schlüssel des Support-Vertrags",
+    "The key is set in config.php.": "Der Schlüssel steht in der config.php.",
+    "Check status": "Status prüfen",
+    "Request a support contract": "Support-Vertrag anfragen",
+    "Available with a support contract.": "Diese App gibt es mit einem Support-Vertrag.",
+    "Updates are available with a support contract.": "Updates gibt es mit einem Support-Vertrag.",
+    "Your support contract does not include this app.": "Dein Support-Vertrag umfasst diese App nicht."
   },
   "de_DE": {
     "Installing and updating Apps is not supported!": "Das Installieren und Updaten von Apps wird nicht unterstützt!",
@@ -422,7 +430,15 @@
     "Updating": "Wird aktualisiert",
     "installing": "wird installiert",
     "published on": "veröffentlicht am",
-    "version": "Version"
+    "version": "Version",
+    "Support contract": "Support-Vertrag",
+    "Support contract key": "Schlüssel des Support-Vertrags",
+    "The key is set in config.php.": "Der Schlüssel steht in der config.php.",
+    "Check status": "Status prüfen",
+    "Request a support contract": "Support-Vertrag anfragen",
+    "Available with a support contract.": "Diese App gibt es mit einem Support-Vertrag.",
+    "Updates are available with a support contract.": "Updates gibt es mit einem Support-Vertrag.",
+    "Your support contract does not include this app.": "Ihr Support-Vertrag umfasst diese App nicht."
   },
   "el": {
     "Installing and updating Apps is not supported!": "Η εγκατάσταση και η ενημέρωση των εφαρμογών δεν υποστηρίζονται!",
@@ -1800,6 +1816,17 @@
     "Updating": "Wird aktualisiert",
     "installing": "wird installiert",
     "published on": "veröffentlicht am",
-    "version": "Version"
+    "version": "Version",
+    "Support contract": "Support-Vertrag",
+    "Support contract key": "Schlüssel des Support-Vertrags",
+    "The key is set in config.php.": "Der Schlüssel steht in der config.php.",
+    "Check status": "Status prüfen",
+    "Request a support contract": "Support-Vertrag anfragen",
+    "Available with a support contract.": "Diese App gibt es mit einem Support-Vertrag.",
+    "Updates are available with a support contract.": "Updates gibt es mit einem Support-Vertrag.",
+    "Your support contract does not include this app.": "Dein Support-Vertrag umfasst diese App nicht.",
+    "Close": "Schliessen",
+    "Save": "Speichern",
+    "saving": "speichert …"
   }
 }

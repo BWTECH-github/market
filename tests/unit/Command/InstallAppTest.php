@@ -75,6 +75,26 @@ class InstallAppTest extends TestCase {
 		$this->assertStringContainsString('foo: App installed.', $output);
 	}
 
+	public function testAppWithoutSupportContractIsRefusedWithContact() {
+		$this->marketService->method('canInstall')->willReturn(true);
+		$this->marketService->method('isAppLocked')->willReturnMap([['wnd', true], ['activity', false]]);
+		$this->marketService->method('getSupportContractMessage')
+			->willReturn('Available with a support contract. Request one at support@owncloudonline.com or https://owncloud.online.');
+		$this->marketService->method('isAppInstalled')->willReturn(false);
+		// Nur die freie App wird installiert.
+		$this->marketService->expects($this->once())->method('installApp')->with('activity');
+
+		$exitCode = $this->commandTester->execute(['ids' => ['wnd', 'activity']]);
+
+		$output = $this->commandTester->getDisplay();
+		$this->assertSame(1, $exitCode);
+		$this->assertStringContainsString(
+			'wnd: Available with a support contract. Request one at support@owncloudonline.com or https://owncloud.online.',
+			$output
+		);
+		$this->assertStringContainsString('activity: App installed.', $output);
+	}
+
 	public function testInstallInstalledApp() {
 		$this->marketService->expects($this->once())->method('canInstall')->willReturn(true);
 		$this->marketService->expects($this->once())->method('isAppInstalled')->willReturn(true);

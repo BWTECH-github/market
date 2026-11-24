@@ -23,8 +23,11 @@ namespace OCA\Market\Tests\Unit\Command;
 
 use OCA\Market\Command\ListApps;
 use OCA\Market\MarketService;
+use OCP\IL10N;
 use Symfony\Component\Console\Tester\CommandTester;
 use Test\TestCase;
+
+// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
 
 class ListAppsTest extends TestCase {
 	/** @var CommandTester */
@@ -36,7 +39,11 @@ class ListAppsTest extends TestCase {
 		parent::setUp();
 
 		$this->marketService = $this->createMock(MarketService::class);
-		$command = new ListApps($this->marketService);
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(
+			static fn (string $text): string => $text === '[support contract]' ? '[Support-Vertrag]' : $text
+		);
+		$command = new ListApps($this->marketService, $l10n);
 		$this->commandTester = new CommandTester($command);
 	}
 
@@ -48,5 +55,31 @@ class ListAppsTest extends TestCase {
 		$this->commandTester->execute([]);
 		$output = $this->commandTester->getDisplay();
 		$this->assertStringContainsString("bar\nfoo", $output);
+	}
+
+	public function testAppsWithoutSupportContractAreMarked() {
+		$this->marketService->method('listApps')->willReturn([
+			['id' => 'wnd', 'requiresKey' => true, 'entitled' => false],
+			['id' => 'activity', 'requiresKey' => false, 'entitled' => true],
+			// Mit gültigem Schlüssel freigeschaltet: keine Marke.
+			['id' => 'theme-owncloudonline', 'requiresKey' => true, 'entitled' => true],
+		]);
+
+		$this->assertSame(0, $this->commandTester->execute([]));
+		$this->assertSame(
+			"activity\ntheme-owncloudonline\nwnd [Support-Vertrag]\n",
+			$this->commandTester->getDisplay()
+		);
+	}
+
+	public function testOldMarketplaceWithoutNewFieldsListsAsBefore() {
+		$this->marketService->method('listApps')->willReturn([
+			['id' => 'wnd'],
+			['id' => 'activity'],
+		]);
+
+		$this->commandTester->execute([]);
+
+		$this->assertSame("activity\nwnd\n", $this->commandTester->getDisplay());
 	}
 }
