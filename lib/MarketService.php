@@ -533,15 +533,22 @@ class MarketService {
 		if (\is_int($payload['expires_in_days'] ?? null)) {
 			$days = $payload['expires_in_days'];
 		} elseif ($expiresAt !== null) {
-			$days = (int) \ceil((\strtotime($expiresAt) - \time()) / 86400);
+			$days = (int) \floor((\strtotime($expiresAt) - \time()) / 86400);
+		}
+		// Wie der Marktplatz: „läuft bald ab“ bei weniger als 30 Tagen. Nennt er
+		// den Zustand selbst (contract_status), gilt der.
+		$contractStatus = \is_string($payload['contract_status'] ?? null) ? $payload['contract_status'] : null;
+		$expiring = $contractStatus !== null
+			? $contractStatus === 'expiring'
+			: $days !== null && $days < self::EXPIRES_SOON_DAYS;
+		// Gilt der Vertrag, lädt dieses System. „Zu viele Systeme: trotzdem
+		// zulassen und markieren“ sieht nur die Verwaltung.
+		if ($status === 'valid' && $systemStatus === 'pending') {
+			$systemStatus = 'approved';
 		}
 
 		$state = match ($status) {
-			'valid' => match (true) {
-				$systemStatus === 'pending' => 'pending',
-				$days !== null && $days <= self::EXPIRES_SOON_DAYS => 'expiring',
-				default => 'active',
-			},
+			'valid' => $expiring ? 'expiring' : 'active',
 			'expired' => 'expired',
 			'paused', 'disabled' => 'blocked',
 			'instance_pending' => 'pending',

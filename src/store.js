@@ -653,12 +653,14 @@ const actions = {
             .catch((error) => {
                 const response = (error && error.response) ? error.response : {};
                 const data = response.data || {};
+                // Ohne Antwort übersetzt die Oberfläche Zustand und Meldung selbst.
                 context.commit("KEY_STATUS", {
                     "loading": false,
                     "data": {
                         "state": "unknown",
                         "label": "",
-                        "message": data.message || "Could not check the status.",
+                        "message": data.message || "",
+                        "failed": true,
                         "rows": []
                     }
                 });

@@ -291,7 +291,10 @@ class SupportContractTest extends TestCase {
 			'gültig' => [['status' => 'valid', 'expires_at' => $later, 'instance_status' => 'approved'], 'active', 'Active'],
 			'läuft bald ab' => [['status' => 'valid', 'expires_at' => $soon, 'instance_status' => 'approved'], 'expiring', 'Expires soon'],
 			'Resttage vom Marktplatz' => [['status' => 'valid', 'expires_at' => $later, 'expires_in_days' => 5], 'expiring', 'Expires soon'],
-			'gültig, System wartet' => [['status' => 'valid', 'instance_status' => 'pending'], 'pending', 'Waiting to be allowed'],
+			'noch 30 Tage: wie der Marktplatz aktiv' => [['status' => 'valid', 'expires_in_days' => 30], 'active', 'Active'],
+			'noch 29 Tage: läuft bald ab' => [['status' => 'valid', 'expires_in_days' => 29], 'expiring', 'Expires soon'],
+			'Zustand vom Marktplatz gilt' => [['status' => 'valid', 'expires_in_days' => 5, 'contract_status' => 'active'], 'active', 'Active'],
+			'gültig und markiert: lädt, also aktiv' => [['status' => 'valid', 'instance_status' => 'pending'], 'active', 'Active'],
 			'abgelaufen' => [['status' => 'expired'], 'expired', 'Expired'],
 			'vorübergehend gesperrt' => [['status' => 'paused'], 'blocked', 'Temporarily blocked'],
 			'alle geschützten Apps gesperrt' => [['status' => 'disabled'], 'blocked', 'Temporarily blocked'],
@@ -317,6 +320,21 @@ class SupportContractTest extends TestCase {
 		$this->assertSame('This system is not allowed yet.', $status['message']);
 		$this->assertContains(['label' => 'Systems', 'value' => '1 of 1'], $status['rows']);
 		$this->assertContains(['label' => 'This system', 'value' => 'Not allowed yet'], $status['rows']);
+	}
+
+	public function testValidContractNamesThisSystemAllowed() {
+		$this->givenSavedKey(self::KEY);
+		$this->givenKeyStatus(200, [
+			'status' => 'valid',
+			'instances' => ['used' => 2, 'max' => 1],
+			'instance_status' => 'pending',
+			'message_en' => 'Support contract active.',
+		]);
+
+		$status = $this->marketService->getKeyStatus();
+
+		$this->assertSame('active', $status['state']);
+		$this->assertContains(['label' => 'This system', 'value' => 'Allowed'], $status['rows']);
 	}
 
 	/**

@@ -65,7 +65,7 @@
     "Active subscription on marketplace required": "Aktives Abonnement auf dem Marktplatz erforderlich",
     "All apps are up to date.": "Alle Apps sind auf dem neuesten Stand.",
     "All": "Alle",
-    "Apps currently present in this owncloud.online instance.": "Aktuell in dieser owncloud.online-Instanz vorhandene Apps.",
+    "Apps on this system.": "Apps auf diesem System.",
     "Apps in %{category}": "Apps in %{category}",
     "Apps with newer versions available.": "Apps mit verfügbaren neueren Versionen.",
     "Author": "Autor",
@@ -127,6 +127,7 @@
     "No key saved": "Kein Schlüssel hinterlegt",
     "Local catalog": "Lokaler Katalog",
     "Status unknown": "Status unbekannt",
+    "Could not check the status.": "Status konnte nicht geprüft werden.",
     "[support contract]": "[Support-Vertrag]",
     "No download available for %s.": "Für %s gibt es keinen Download."
   },

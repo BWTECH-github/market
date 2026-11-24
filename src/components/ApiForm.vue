@@ -23,8 +23,8 @@
 					.bwt-contract(v-if="status", role="status", aria-live="polite")
 						p.bwt-contract__state(:class="'bwt-contract__state--' + tone")
 							span.bwt-contract__dot(aria-hidden="true")
-							span {{ status.label }}
-						p.bwt-contract__message(v-if="status.message") {{ status.message }}
+							span {{ status.label || t('Status unknown') }}
+						p.bwt-contract__message(v-if="status.message || status.failed") {{ status.message || t('Could not check the status.') }}
 						dl.bwt-contract__rows(v-if="status.rows && status.rows.length")
 							.bwt-contract__row(v-for="row in status.rows", :key="row.label")
 								dt {{ row.label }}

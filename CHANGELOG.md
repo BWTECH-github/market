@@ -6,23 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## [0.11.0] - 2026-11-24
 
-### Added
+### Changed
 
-- Apps, die es mit einem Support-Vertrag gibt, stehen mit Schloss im
-  Katalog. Ohne Vertrag gibt es statt „Installieren“ den Knopf
-  „Support-Vertrag anfragen“.
-- „Support-Vertrag“ in der Seitenleiste: Schlüssel eintragen und mit
-  „Status prüfen“ sehen, ob der Vertrag gilt, bis wann, wie viele Systeme
-  ihn nutzen und ob dieses System zugelassen ist. Gilt er nicht, steht dort
-  der Grund.
-- App-Beschreibungen erscheinen auf Deutsch, wenn die Oberfläche deutsch ist.
-- `occ market:list` kennzeichnet Apps, die einen Support-Vertrag brauchen;
-  `occ market:install` und `market:upgrade` nennen dafür den Kontakt.
-
-### Fixed
-
-- Texte mit Platzhaltern, etwa die Rückfrage vor dem Deinstallieren,
-  erscheinen übersetzt.
+- Verbesserungen und Fehlerbehebungen.
 
 ## [0.10.11] - 2026-10-28
 
