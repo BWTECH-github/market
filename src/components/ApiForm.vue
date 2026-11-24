@@ -86,11 +86,13 @@
 				const ausloeser = document.activeElement;
 				const dialog = document.getElementById('support-contract');
 				if (ausloeser && dialog) {
-					UIkit.util.once(dialog, 'hidden', () => {
+					// Erst nach UIkit: es setzt den Fokus nach „hidden“ selbst noch einmal
+					// auf den Dialog, der dann verschwindet (gemessen: Fokus auf body)
+					UIkit.util.once(dialog, 'hidden', () => setTimeout(() => {
 						if (document.contains(ausloeser)) {
 							ausloeser.focus();
 						}
-					});
+					}, 0));
 				}
 				UIkit.modal('#support-contract').show();
 				this.$store.dispatch('FETCH_SUPPORT');
