@@ -83,6 +83,11 @@
 			open () {
 				UIkit.modal('#support-contract').show();
 				this.$store.dispatch('FETCH_SUPPORT');
+				// Ohne gespeicherten Schlüssel gibt es nichts zu prüfen: den Stand
+				// („Kein Schlüssel hinterlegt“, mit Anfrage) gleich vom Server holen.
+				if (!this.hasKey && !this.status && !this.checking) {
+					this.$store.dispatch('FETCH_KEY_STATUS');
+				}
 			},
 			save () {
 				if (!this.dirty || this.loading) {

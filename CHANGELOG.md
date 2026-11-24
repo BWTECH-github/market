@@ -12,7 +12,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Apps mit Support-Vertrag tragen ein Schloss. Ohne gültigen Vertrag steht auf
   der Detailseite „Support-Vertrag anfragen“ statt „Installieren“.
 - „Support-Vertrag“ in der Seitenleiste des Markts: Schlüssel eintragen und den
-  Stand des Vertrags prüfen.
+  Stand des Vertrags prüfen. Ohne Schlüssel zeigt der Dialog gleich „Kein
+  Schlüssel hinterlegt“ und „Support-Vertrag anfragen“.
 - App-Texte auf Deutsch, wenn der Marktplatz sie liefert.
 
 ### Fixed
