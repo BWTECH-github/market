@@ -94,6 +94,23 @@ class UpgradeAppTest extends TestCase {
 		$this->assertStringContainsString('foo: No update available', $output);
 	}
 
+	public function testInstalledAppWithoutSupportContractIsRefusedWithContact() {
+		$this->marketService->method('canInstall')->willReturn(true);
+		$this->marketService->method('isAppInstalled')->willReturn(true);
+		$this->marketService->method('isAppLocked')->willReturn(true);
+		$this->marketService->method('getSupportContractMessage')
+			->willReturn('Available with a support contract. Request one at support@owncloudonline.com or https://owncloud.online.');
+		$this->marketService->expects($this->never())->method('updateApp');
+
+		$exitCode = $this->commandTester->execute(['ids' => ['wnd']]);
+
+		$this->assertSame(1, $exitCode);
+		$this->assertStringContainsString(
+			'wnd: Available with a support contract. Request one at support@owncloudonline.com or https://owncloud.online.',
+			$this->commandTester->getDisplay()
+		);
+	}
+
 	public function testUpdateApp() {
 		$this->marketService->expects($this->once())->method('canInstall')->willReturn(true);
 		$this->marketService->expects($this->once())->method('isAppInstalled')->willReturn(true);

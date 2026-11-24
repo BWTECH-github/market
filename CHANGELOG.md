@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [1.1.0] - 2026-11-24
+
+Übernimmt market 0.11.0 (main) in die Redesign-Linie.
+
+### Geändert
+- Apps mit Support-Vertrag tragen ein Schloss. Ohne gültigen Vertrag steht auf
+  der Detailseite „Support-Vertrag anfragen“ statt „Installieren“.
+- „Support-Vertrag“ in der Seitenleiste des Markts: Schlüssel eintragen und den
+  Stand des Vertrags prüfen.
+- App-Texte auf Deutsch, wenn der Marktplatz sie liefert.
+
+### Fixed
+- Seitenleiste nach dem Installieren oder Entfernen einer App: Die Gruppe „Menü“
+  wird wie im Kern gebaut – ohne „Dateien“ und „Markt“, mit `data-id` und
+  `aria-current`.
+- Bündel `js/market.bundle.js` aus den zusammengeführten Quellen neu gebaut.
+
 ## [1.0.6] - 2026-11-04
 
 ### Geändert

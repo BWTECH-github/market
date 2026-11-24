@@ -278,7 +278,6 @@
     "Save": "Speichern",
     "All apps are up to date.": "Alle Apps sind auf dem neuesten Stand.",
     "All": "Alle",
-    "Apps currently present in this owncloud.online instance.": "Aktuell in dieser owncloud.online-Instanz vorhandene Apps.",
     "Apps in %{category}": "Apps in %{category}",
     "Apps with newer versions available.": "Apps mit verfügbaren neueren Versionen.",
     "Author": "Autor",
@@ -322,7 +321,18 @@
     "Could not request a license key.": "Es konnte kein Lizenzschlüssel angefordert werden.",
     "Could not load bundles from the market.": "Bundles konnten nicht aus dem Markt geladen werden.",
     "Could not load categories from the market.": "Kategorien konnten nicht aus dem Markt geladen werden.",
-    "Could not load the market configuration.": "Die Markt-Konfiguration konnte nicht geladen werden."
+    "Could not load the market configuration.": "Die Markt-Konfiguration konnte nicht geladen werden.",
+    "Apps on this system.": "Apps auf diesem System.",
+    "Support contract": "Support-Vertrag",
+    "Support contract key": "Schlüssel des Support-Vertrags",
+    "The key is set in config.php.": "Der Schlüssel steht in der config.php.",
+    "Check status": "Status prüfen",
+    "Request a support contract": "Support-Vertrag anfragen",
+    "Available with a support contract.": "Diese App gibt es mit einem Support-Vertrag.",
+    "Updates are available with a support contract.": "Updates gibt es mit einem Support-Vertrag.",
+    "Your support contract does not include this app.": "Dein Support-Vertrag umfasst diese App nicht.",
+    "Could not check the status.": "Status konnte nicht geprüft werden.",
+    "Status unknown": "Status unbekannt"
   },
   "de_DE": {
     "Installing and updating Apps is not supported!": "Das Installieren und Updaten von Apps wird nicht unterstützt!",
@@ -402,7 +412,6 @@
     "Save": "Speichern",
     "All apps are up to date.": "Alle Apps sind auf dem neuesten Stand.",
     "All": "Alle",
-    "Apps currently present in this owncloud.online instance.": "Aktuell in dieser owncloud.online-Instanz vorhandene Apps.",
     "Apps in %{category}": "Apps in %{category}",
     "Apps with newer versions available.": "Apps mit verfügbaren neueren Versionen.",
     "Author": "Autor",
@@ -446,7 +455,18 @@
     "Could not request a license key.": "Es konnte kein Lizenzschlüssel angefordert werden.",
     "Could not load bundles from the market.": "Bundles konnten nicht aus dem Markt geladen werden.",
     "Could not load categories from the market.": "Kategorien konnten nicht aus dem Markt geladen werden.",
-    "Could not load the market configuration.": "Die Markt-Konfiguration konnte nicht geladen werden."
+    "Could not load the market configuration.": "Die Markt-Konfiguration konnte nicht geladen werden.",
+    "Apps on this system.": "Apps auf diesem System.",
+    "Support contract": "Support-Vertrag",
+    "Support contract key": "Schlüssel des Support-Vertrags",
+    "The key is set in config.php.": "Der Schlüssel steht in der config.php.",
+    "Check status": "Status prüfen",
+    "Request a support contract": "Support-Vertrag anfragen",
+    "Available with a support contract.": "Diese App gibt es mit einem Support-Vertrag.",
+    "Updates are available with a support contract.": "Updates gibt es mit einem Support-Vertrag.",
+    "Your support contract does not include this app.": "Ihr Support-Vertrag umfasst diese App nicht.",
+    "Could not check the status.": "Status konnte nicht geprüft werden.",
+    "Status unknown": "Status unbekannt"
   },
   "el": {
     "Installing and updating Apps is not supported!": "Η εγκατάσταση και η ενημέρωση των εφαρμογών δεν υποστηρίζονται!",
@@ -1792,7 +1812,6 @@
   "de_CH": {
     "All apps are up to date.": "Alle Apps sind auf dem neuesten Stand.",
     "All": "Alle",
-    "Apps currently present in this owncloud.online instance.": "Aktuell in dieser owncloud.online-Instanz vorhandene Apps.",
     "Apps in %{category}": "Apps in %{category}",
     "Apps with newer versions available.": "Apps mit verfügbaren neueren Versionen.",
     "Author": "Autor",
@@ -1911,6 +1930,17 @@
     "Could not request a license key.": "Es konnte kein Lizenzschlüssel angefordert werden.",
     "Could not load bundles from the market.": "Bundles konnten nicht aus dem Markt geladen werden.",
     "Could not load categories from the market.": "Kategorien konnten nicht aus dem Markt geladen werden.",
-    "Could not load the market configuration.": "Die Markt-Konfiguration konnte nicht geladen werden."
+    "Could not load the market configuration.": "Die Markt-Konfiguration konnte nicht geladen werden.",
+    "Apps on this system.": "Apps auf diesem System.",
+    "Support contract": "Support-Vertrag",
+    "Support contract key": "Schlüssel des Support-Vertrags",
+    "The key is set in config.php.": "Der Schlüssel steht in der config.php.",
+    "Check status": "Status prüfen",
+    "Request a support contract": "Support-Vertrag anfragen",
+    "Available with a support contract.": "Diese App gibt es mit einem Support-Vertrag.",
+    "Updates are available with a support contract.": "Updates gibt es mit einem Support-Vertrag.",
+    "Your support contract does not include this app.": "Dein Support-Vertrag umfasst diese App nicht.",
+    "Could not check the status.": "Status konnte nicht geprüft werden.",
+    "Status unknown": "Status unbekannt"
   }
 }

@@ -90,4 +90,83 @@ class MarketControllerTest extends TestCase {
 		$this->assertFalse($response['valid']);
 		$this->assertSame('Der API-Key ist ungültig.', $response['message']);
 	}
+
+	public function testKeyFromConfigIsReportedWithoutRevealingIt() {
+		$this->marketService->method('isApiKeyChangeableByUser')->willReturn(false);
+		$this->marketService->method('getApiKey')->willReturn('bwmp_secret');
+
+		$response = $this->controller->getApiKey()->getData();
+
+		$this->assertTrue($response['hasKey']);
+		$this->assertArrayNotHasKey('apiKey', $response);
+	}
+
+	public function testCatalogMarksAppsWithoutSupportContractAndShowsGermanTexts() {
+		$this->marketService->method('prefersGerman')->willReturn(true);
+		$this->marketService->method('isAppInstalled')->willReturn(false);
+		$this->marketService->method('getMissingDependencies')->willReturn([]);
+		$this->marketService->method('listApps')->willReturn([
+			[
+				'id' => 'wnd',
+				'summary' => 'Windows network drives',
+				'summary_de' => 'Windows-Netzlaufwerke',
+				'description' => 'Mount SMB shares.',
+				'description_de' => '',
+				'requiresKey' => true,
+				'entitled' => false,
+				'releases' => [['version' => '2.0.2', 'download' => '']],
+			],
+			[
+				'id' => 'activity',
+				'summary' => 'Activity stream',
+				'releases' => [['version' => '2.8.7', 'download' => 'https://example.test/a.tar.gz']],
+			],
+		]);
+
+		$apps = $this->controller->index();
+
+		$this->assertTrue($apps[0]['locked']);
+		$this->assertSame('Windows-Netzlaufwerke', $apps[0]['summary']);
+		// Leerer deutscher Text: der englische bleibt.
+		$this->assertSame('Mount SMB shares.', $apps[0]['description']);
+		$this->assertSame('2.0.2', $apps[0]['release']['version']);
+		// Alter Marktplatz ohne entitled: wie bisher installierbar.
+		$this->assertFalse($apps[1]['locked']);
+		$this->assertSame('Activity stream', $apps[1]['summary']);
+	}
+
+	public function testRejectedKeyIsReportedWithFieldAndStatus() {
+		$status = ['state' => 'invalid', 'label' => 'Invalid', 'message' => 'This key is not valid.', 'rows' => []];
+		$this->marketService->method('isApiKeyValid')->willReturn(false);
+		$this->marketService->method('getKeyStatus')->with('bwmp_wrong')->willReturn($status);
+		$this->marketService->expects($this->never())->method('setApiKey');
+
+		$response = $this->controller->changeApiKey('bwmp_wrong')->getData();
+
+		$this->assertFalse($response['valid']);
+		$this->assertSame($status, $response['status']);
+	}
+
+	public function testSavedKeyAnswersWithItsStatus() {
+		$status = ['state' => 'active', 'label' => 'Active', 'message' => 'Key valid.', 'rows' => []];
+		$this->request->method('getMethod')->willReturn('PUT');
+		$this->marketService->method('isApiKeyValid')->willReturn(true);
+		$this->marketService->method('setApiKey')->willReturn(true);
+		$this->marketService->method('getKeyStatus')->with('bwmp_good')->willReturn($status);
+
+		$response = $this->controller->changeApiKey('bwmp_good')->getData();
+
+		$this->assertTrue($response['valid']);
+		$this->assertSame($status, $response['status']);
+	}
+
+	public function testKeyStatusAndSupportContactArePassedOn() {
+		$status = ['state' => 'none', 'label' => 'No key saved', 'message' => '', 'rows' => []];
+		$contact = ['email' => 'support@owncloudonline.com', 'url' => 'https://owncloud.online', 'title' => 'Support contract', 'text' => 'Available with a support contract.'];
+		$this->marketService->method('getKeyStatus')->willReturn($status);
+		$this->marketService->method('getSupportContact')->willReturn($contact);
+
+		$this->assertSame($status, $this->controller->keyStatus()->getData());
+		$this->assertSame($contact, $this->controller->support()->getData());
+	}
 }
