@@ -10,10 +10,11 @@
  * Geprüft wird (1440 px):
  *   - Entdecken, Suche, Kategorie, Details, Installierte Apps, Updates,
  *     App-Bundles laden ohne Fehler
- *   - Neuaufbau der Seitenleiste nach Installieren/Entfernen: #apps (Start,
- *     Dateien) bleibt unberührt, die Gruppe „Menü“ bekommt die neue App bzw.
- *     verliert die entfernte, Theming bleibt, nichts steht doppelt
- *   - API-Schlüssel-Dialog liegt über allem
+ *   - Neuaufbau der Seitenleiste nach Installieren/Entfernen: #apps (Start)
+ *     bleibt unberührt, die Gruppe „Menü“ sieht aus wie vom Kern gebaut (ohne
+ *     Dateien und Markt, mit data-id), bekommt die neue App bzw. verliert die
+ *     entfernte, nichts steht doppelt
+ *   - Dialog „Support-Vertrag“ liegt über allem
  *   - „Cache leeren“ meldet sich sichtbar
  * und (400 px):
  *   - Meldung steht über der Reiterleiste, nicht dahinter
@@ -81,9 +82,11 @@ function seitenleiste(seite) {
 			symbol: (l.querySelector('img') || {}).src || '',
 		})),
 		menue: Array.from(document.querySelectorAll('#oco-apps-liste > li')).map((l) => ({
+			id: l.getAttribute('data-id'),
 			name: l.textContent.trim(),
 			href: (l.querySelector('a') || {}).getAttribute ? l.querySelector('a').getAttribute('href') : '',
 			aktiv: !!l.querySelector('a.active'),
+			aktuell: !!l.querySelector('a[aria-current="page"]'),
 			symbol: !!l.querySelector('img[alt=""]'),
 		})),
 	}));
@@ -170,12 +173,12 @@ function obenauf(seite, wahl, punkte) {
 	const echteAntwort = await s.evaluate(async () => (await fetch(OC.filePath('settings', 'ajax', 'navigationdetect.php'), { headers: { requesttoken: OC.requestToken } })).json());
 	await neuaufbau(s);
 	const unveraendert = await seitenleiste(s);
-	pruefe('Neuaufbau: #apps (Start, Dateien) bleibt unberührt', JSON.stringify(unveraendert.fest) === JSON.stringify(vorher.fest), JSON.stringify(unveraendert.fest));
-	pruefe('Neuaufbau: Gruppe „Menü“ unverändert (gleiche Einträge, Reihenfolge)', JSON.stringify(unveraendert.menue.map((m) => m.name)) === JSON.stringify(vorher.menue.map((m) => m.name)), unveraendert.menue.map((m) => m.name).join(','));
-	pruefe('Neuaufbau: Markt aktiv, Symbole wie im Kern', unveraendert.menue.filter((m) => m.aktiv).map((m) => m.name).join() === 'Markt' && unveraendert.menue.every((m) => m.symbol), JSON.stringify(unveraendert.menue.filter((m) => m.aktiv)));
+	pruefe('Neuaufbau: #apps (Start) bleibt unberührt', JSON.stringify(unveraendert.fest) === JSON.stringify(vorher.fest), JSON.stringify(unveraendert.fest));
+	pruefe('Neuaufbau: Gruppe „Menü“ wie vom Kern gebaut (Einträge, Reihenfolge, data-id, aktiv)', JSON.stringify(unveraendert.menue) === JSON.stringify(vorher.menue), unveraendert.menue.map((m) => m.id + ':' + m.name).join(','));
+	pruefe('Neuaufbau: jede Zeile mit data-id und Symbol, aktiv nur mit aria-current', unveraendert.menue.every((m) => !!m.id && m.symbol && m.aktiv === m.aktuell), JSON.stringify(unveraendert.menue.filter((m) => !m.id || !m.symbol || m.aktiv !== m.aktuell)));
 	const festeIds = vorher.fest.map((f) => f.id);
-	const doppelt = unveraendert.menue.filter((m) => /\/apps\/(dashboard|files)\/?$/.test(m.href || ''));
-	pruefe('Neuaufbau: Start und Dateien stehen nicht doppelt', doppelt.length === 0 && festeIds.join() === 'dashboard,files', doppelt.map((m) => m.name).join(','));
+	const doppelt = unveraendert.menue.filter((m) => ['dashboard', 'files', 'market'].includes(m.id) || /\/apps\/(dashboard|files|market)\/?$/.test(m.href || ''));
+	pruefe('Neuaufbau: Start, Dateien und Markt nicht im „Menü“', doppelt.length === 0 && festeIds.join() === 'dashboard', festeIds.join() + ' / ' + doppelt.map((m) => m.name).join(','));
 
 	// „Installieren“: eine App mehr, „Entfernen“: Galerie weg
 	const eintraege = echteAntwort.nav_entries;
@@ -183,7 +186,7 @@ function obenauf(seite, wahl, punkte) {
 	await s.route('**/settings/ajax/navigationdetect.php*', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ status: 'success', data: { nav_entries: eintraege.concat([neu]) }, nav_entries: eintraege.concat([neu]) }) }));
 	await neuaufbau(s);
 	const mitNeu = await seitenleiste(s);
-	pruefe('Neuaufbau nach Installieren: neue App in „Menü“, Theming bleibt hinten', mitNeu.menue.some((m) => m.name === 'Probe-App') && mitNeu.menue[mitNeu.menue.length - 1].name === 'Theming', mitNeu.menue.map((m) => m.name).join(','));
+	pruefe('Neuaufbau nach Installieren: neue App in „Menü“, mit data-id', mitNeu.menue.length === vorher.menue.length + 1 && mitNeu.menue.some((m) => m.name === 'Probe-App' && m.id === 'probeapp'), mitNeu.menue.map((m) => m.name).join(','));
 	await s.unroute('**/settings/ajax/navigationdetect.php*');
 	const ohneGalerie = eintraege.filter((e) => e.id !== 'gallery');
 	await s.route('**/settings/ajax/navigationdetect.php*', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ status: 'success', data: { nav_entries: ohneGalerie }, nav_entries: ohneGalerie }) }));
@@ -194,11 +197,11 @@ function obenauf(seite, wahl, punkte) {
 	await s.unroute('**/settings/ajax/navigationdetect.php*');
 	await neuaufbau(s);
 
-	// --- API-Schlüssel-Dialog ---------------------------------------------------
-	await s.locator('#market-app .bwt-shell__sidebar a:has-text("API")').first().click();
-	await s.waitForSelector('#edit-api-key.uk-open', { timeout: 5000 }).catch(() => {});
+	// --- Dialog „Support-Vertrag“ ----------------------------------------------
+	await s.locator('#market-app .bwt-shell__sidebar a:has-text("Support")').first().click();
+	await s.waitForSelector('#support-contract.uk-open', { timeout: 5000 }).catch(() => {});
 	await s.waitForTimeout(600);
-	pruefe('API-Schlüssel-Dialog öffnet und liegt obenauf', await obenauf(s, '#edit-api-key .uk-modal-dialog') === true);
+	pruefe('Dialog „Support-Vertrag“ öffnet und liegt obenauf', await obenauf(s, '#support-contract .uk-modal-dialog') === true);
 	await s.keyboard.press('Escape');
 	await s.waitForTimeout(600);
 
@@ -243,12 +246,12 @@ function obenauf(seite, wahl, punkte) {
 	});
 	pruefe('400 px: Aufklapper, Hinweisblasen und Dialoge über der Reiterleiste', ebenen.every((e) => e.ueber), JSON.stringify(ebenen));
 	await t.waitForTimeout(5500);
-	await t.locator('#market-app .bwt-shell__sidebar a:has-text("API")').first().scrollIntoViewIfNeeded();
-	await t.locator('#market-app .bwt-shell__sidebar a:has-text("API")').first().click();
-	await t.waitForSelector('#edit-api-key.uk-open', { timeout: 5000 }).catch(() => {});
+	await t.locator('#market-app .bwt-shell__sidebar a:has-text("Support")').first().scrollIntoViewIfNeeded();
+	await t.locator('#market-app .bwt-shell__sidebar a:has-text("Support")').first().click();
+	await t.waitForSelector('#support-contract.uk-open', { timeout: 5000 }).catch(() => {});
 	await t.waitForTimeout(600);
 	// Mitten in der Reiterleiste darf nur noch der Dialog (samt Abdunklung) liegen
-	pruefe('400 px: Dialog liegt über der Reiterleiste', await obenauf(t, '#edit-api-key', [[200, 790], [30, 790]]) === true);
+	pruefe('400 px: Dialog liegt über der Reiterleiste', await obenauf(t, '#support-contract', [[200, 790], [30, 790]]) === true);
 	await t.keyboard.press('Escape');
 	pruefe('keine Konsolenfehler (400)', m.fehler.length === 0, m.fehler.join(' | '));
 	await m.kontext.close();
