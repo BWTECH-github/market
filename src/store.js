@@ -721,6 +721,17 @@ const actions = {
                 return $(this).attr('data-id');
             }).get().concat(['files', 'market']);
 
+            // Ziele, die eine App ihrem Eintrag erst im Browser gibt (Selfservice
+            // öffnet das Portal in einem neuen Fenster), gehen mit dem Neubau
+            // sonst verloren.
+            let fenster = {};
+            $liste.find('li[data-id] > a[target]').each(function () {
+                fenster[$(this).parent().attr('data-id')] = {
+                    "target" : $(this).attr('target'),
+                    "rel" : $(this).attr('rel') || 'noopener noreferrer'
+                };
+            });
+
             $liste.empty();
             _.each(response.data.nav_entries, function (e) {
                 if (_.contains(feste, e.id)) {
@@ -733,11 +744,19 @@ const actions = {
                 if (e.active) {
                     $link.addClass('active').attr('aria-current', 'page');
                 }
+                if (fenster[e.id]) {
+                    $link.attr(fenster[e.id]);
+                }
 
                 $('<li>', { "data-id" : e.id || '' })
                     .append($link.append($icon, $name))
                     .appendTo($liste);
             });
+
+            // Hinweis „öffnet in neuem Fenster“ wie beim Seitenaufbau
+            if (window.OCO && typeof window.OCO.markNewWindowLinks === 'function') {
+                window.OCO.markNewWindowLinks($liste[0]);
+            }
         }).catch(() => {
             // Seitenleiste bleibt dann, wie sie ist; beim nächsten
             // Seitenaufruf baut der Kern sie ohnehin neu.
