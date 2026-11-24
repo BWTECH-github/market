@@ -682,3 +682,15 @@
 		bottom: calc(var(--oco-tabbar-height, 84px) + 10px);
 	}
 }
+
+// Bewegung reduzieren: Kacheln und Dialog erscheinen ohne Gleiten
+@media (prefers-reduced-motion: reduce) {
+	#market-app [class*="uk-animation-"] {
+		animation: none !important;
+	}
+
+	.uk-modal,
+	.uk-modal-dialog {
+		transition: none !important;
+	}
+}

@@ -2,9 +2,13 @@
 	div
 		.uk-position-fixed.uk-position-center(v-show="loading", uk-spinner, uk-icon="icon: spinner")
 
+		//- Trefferzahl der Suche für Sprachausgaben (WCAG 4.1.3); die Liste ändert sich
+		//- beim Tippen, der Fokus bleibt im Suchfeld
+		p.hidden-visually(role="status") {{ searchStatus }}
+
 		header.bwt-page-head(v-if="!loading && !failed")
 			div
-				h1.bwt-page-head__title {{ pageTitle }}
+				h1.bwt-page-head__title(:lang="pageTitleLang") {{ pageTitle }}
 				p.bwt-page-head__subtitle(v-if="searchQuery") {{ t('Showing results for "%{query}"', { query: searchQuery }) }}
 				p.bwt-page-head__subtitle(v-else-if="category") {{ t('Apps in %{category}', { category: categoryDisplayName }) }}
 				p.bwt-page-head__subtitle(v-else) {{ t('Browse and install apps for your owncloud.online') }}
@@ -60,6 +64,15 @@
 			},
 			categoryDisplayName () {
 				return this.categoryLabel(this.categoryRecord || { id: this.category })
+			},
+			pageTitleLang () {
+				return (this.category && !this.searchQuery) ? this.categoryLang(this.categoryRecord || { id: this.category }) : undefined
+			},
+			searchStatus () {
+				if (!this.searchQuery || this.loading || this.failed) {
+					return ''
+				}
+				return this.t('Results: %{count}', { count: this.applications.length })
 			}
 		},
 		methods: {

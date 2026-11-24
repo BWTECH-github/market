@@ -6,10 +6,10 @@
 		a(href="#", role="button", @click.prevent="open") {{ t('Support contract') }}
 
 		#support-contract(uk-modal='center: true')
-			.uk-modal-dialog
+			.uk-modal-dialog(aria-labelledby="support-contract-title")
 				button.uk-modal-close-default(type='button', uk-close='', :aria-label="t('Close')")
 				.uk-modal-header
-					h2.uk-modal-title {{ t('Support contract') }}
+					h2#support-contract-title.uk-modal-title {{ t('Support contract') }}
 				.uk-modal-body
 					template(v-if="changeable")
 						label.bwt-contract__label(for="support-contract-key") {{ t('Support contract key') }}
@@ -81,6 +81,17 @@
 		},
 		methods : {
 			open () {
+				// Beim Schließen (Escape, „Schließen“, Kreuz) stand der Fokus sonst auf dem
+				// Dokument (WCAG 2.4.3): er geht an den Auslöser zurück.
+				const ausloeser = document.activeElement;
+				const dialog = document.getElementById('support-contract');
+				if (ausloeser && dialog) {
+					UIkit.util.once(dialog, 'hidden', () => {
+						if (document.contains(ausloeser)) {
+							ausloeser.focus();
+						}
+					});
+				}
 				UIkit.modal('#support-contract').show();
 				this.$store.dispatch('FETCH_SUPPORT');
 				// Ohne gespeicherten Schlüssel gibt es nichts zu prüfen: den Stand

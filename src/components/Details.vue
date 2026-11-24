@@ -9,7 +9,7 @@
 					div.bwt-detail__hero-meta
 						span.bwt-tile__category(v-if="application.categories && application.categories[0]")
 							span(uk-icon="icon: tag; ratio: 0.7")
-							| {{ primaryCategoryLabel }}
+							span(:lang="primaryCategoryLang") {{ primaryCategoryLabel }}
 						h1.bwt-detail__title {{ application.name }}
 						.bwt-detail__rating(v-if="application.rating")
 							rating(:rating="application.rating")
@@ -235,6 +235,11 @@
 				const id = Array.isArray(categories) && categories.length ? categories[0] : '';
 				const category = this.$store.getters.category(id) || { id };
 				return this.categoryLabel(category);
+			},
+			primaryCategoryLang () {
+				const categories = this.application && this.application.categories;
+				const id = Array.isArray(categories) && categories.length ? categories[0] : '';
+				return this.categoryLang(this.$store.getters.category(id) || { id });
 			},
 			publisher () {
 				const publisher = this.application && this.application.publisher;

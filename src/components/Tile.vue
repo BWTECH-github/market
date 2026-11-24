@@ -14,7 +14,7 @@
 					img(v-if="iconUrl", :src="iconUrl", alt="", loading="lazy")
 				.bwt-tile__content
 					.bwt-tile__labels
-						span.bwt-tile__label(v-if="primaryCategory") {{ primaryCategoryLabel }}
+						span.bwt-tile__label(v-if="primaryCategory", :lang="primaryCategoryLang") {{ primaryCategoryLabel }}
 						span.bwt-tile__label.bwt-tile__label--installed(v-if="application.installed && !application.updateInfo") {{ t('Installed') }}
 						span.bwt-tile__label.bwt-tile__label--update(v-if="application.updateInfo") {{ t('Update') }}
 						span.bwt-tile__label.bwt-tile__label--locked(v-if="application.locked")
@@ -62,6 +62,9 @@
 			primaryCategoryLabel () {
 				const category = this.$store.getters.category(this.primaryCategory) || { id: this.primaryCategory };
 				return this.categoryLabel(category);
+			},
+			primaryCategoryLang () {
+				return this.categoryLang(this.$store.getters.category(this.primaryCategory) || { id: this.primaryCategory });
 			},
 			// Kurzbeschreibung der Kachel in ganzen Sätzen. Bisher wurde nach 127
 			// Zeichen mit „...“ abgeschnitten und zusätzlich per Zeilenbegrenzung

@@ -29,7 +29,7 @@
 
 			li(v-for="category in categories", :key="category.id")
 				router-link(:to="{ name: 'byCategory', params: { category: category.id }}")
-					span {{ categoryLabel(category) }}
+					span(:lang="categoryLang(category)") {{ categoryLabel(category) }}
 
 			li.bwt-sidebar__section {{ t('Settings') }}
 

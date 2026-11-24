@@ -72,6 +72,45 @@ const router = new VueRouter({
     routes
 });
 
+// Nach einem Ansichtswechsel (Kachel, „Zurück“, Kategorie) stand der Fokus auf dem
+// Dokument, der nächste Tab begann am Logo (WCAG 2.4.3). Er geht an die Überschrift der
+// neuen Ansicht, sobald sie gezeichnet ist (Details lädt nach). Der Fenstertitel nennt
+// die Ansicht (WCAG 2.4.2), auch beim ersten Aufruf.
+const grundTitel = document.title;
+
+function ueberschriftAbwarten (handler) {
+    const finden = () => document.querySelector('#market-app .bwt-shell__main h1, #market-app .bwt-shell__main h2');
+    const sofort = finden();
+    if (sofort) {
+        handler(sofort);
+        return;
+    }
+    const wache = new MutationObserver(() => {
+        const h = finden();
+        if (h) {
+            wache.disconnect();
+            clearTimeout(frist);
+            handler(h);
+        }
+    });
+    wache.observe(document.body, { childList: true, subtree: true });
+    const frist = setTimeout(() => wache.disconnect(), 10000);
+}
+
+router.afterEach((to, from) => {
+    const fokus = from.matched.length > 0;
+    Vue.nextTick(() => ueberschriftAbwarten((h) => {
+        const name = h.textContent.trim();
+        if (name) {
+            document.title = name + ' - ' + grundTitel;
+        }
+        if (fokus) {
+            h.setAttribute('tabindex', '-1');
+            h.focus();
+        }
+    }));
+});
+
 // The App itself
 const MarketApp = new Vue({
     router,

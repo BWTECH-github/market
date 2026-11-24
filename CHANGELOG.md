@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [1.1.1] - 2026-11-24
+
+### Behoben
+- Nach dem Öffnen einer App, „Zurück“ oder einer Kategorie steht der Fokus auf der
+  Überschrift der neuen Ansicht statt am Seitenanfang; der Fenstertitel nennt die
+  Ansicht.
+- Der Dialog „Support-Vertrag“ ist nach seiner Überschrift benannt und gibt den
+  Fokus beim Schließen an „Support-Vertrag“ zurück.
+- Die Suche sagt die Zahl der Treffer an. Kategorienamen ohne Übersetzung sind als
+  englisch ausgezeichnet.
+- Bei „Bewegung reduzieren“ erscheinen Kacheln und Dialog ohne Gleiten.
+
 ## [1.1.0] - 2026-11-24
 
 Übernimmt market 0.11.0 (main) in die Redesign-Linie.

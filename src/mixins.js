@@ -56,6 +56,17 @@ function sanitizeHtml (html) {
 
 export default {
 	methods: {
+		// Sprache eines Kategorienamens (WCAG 3.1.2): fehlt die Übersetzung in die
+		// Sprache der Oberfläche, kommt der Name englisch aus dem Marktplatz und wird
+		// als englisch ausgezeichnet. undefined lässt das Attribut weg.
+		categoryLang (category) {
+			const sprache = (typeof OC !== 'undefined' && OC.getLocale) ? OC.getLocale().slice(0, 2) : 'en';
+			if (sprache === 'en' || !category) {
+				return undefined;
+			}
+			const uebersetzt = category.translations && category.translations[sprache];
+			return (uebersetzt && uebersetzt.name) ? undefined : 'en';
+		},
 		t (string, interpolation) {
 			if (!interpolation) {
 				return this.$gettext(string);
