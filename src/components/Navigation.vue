@@ -47,8 +47,11 @@
 	// Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
 
 	import Apiform from './ApiForm.vue'
+	import Mixins from '../mixins.js'
 
 	export default {
+		// categoryLang (lang="en" an Kategorienamen ohne Übersetzung) kommt aus dem Mixin
+		mixins: [Mixins],
 		mounted () {
 			this.$store.dispatch('FETCH_CATEGORIES')
 		},

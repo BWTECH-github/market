@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [1.1.2] - 2026-11-25
+
+### Behoben
+- Die Kategorien stehen wieder in der Seitenleiste. Seit 1.1.1 brach die
+  Navigation mit einem Skriptfehler ab, weil ihr die Sprachauszeichnung der
+  Kategorienamen fehlte.
+
 ## [1.1.1] - 2026-11-24
 
 ### Behoben
