@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [1.1.4] - 2026-11-25
+
+### Behoben
+- Beim Laden springt der Markt nicht mehr von der Fenstermitte auf die ganze
+  Seite, wenn der Ladekreisel den Inhalten Platz macht.
+
 ## [1.1.3] - 2026-11-25
 
 ### Behoben

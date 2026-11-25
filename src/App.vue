@@ -5,8 +5,11 @@
 		//- die Kategorien die Einträge darunter (bei 390 px die ganze Liste), die
 		//- Zähler die Seitenleiste, die Antworten die Kacheln (Layout-Verschiebung
 		//- 0,07 bei 1440 px, 0,10 bei 390 px).
-		.uk-position-fixed.uk-position-center(v-if="!ready", uk-spinner, uk-icon="icon: spinner")
-		.bwt-shell(v-else)
+		//- Die Schlüssel trennen Kreisel und Markt: Ohne sie machte Vue aus dem
+		//- Kreisel-div den Markt, und der Browser sah ein Element von der
+		//- Fenstermitte über die ganze Seite wachsen (Layout-Verschiebung 0,2).
+		.uk-position-fixed.uk-position-center(v-if="!ready", key="laden", uk-spinner, uk-icon="icon: spinner")
+		.bwt-shell(v-else, key="markt")
 			.bwt-shell__notice(v-if="showNotice").uk-animation-slide-top-small
 				.uk-alert-primary(uk-alert)
 					span.uk-alert-close(uk-close, @click.prevent="noticeDismissed = true")
