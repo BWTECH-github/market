@@ -122,9 +122,6 @@ class MarketController extends Controller {
 		}
 	}
 
-	/**
-	 * @NoCSRFRequired
-	 */
 	public function changeApiKey(string $apiKey): Response|DataResponse {
 		// 'valid' statt des übersetzten Meldungstexts: Die Oberfläche erkennt
 		// daran einen abgelehnten Schlüssel in jeder Sprache.
@@ -281,7 +278,8 @@ class MarketController extends Controller {
 	}
 
 	/**
-	 * @NoCSRFRequired
+	 * Schreibt die Kernlizenz: nur per POST mit CSRF-Token, sonst löst eine
+	 * fremde Seite das im Browser eines Admins aus (<img src=…>).
 	 */
 	public function requestDemoLicenseKeyFromMarket(): DataResponse {
 		try {

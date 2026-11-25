@@ -487,7 +487,11 @@ const actions = {
     },
 
     REQUEST_LICENSE_KEY (context) {
-        return Axios.get(OC.generateUrl("/apps/market/request-license-key-from-market"))
+        return Axios.post(OC.generateUrl("/apps/market/request-license-key-from-market"), {}, {
+            headers: {
+                requesttoken: OC.requestToken
+            }
+        })
             .then((response) => {
                 context.dispatch('FETCH_CONFIG');
                 UIkit.notification(response.data.message, {

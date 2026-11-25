@@ -169,4 +169,33 @@ class MarketControllerTest extends TestCase {
 		$this->assertSame($status, $this->controller->keyStatus()->getData());
 		$this->assertSame($contact, $this->controller->support()->getData());
 	}
+
+	/**
+	 * Was Schlüssel oder Lizenz schreibt, braucht das CSRF-Token: sonst löst
+	 * eine fremde Seite es im Browser eines angemeldeten Admins aus.
+	 *
+	 * @dataProvider writingMethods
+	 */
+	public function testWritingMethodsRequireTheCsrfToken(string $method) {
+		$doc = (string) (new \ReflectionMethod(MarketController::class, $method))->getDocComment();
+		$this->assertStringNotContainsString('@NoCSRFRequired', $doc);
+	}
+
+	public function writingMethods(): array {
+		return [
+			'Schlüssel ändern' => ['changeApiKey'],
+			'Demo-Lizenz anfordern' => ['requestDemoLicenseKeyFromMarket'],
+		];
+	}
+
+	public function testDemoLicenseIsRequestedOnlyByPost() {
+		$routes = require __DIR__ . '/../../appinfo/routes.php';
+		$verbs = [];
+		foreach ($routes['routes'] as $route) {
+			if ($route['name'] === 'market#requestDemoLicenseKeyFromMarket') {
+				$verbs[] = $route['verb'] ?? 'GET';
+			}
+		}
+		$this->assertSame(['POST'], $verbs);
+	}
 }

@@ -322,8 +322,12 @@ class HttpService {
 		$client = $this->httpClientService->newClient();
 		$sendKey = !empty($apiKey);
 		for ($redirects = 0; ; $redirects++) {
-			$marketHeaders = $this->getMarketHeaders($url, $sendKey);
-			$headers = $sendKey ? ['Authorization' => "apikey: $apiKey"] + $marketHeaders : $marketHeaders;
+			// Der Schlüssel geht nur verschlüsselt an den Marktplatz selbst
+			// (isKeyTarget), nie an eine fremde Download-Adresse aus dem
+			// Katalog und nie im Klartext über http.
+			$withKey = $sendKey && $this->isKeyTarget($url);
+			$marketHeaders = $this->getMarketHeaders($url, $withKey);
+			$headers = $withKey ? ['Authorization' => "apikey: $apiKey"] + $marketHeaders : $marketHeaders;
 			$requestOptions = $headers !== [] ? \array_merge(['headers' => $headers], $options) : $options;
 			if ($marketHeaders === []) {
 				// Kein Marktplatz-Ziel: Guzzle folgt Weiterleitungen wie bisher
@@ -345,9 +349,10 @@ class HttpService {
 					(string) $this->l10n->t('No marketplace connection: %s', ['too many redirects'])
 				);
 			}
-			// Wie Guzzle: Der Schlüssel geht nicht über eine Herkunftsgrenze mit
-			// (auch nicht von http auf https desselben Hosts).
-			if (self::getOrigin($next) !== self::getOrigin($url)) {
+			// Wie Guzzle: Der Schlüssel geht nicht über eine Herkunftsgrenze mit.
+			// Ausnahme ist nur der Wechsel von http auf https beim Marktplatz
+			// selbst: Erst dort darf er überhaupt mit.
+			if (!\in_array(self::getOrigin($next), $this->getMarketOrigins(), true)) {
 				$sendKey = false;
 			}
 			$url = $next;
@@ -432,8 +437,8 @@ class HttpService {
 	 * @return array<string, string>
 	 */
 	private function getMarketHeaders(string $url, bool $withInstance): array {
-		$storeOrigin = self::getOrigin((string) $this->config->getSystemValue('appstoreurl', self::DEFAULT_STORE_URL));
-		if ($storeOrigin === null || self::getOrigin($url) !== $storeOrigin) {
+		$origin = self::getOrigin($url);
+		if ($origin === null || !\in_array($origin, $this->getMarketOrigins(), true)) {
 			return [];
 		}
 
@@ -458,6 +463,50 @@ class HttpService {
 			$headers[self::HEADER_SERVER_HOST] = $host;
 		}
 		return $headers;
+	}
+
+	/**
+	 * Herkünfte des Marktplatzes: die von `appstoreurl` und, wenn diese http
+	 * ist, dieselbe Adresse über https (dorthin leitet der Marktplatz um).
+	 *
+	 * @return string[]
+	 */
+	private function getMarketOrigins(): array {
+		$storeUrl = (string) $this->config->getSystemValue('appstoreurl', self::DEFAULT_STORE_URL);
+		$origin = self::getOrigin($storeUrl);
+		if ($origin === null) {
+			return [];
+		}
+		$https = self::getHttpsOrigin($storeUrl);
+		return $https !== null && $https !== $origin ? [$origin, $https] : [$origin];
+	}
+
+	/**
+	 * Darf der Schlüssel an $url? Nur über https und nur an den Host (und
+	 * Port) von `appstoreurl`.
+	 */
+	private function isKeyTarget(string $url): bool {
+		$target = self::getHttpsOrigin((string) $this->config->getSystemValue('appstoreurl', self::DEFAULT_STORE_URL));
+		return $target !== null
+			&& \str_starts_with($url, 'https://')
+			&& self::getOrigin($url) === $target;
+	}
+
+	/**
+	 * https-Herkunft zu einer Adresse: gleicher Host; Port wie angegeben,
+	 * sonst 443. Null bei unbrauchbarer Adresse.
+	 */
+	private static function getHttpsOrigin(string $url): ?string {
+		try {
+			$uri = new Uri($url);
+		} catch (\InvalidArgumentException) {
+			return null;
+		}
+		$scheme = $uri->getScheme();
+		if (($scheme !== 'http' && $scheme !== 'https') || $uri->getHost() === '') {
+			return null;
+		}
+		return 'https://' . $uri->getHost() . ':' . ($uri->getPort() ?? 443);
 	}
 
 	/** Eigene Version aus appinfo/info.xml oder null, wenn sie nicht lesbar ist. */

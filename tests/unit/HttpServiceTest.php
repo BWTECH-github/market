@@ -376,6 +376,8 @@ class HttpServiceTest extends TestCase {
 		$this->httpService->downloadApp($url, $this->targetPath());
 
 		$this->assertSame([], $this->instanceHeaderNames(0));
+		// Auch der Schlüssel bleibt weg, schon bei der ersten Anfrage.
+		$this->assertArrayNotHasKey('headers', $this->requests[0]['options']);
 		$this->assertArrayNotHasKey('allow_redirects', $this->requests[0]['options']);
 	}
 
@@ -530,9 +532,10 @@ class HttpServiceTest extends TestCase {
 		$this->assertArrayNotHasKey('allow_redirects', $this->requests[1]['options']);
 	}
 
-	public function testRedirectFromHttpToHttpsCountsAsAnotherOrigin() {
-		// Mit appstoreurl über http leitet live per 301 auf https um. Guzzle
-		// ließ den Schlüssel dabei schon bisher weg; das bleibt so.
+	public function testKeyGoesOnlyOverHttpsEvenWithAnHttpStoreUrl() {
+		// Mit appstoreurl über http leitet live per 301 auf https um. Der
+		// Schlüssel ging bisher in der ersten Anfrage im Klartext mit; jetzt
+		// erst nach der Umleitung, verschlüsselt an denselben Host.
 		$this->givenSystemConfig(['appstoreurl' => 'http://marketplace.example.test']);
 		$this->givenServerResponds([
 			'http://marketplace.example.test/api/v1/categories.json' => [301, self::CATEGORIES_URL],
@@ -540,8 +543,22 @@ class HttpServiceTest extends TestCase {
 
 		$this->httpService->getCategories();
 
-		$this->assertSame(self::INSTANCE_ID, $this->requests[0]['options']['headers']['X-Market-Instance']);
+		$this->assertArrayNotHasKey('Authorization', $this->requests[0]['options']['headers'] ?? []);
+		$this->assertNotContains('X-Market-Instance', $this->instanceHeaderNames(0));
 		$this->assertSame(self::CATEGORIES_URL, $this->requests[1]['url']);
+		$this->assertSame('apikey: ' . self::KEY, $this->requests[1]['options']['headers']['Authorization']);
+		$this->assertSame(self::INSTANCE_ID, $this->requests[1]['options']['headers']['X-Market-Instance']);
+	}
+
+	public function testRedirectFromHttpsMarketToHttpDropsTheKey() {
+		$this->givenSystemConfig([]);
+		$this->givenServerResponds([
+			self::WND_URL => [302, 'http://marketplace.example.test/downloads/wnd-2.0.2.tar.gz'],
+		]);
+
+		$this->httpService->downloadApp(self::WND_URL, $this->targetPath());
+
+		$this->assertSame('apikey: ' . self::KEY, $this->requests[0]['options']['headers']['Authorization']);
 		$this->assertArrayNotHasKey('headers', $this->requests[1]['options']);
 	}
 

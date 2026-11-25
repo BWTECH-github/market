@@ -1,55 +1,72 @@
 import showdown from "showdown";
 
-// Elemente, die aus Marketplace-Markdown (description/changelog) nie in den
-// DOM gelangen dürfen — showdown reicht rohes HTML ungefiltert durch.
-const FORBIDDEN_TAGS = [
-	"script", "style", "iframe", "frame", "frameset", "object", "embed",
-	"applet", "form", "input", "button", "textarea", "select", "option",
-	"link", "meta", "base"
+// Positivliste für Marketplace-Markdown (description/changelog). showdown
+// reicht rohes HTML ungefiltert durch; eine Sperrliste ließ Inline-Stile,
+// fremde Attribute, noscript- und SVG-Tricks stehen. Jetzt bleibt nur, was
+// showdown für Markdown selbst erzeugt, ohne style, class und id.
+const ALLOWED_TAGS = [
+	"P", "BR", "HR", "EM", "STRONG", "B", "I", "DEL", "S", "SUP", "SUB",
+	"CODE", "PRE", "BLOCKQUOTE", "UL", "OL", "LI",
+	"H1", "H2", "H3", "H4", "H5", "H6",
+	"A", "IMG", "TABLE", "THEAD", "TBODY", "TR", "TH", "TD"
 ];
 
-// Attribute mit URL-Wert, die javascript:/vbscript:/data:-Payloads tragen können.
-const URL_ATTRIBUTES = ["href", "src", "xlink:href", "action", "formaction", "srcdoc"];
+// Elemente, deren Inhalt auch als Text nichts in der Beschreibung verloren hat.
+const DROPPED_TAGS = [
+	"SCRIPT", "STYLE", "TEMPLATE", "NOSCRIPT", "IFRAME", "OBJECT", "EMBED",
+	"SVG", "MATH", "TEXTAREA", "TITLE", "XMP", "NOEMBED", "NOFRAMES", "PLAINTEXT"
+];
 
-// Führende Whitespaces/Steuerzeichen abfangen (Bypass wie "\tjavascript:").
-const UNSAFE_URL_PATTERN = /^[\s\x00-\x1F]*(javascript|vbscript|data)\s*:/i;
+// Erlaubte Attribute je Element; alle übrigen fallen weg.
+const ALLOWED_ATTRIBUTES = {
+	A: ["href", "title"],
+	IMG: ["src", "alt", "title"]
+};
 
-// Browser entfernen Tab/CR/LF/NUL beim URL-Parsen AUCH mitten im Schema
-// ("jav\tascript:" wird ausgeführt) — vor dem Pattern-Test daher eine um
-// alle Steuerzeichen bereinigte Kopie des Werts prüfen.
-function isUnsafeUrl (value) {
-	return UNSAFE_URL_PATTERN.test(String(value).replace(/[\x00-\x20]/g, ""));
+// Ziele: Links über http(s) oder mailto, Bilder nur über https.
+function isAllowedUrl (tag, value) {
+	const url = String(value).replace(/[\x00-\x20]/g, "");
+	if (tag === "IMG") {
+		return /^https:\/\//i.test(url);
+	}
+	return /^(https?:\/\/|mailto:)/i.test(url);
 }
 
-// Minimaler Sanitizer ohne neue Dependency: parst in ein detached Document
-// (dort laden keine Ressourcen und feuern keine Event-Handler), entfernt
-// gefährliche Tags, alle on*-Attribute und unsichere URL-Schemata.
+// Filtert in einem Dokument ohne Browsing-Kontext (createHTMLDocument): dort
+// lädt kein Bild und läuft kein Skript. Nicht erlaubte Elemente werden durch
+// ihren reinen Text ersetzt, DROPPED_TAGS ganz entfernt.
 function sanitizeHtml (html) {
 	const doc = document.implementation.createHTMLDocument("");
 	doc.body.innerHTML = html;
 
-	FORBIDDEN_TAGS.forEach(function (tag) {
-		const nodes = doc.body.querySelectorAll(tag);
-		for (let i = nodes.length - 1; i >= 0; i--) {
-			nodes[i].parentNode.removeChild(nodes[i]);
+	// Rückwärts: Kinder vor ihren Eltern, dann bleibt beim Ersetzen eines
+	// Elternteils durch Text nichts Ungeprüftes übrig.
+	const elements = Array.prototype.slice.call(doc.body.querySelectorAll("*")).reverse();
+	elements.forEach(function (element) {
+		const tag = element.nodeName.toUpperCase();
+		if (!element.parentNode) {
+			return;
+		}
+		if (DROPPED_TAGS.indexOf(tag) !== -1) {
+			element.parentNode.removeChild(element);
+			return;
+		}
+		if (ALLOWED_TAGS.indexOf(tag) === -1) {
+			element.parentNode.replaceChild(doc.createTextNode(element.textContent), element);
+			return;
+		}
+		const allowed = ALLOWED_ATTRIBUTES[tag] || [];
+		Array.prototype.slice.call(element.attributes).forEach(function (attribute) {
+			const name = attribute.name.toLowerCase();
+			if (allowed.indexOf(name) === -1
+				|| ((name === "href" || name === "src") && !isAllowedUrl(tag, attribute.value))) {
+				element.removeAttribute(attribute.name);
+			}
+		});
+		if (tag === "A" && element.hasAttribute("href")) {
+			element.setAttribute("rel", "noopener noreferrer");
 		}
 	});
-
-	const elements = doc.body.querySelectorAll("*");
-	for (let i = 0; i < elements.length; i++) {
-		const element = elements[i];
-		const attributes = element.attributes;
-		// Rückwärts iterieren: attributes ist eine Live-Collection.
-		for (let j = attributes.length - 1; j >= 0; j--) {
-			const name = attributes[j].name.toLowerCase();
-			if (name.indexOf("on") === 0) {
-				element.removeAttribute(attributes[j].name);
-			}
-			else if (URL_ATTRIBUTES.indexOf(name) !== -1 && isUnsafeUrl(attributes[j].value)) {
-				element.removeAttribute(attributes[j].name);
-			}
-		}
-	}
 
 	return doc.body.innerHTML;
 }

@@ -40,7 +40,7 @@ return [
 		['name' => 'market#keyStatus', 'url' => '/apikey/status', 'verb' => 'GET'],
 		['name' => 'market#support', 'url' => '/support', 'verb' => 'GET'],
 		['name' => 'market#getConfig', 'url' => '/config', 'verb' => 'GET'],
-		['name' => 'market#requestDemoLicenseKeyFromMarket', 'url' => '/request-license-key-from-market', 'verb' => 'GET'],
+		['name' => 'market#requestDemoLicenseKeyFromMarket', 'url' => '/request-license-key-from-market', 'verb' => 'POST'],
 		['name' => 'market#invalidateCache', 'url' => '/cache/invalidate', 'verb' => 'POST'],
 		['name' => 'localApps#index', 'url' => '/installed-apps/{state}', 'verb' => 'GET', 'defaults' => ['state' => 'enabled']],
 	],

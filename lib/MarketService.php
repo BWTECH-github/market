@@ -806,21 +806,50 @@ class MarketService {
 		$path = \OC::$server->getTempManager()->getTemporaryFile($extension);
 		$this->httpService->downloadApp($downloadLink, $path);
 		$this->verifyDownloadChecksum($appId, $release[0], $path);
+		$this->verifyPackageIdentity($appId, (string) ($release[0]['version'] ?? ''), $path);
 		return $path;
 	}
 
 	/**
+	 * Das Paket muss die gewählte App in der gewählten Version sein. Der
+	 * Installer ersetzt sonst den Ordner der App, deren Kennung im Paket
+	 * steht: Ein falsch zugeordnetes oder manipuliertes Paket träfe eine
+	 * andere installierte App.
+	 *
+	 * @throws AppManagerException
+	 */
+	private function verifyPackageIdentity(string $appId, string $version, string $path): void {
+		try {
+			$info = $this->appManager->readAppPackage($path);
+		} catch (\Throwable) {
+			$info = null;
+		}
+		$packageId = \is_array($info) ? ($info['id'] ?? null) : null;
+		$packageVersion = \is_array($info) ? ($info['version'] ?? null) : null;
+		if ($packageId !== $appId || ($version !== '' && (string) $packageVersion !== $version)) {
+			throw new AppManagerException(
+				$this->l10n->t('The downloaded package is not %s %s.', [$appId, $version])
+			);
+		}
+	}
+
+	/**
 	 * Vergleicht die im Katalog deklarierte sha256-Checksumme ('checksum' =>
-	 * 'sha256:<hex>') mit dem heruntergeladenen Paket. Releases ohne
-	 * Checksummen-Feld oder mit anderem Algorithmus bleiben erlaubt
-	 * (Fremdkataloge, ältere Backends).
+	 * 'sha256:<hex>') mit dem heruntergeladenen Paket. Ein Marktplatz muss sie
+	 * liefern (das Backend setzt sie immer); ohne sie oder mit anderem
+	 * Algorithmus wird nicht installiert. Nur der lokale Katalog darf ohne.
 	 *
 	 * @throws AppManagerException
 	 */
 	private function verifyDownloadChecksum(string $appId, array $release, string $path): void {
 		$checksum = $release['checksum'] ?? null;
 		if (!\is_string($checksum) || !\str_starts_with($checksum, 'sha256:')) {
-			return;
+			if ($this->httpService->isLocalCatalog()) {
+				return;
+			}
+			throw new AppManagerException(
+				$this->l10n->t('The marketplace did not provide a checksum for %s.', [$appId])
+			);
 		}
 		$expected = \strtolower(\trim(\substr($checksum, \strlen('sha256:'))));
 		$actual = \hash_file('sha256', $path);

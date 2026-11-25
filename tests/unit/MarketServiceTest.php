@@ -141,7 +141,8 @@ class MarketServiceTest extends TestCase {
 								'version' => '1.2.3',
 								'platformMin' => null,
 								'platformMax' => null,
-								'download' => 'hit'
+								'download' => 'hit',
+								'checksum' => 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 							],
 							[
 								'version' => '1.3',
@@ -155,9 +156,66 @@ class MarketServiceTest extends TestCase {
 			);
 		$this->httpService->expects($this->once())->method('downloadApp')
 			->with('hit', $this->anything());
+		$this->appManager->method('readAppPackage')->willReturn(['id' => $appId, 'version' => '1.2.3']);
+		$this->appManager->expects($this->once())->method('updateApp');
 
 		$this->versionHelper->method('compare')->willReturn(false);
 		$this->marketService->updateApp('some_app', '1.2.3');
+	}
+
+	/**
+	 * Katalog-Attrappe mit einem Release 2.0.0 für $appId.
+	 */
+	private function givenCatalogRelease(string $appId, array $release): void {
+		$this->appManager->method('canInstall')->willReturn(true);
+		$this->appManager->method('getAllApps')->willReturn([$appId]);
+		$this->appManager->method('getAppInfo')->willReturn(['id' => $appId, 'version' => '1.0.0']);
+		$this->httpService->method('getApps')->willReturn([
+			['id' => $appId, 'releases' => [\array_merge([
+				'version' => '2.0.0',
+				'platformMin' => null,
+				'platformMax' => null,
+				'download' => 'https://marketplace.example.test/downloads/' . $appId . '-2.0.0.tar.gz',
+				'checksum' => 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+			], $release)]],
+		]);
+		$this->versionHelper->method('compare')->willReturn(false);
+	}
+
+	public function testUpdateRefusesAPackageOfAnotherApp() {
+		$this->givenCatalogRelease('some_app', []);
+		$this->appManager->method('readAppPackage')->willReturn(['id' => 'files_sharing', 'version' => '2.0.0']);
+		$this->appManager->expects($this->never())->method('updateApp');
+
+		$this->expectException(AppManagerException::class);
+		$this->marketService->updateApp('some_app');
+	}
+
+	public function testUpdateRefusesAPackageWithAnotherVersion() {
+		$this->givenCatalogRelease('some_app', []);
+		$this->appManager->method('readAppPackage')->willReturn(['id' => 'some_app', 'version' => '1.9.0']);
+		$this->appManager->expects($this->never())->method('updateApp');
+
+		$this->expectException(AppManagerException::class);
+		$this->marketService->updateApp('some_app');
+	}
+
+	public function testUpdateFromTheMarketplaceRequiresAChecksum() {
+		$this->givenCatalogRelease('some_app', ['checksum' => null]);
+		$this->appManager->method('readAppPackage')->willReturn(['id' => 'some_app', 'version' => '2.0.0']);
+		$this->appManager->expects($this->never())->method('updateApp');
+
+		$this->expectException(AppManagerException::class);
+		$this->marketService->updateApp('some_app');
+	}
+
+	public function testLocalCatalogMayGoWithoutChecksum() {
+		$this->givenCatalogRelease('some_app', ['checksum' => null]);
+		$this->httpService->method('isLocalCatalog')->willReturn(true);
+		$this->appManager->method('readAppPackage')->willReturn(['id' => 'some_app', 'version' => '2.0.0']);
+		$this->appManager->expects($this->once())->method('updateApp');
+
+		$this->marketService->updateApp('some_app');
 	}
 
 	public function testRecentVersionIsInstalled() {
@@ -189,7 +247,8 @@ class MarketServiceTest extends TestCase {
 								'license' => 'agpl',
 								'platformMin' => null,
 								'platformMax' => null,
-								'download' => 'hit'
+								'download' => 'hit',
+								'checksum' => 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
 							],
 							[
 								'version' => '2.3.0',
@@ -204,6 +263,8 @@ class MarketServiceTest extends TestCase {
 			);
 		$this->httpService->expects($this->once())->method('downloadApp')
 			->with('hit', $this->anything());
+		$this->appManager->method('readAppPackage')->willReturn(['id' => $appId, 'version' => '3.2.3']);
+		$this->appManager->expects($this->once())->method('installApp');
 
 		$this->versionHelper->method('compare')->willReturn(false);
 		$this->marketService->installApp($appId);
