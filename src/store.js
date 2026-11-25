@@ -552,7 +552,8 @@ const actions = {
     FETCH_CATEGORIES (context) {
         context.commit("LOADING_CATEGORIES")
 
-        Axios.get(OC.generateUrl("/apps/market/categories"))
+        // Zurückgeben, damit App.vue auf die Antwort warten kann
+        return Axios.get(OC.generateUrl("/apps/market/categories"))
             .then((response) => {
                 context.commit("SET_CATEGORIES", response.data);
                 context.commit("FINISH_CATEGORIES")
@@ -589,7 +590,7 @@ const actions = {
     },
 
     FETCH_CONFIG (context) {
-        Axios.get(OC.generateUrl("/apps/market/config"))
+        return Axios.get(OC.generateUrl("/apps/market/config"))
             .then((response) => {
                 context.commit("CONFIG", response.data);
             })

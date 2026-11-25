@@ -51,10 +51,8 @@
 
 	export default {
 		// categoryLang (lang="en" an Kategorienamen ohne Übersetzung) kommt aus dem Mixin
+		// Die Kategorien lädt App.vue mit den übrigen Daten, bevor sie die Seite zeigt.
 		mixins: [Mixins],
-		mounted () {
-			this.$store.dispatch('FETCH_CATEGORIES')
-		},
 		methods: {
 			t(string) {
 				return this.$gettext(string);
@@ -64,29 +62,6 @@
 			},
 			onSearch (event) {
 				this.$store.dispatch('UPDATE_SEARCH', event.target.value);
-			},
-			categoryLabel (category) {
-				if (!category) {
-					return ''
-				}
-				if (category.translations) {
-					const locale = (typeof OC !== 'undefined' && OC.getLocale) ? OC.getLocale().slice(0, 2) : 'en';
-					const translated = category.translations[locale] || category.translations.en;
-					if (translated && translated.name) {
-						return translated.name;
-					}
-				}
-				return category.name || category.displayName || category.label || this.formatCategory(category.id);
-			},
-			formatCategory (id) {
-				if (!id) {
-					return ''
-				}
-				return String(id)
-					.replace(/[-_]+/g, ' ')
-					.replace(/\b\w/g, function (character) {
-						return character.toUpperCase();
-					});
 			}
 		},
 		computed: {

@@ -75,26 +75,6 @@
 				return this.t('Results: %{count}', { count: this.applications.length })
 			}
 		},
-		methods: {
-			categoryLabel (category) {
-				if (!category) {
-					return ''
-				}
-				if (category.translations) {
-					const locale = (typeof OC !== 'undefined' && OC.getLocale) ? OC.getLocale().slice(0, 2) : 'en';
-					const translated = category.translations[locale] || category.translations.en;
-					if (translated && translated.name) {
-						return translated.name;
-					}
-				}
-				const label = category.name || category.displayName || category.label || category.id || '';
-				return String(label)
-					.replace(/[-_]+/g, ' ')
-					.replace(/\b\w/g, function (character) {
-						return character.toUpperCase();
-					});
-			}
-		}
 	}
 </script>
 

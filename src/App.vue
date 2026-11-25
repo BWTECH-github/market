@@ -1,6 +1,12 @@
 <template lang="pug">
-	#market-app(v-if="config")
-		.bwt-shell
+	#market-app
+		//- Bis Einstellungen, Kategorien und Apps da sind, steht nur der Ladekreisel.
+		//- Vorher kam jedes Stück für sich und schob das schon Gezeichnete weiter:
+		//- die Kategorien die Einträge darunter (bei 390 px die ganze Liste), die
+		//- Zähler die Seitenleiste, die Antworten die Kacheln (Layout-Verschiebung
+		//- 0,07 bei 1440 px, 0,10 bei 390 px).
+		.uk-position-fixed.uk-position-center(v-if="!ready", uk-spinner, uk-icon="icon: spinner")
+		.bwt-shell(v-else)
 			.bwt-shell__notice(v-if="showNotice").uk-animation-slide-top-small
 				.uk-alert-primary(uk-alert)
 					span.uk-alert-close(uk-close, @click.prevent="noticeDismissed = true")
@@ -22,12 +28,25 @@
 		mixins: [Mixins],
 		data () {
 			return {
-				"noticeDismissed" : false
+				"noticeDismissed" : false,
+				ready: false
 			}
 		},
 		mounted () {
-			this.$store.dispatch('FETCH_CONFIG');
-			this.$store.dispatch('REFRESH_MARKET');
+			// Die Anfragen melden ihre Fehler selbst; hier zählt nur, dass sie
+			// fertig sind. Antwortet der Marktplatz nicht, erscheint die Seite
+			// nach vier Sekunden trotzdem - Navigation und Support-Vertrag
+			// bleiben erreichbar, Nachzügler verschieben dann eben noch.
+			const anfragen = [
+				this.$store.dispatch('FETCH_CONFIG'),
+				this.$store.dispatch('FETCH_CATEGORIES'),
+				this.$store.dispatch('REFRESH_MARKET')
+			].map((anfrage) => Promise.resolve(anfrage).catch(() => {}));
+			const frist = setTimeout(() => { this.ready = true; }, 4000);
+			Promise.all(anfragen).then(() => {
+				clearTimeout(frist);
+				this.ready = true;
+			});
 
 			this.$store.watch(
 				(state)  => {

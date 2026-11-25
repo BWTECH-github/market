@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [1.1.3] - 2026-11-25
+
+### Behoben
+- Die Kategorien „Storage“ und „Productivity“ stehen auf Kacheln und
+  Detailseiten mit ihrem Namen statt als Kennung „storage“ bzw. „productivity“.
+- Der Markt erscheint erst, wenn Kategorien und Apps geladen sind. Vorher
+  rückten Seitenleiste und Kacheln beim Laden noch einmal nach unten.
+
 ## [1.1.2] - 2026-11-25
 
 ### Behoben

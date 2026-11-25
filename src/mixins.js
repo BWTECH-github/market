@@ -56,6 +56,30 @@ function sanitizeHtml (html) {
 
 export default {
 	methods: {
+		// Name einer Kategorie für Seitenleiste, Kacheln, Kopf der Kategorieansicht
+		// und Detailseite - vorher stand dieselbe Funktion viermal in leicht
+		// verschiedener Form da. Kategorien, die der Marktplatz an Apps vergibt,
+		// aber nicht in seiner Liste führt (storage, productivity), kamen dabei
+		// als Rohkennung „storage“ heraus; jetzt mit großem Anfangsbuchstaben wie
+		// die übrigen Namen („Storage“). Sie sind englisch wie diese (categoryLang).
+		categoryLabel (category) {
+			if (!category) {
+				return '';
+			}
+			if (category.translations) {
+				const sprache = (typeof OC !== 'undefined' && OC.getLocale) ? OC.getLocale().slice(0, 2) : 'en';
+				const uebersetzt = category.translations[sprache] || category.translations.en;
+				if (uebersetzt && uebersetzt.name) {
+					return uebersetzt.name;
+				}
+			}
+			const name = category.name || category.displayName || category.label;
+			if (name) {
+				return String(name);
+			}
+			const kennung = String(category.id || '').replace(/[-_]+/g, ' ').trim();
+			return kennung.charAt(0).toUpperCase() + kennung.slice(1);
+		},
 		// Sprache eines Kategorienamens (WCAG 3.1.2): fehlt die Übersetzung in die
 		// Sprache der Oberfläche, kommt der Name englisch aus dem Marktplatz und wird
 		// als englisch ausgezeichnet. undefined lässt das Attribut weg.
