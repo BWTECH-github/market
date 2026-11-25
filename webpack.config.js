@@ -25,6 +25,11 @@ module.exports = {
 				loader: 'sass-loader',
 				options: {
 					implementation: require('sass'),
+					// Ohne @charset/BOM: neuere postcss-Fassungen geben ein BOM aus Sass
+					// wörtlich weiter, dann begänne das CSS mit einem BOM vor :root.
+					sassOptions: {
+						charset: false,
+					},
 				}
 			}]
 		}, {
