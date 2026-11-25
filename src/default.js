@@ -93,7 +93,9 @@ function ueberschriftAbwarten (handler) {
             handler(h);
         }
     });
-    wache.observe(document.body, { childList: true, subtree: true });
+    // documentElement statt body: Den ersten Routenwechsel meldet der Router schon beim
+    // Erzeugen der App im Kopf der Seite, dann gibt es body noch nicht.
+    wache.observe(document.documentElement, { childList: true, subtree: true });
     const frist = setTimeout(() => wache.disconnect(), 10000);
 }
 

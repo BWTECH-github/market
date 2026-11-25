@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Die Kategorien stehen wieder in der Seitenleiste. Seit 1.1.1 brach die
   Navigation mit einem Skriptfehler ab, weil ihr die Sprachauszeichnung der
   Kategorienamen fehlte.
+- Beim ersten Aufruf des Markts erscheint kein Skriptfehler mehr, und der
+  Fenstertitel nennt auch dort die Ansicht.
 
 ## [1.1.1] - 2026-11-24
 
