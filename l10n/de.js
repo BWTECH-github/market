@@ -114,6 +114,8 @@ OC.L10N.register(
     "Market app can not uninstall itself." : "Die Market-App kann sich nicht selbst deinstallieren.",
     "No newer version available for %s" : "Für %s gibt es keine neuere Version",
     "Downloaded package for %s failed the sha256 checksum verification." : "Das heruntergeladene Paket für %s hat die SHA-256-Prüfung nicht bestanden.",
+    "The marketplace did not provide a checksum for %s." : "Der Marktplatz hat für %s keine Prüfsumme geliefert.",
+    "The downloaded package is not %s %s." : "Das heruntergeladene Paket ist nicht %s %s.",
     "Apps on this system." : "Apps auf diesem System.",
     "This system uses the local app catalog and needs no key." : "Dieses System nutzt den lokalen App-Katalog und braucht keinen Schlüssel.",
     "This key is not valid." : "Dieser Schlüssel ist ungültig.",
