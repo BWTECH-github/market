@@ -4,8 +4,10 @@
  * Keine Testdaten nötig; die Probe ändert an der Instanz nur den Markt-Cache
  * („Cache leeren“). Installieren und Entfernen werden nicht echt ausgeführt –
  * das tauschte Apps der Testinstanz gegen Katalogstände. Der Neuaufbau der
- * Seitenleiste danach wird stattdessen mit einer umgelenkten Antwort von
- * navigationdetect.php durchgespielt (eine App mehr, eine weniger).
+ * Seitenleiste danach wird stattdessen mit gestellten Antworten durchgespielt:
+ * „Deinstallieren“ auf einer Detailseite bekommt eine Erfolgsmeldung, ohne dass
+ * der Server gefragt wird, navigationdetect.php eine umgelenkte Antwort (eine
+ * App mehr, eine weniger).
  *
  * Geprüft wird (1440 px):
  *   - Entdecken, Suche, Kategorie, Details, Installierte Apps, Updates,
@@ -92,12 +94,23 @@ function seitenleiste(seite) {
 	}));
 }
 
-function neuaufbau(seite) {
-	return seite.evaluate(() => new Promise((fertig) => {
-		const store = document.querySelector('#market-app').__vue__.$store;
-		store.dispatch('REBUILD_NAVIGATION');
-		setTimeout(fertig, 1500);
-	}));
+// Löst den Neuaufbau über die Oberfläche aus: „Deinstallieren“ auf der
+// Detailseite einer installierten App. Die Antwort ist gestellt, an der Instanz
+// ändert sich nichts; der Markt führt danach die Seitenleiste nach.
+async function neuaufbau(seite) {
+	const entfernen = '**/apps/market/apps/*/uninstall';
+	await seite.route(entfernen, (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ message: 'Probe' }) }));
+	if (!/#\/app\//.test(seite.url())) {
+		await seite.locator('#market-app .bwt-shell__sidebar a[href="#/installed"]').click();
+		await seite.locator('.bwt-installed-table tbody tr', { has: seite.locator('a.uk-button') })
+			.filter({ hasNot: seite.locator('.uk-text-meta', { hasText: /^market$/ }) })
+			.first().locator('a.uk-button').click();
+	}
+	await seite.locator('.bwt-detail .uk-card-footer button', { hasText: /deinstallieren|uninstall/i }).first().click();
+	await seite.locator('.uk-modal.uk-open .uk-modal-footer .uk-button-primary').click();
+	await seite.waitForTimeout(1500);
+	await seite.unroute(entfernen);
+	await seite.evaluate(() => UIkit.notification.closeAll());
 }
 
 // Liegt an diesen Punkten das Element (oder etwas darin) obenauf?

@@ -1,15 +1,21 @@
 /*!
- * vuex v3.6.2
- * (c) 2021 Evan You
+ * vue-router v4.6.5
+ * (c) 2026 Eduardo San Martin Morote
  * @license MIT
  */
 
 /*! UIkit 3.24.2 | https://www.getuikit.com | (c) 2014 - 2025 YOOtheme | MIT License */
 
-/*! showdown v 2.1.0 - 21-04-2022 */
+/*! markdown-it 15.0.3 https://github.com/markdown-it/markdown-it @license MIT */
 
 /**
- * vue-gettext v2.1.12
- * (c) 2020 Polyconseil
- * @license MIT
- */
+* @vue/runtime-dom v3.5.46
+* (c) 2018-present Yuxi (Evan) You and Vue contributors
+* @license MIT
+**/
+
+/**
+* @vue/shared v3.5.46
+* (c) 2018-present Yuxi (Evan) You and Vue contributors
+* @license MIT
+**/

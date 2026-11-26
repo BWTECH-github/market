@@ -13,7 +13,9 @@
 				p.bwt-page-head__subtitle(v-else-if="category") {{ t('Apps in %{category}', { category: categoryDisplayName }) }}
 				p.bwt-page-head__subtitle(v-else) {{ t('Browse and install apps for your owncloud.online') }}
 
-		ul.bwt-app-grid(v-if="!loading && !failed && applications.length")
+		//- Kacheln blenden aus und ein, wenn Suche oder Kategorie die Liste ändern -
+		//- nicht beim ersten Aufbau der Ansicht (appear erst danach).
+		transition-group.bwt-app-grid(v-if="!loading && !failed && applications.length", name="fade", tag="ul", :appear="mounted")
 			Tile(v-for="application in applications", :application="application", :key="application.id")
 
 		transition(name="fade")
@@ -30,6 +32,14 @@
 		mixins: [Mixins],
 		components: {
 			Tile
+		},
+		data () {
+			return {
+				mounted: false
+			}
+		},
+		mounted () {
+			this.mounted = true
 		},
 		computed: {
 			loading() {

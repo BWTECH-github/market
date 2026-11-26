@@ -1,4 +1,5 @@
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const { DefinePlugin } = require('webpack');
+const { VueLoaderPlugin } = require('vue-loader');
 
 module.exports = {
 	mode: 'production',
@@ -41,6 +42,14 @@ module.exports = {
 		}]
 	},
 	plugins: [
-		new VueLoaderPlugin()
+		new VueLoaderPlugin(),
+		// Schalter, die Vue 3, Vuex 4 und Vue Router 4 beim Bündeln erwarten: Die
+		// Komponenten nutzen die Options-API; Entwicklerwerkzeuge und Hinweise zur
+		// Hydration bleiben aus dem Bündel.
+		new DefinePlugin({
+			__VUE_OPTIONS_API__: true,
+			__VUE_PROD_DEVTOOLS__: false,
+			__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false
+		})
 	]
 }

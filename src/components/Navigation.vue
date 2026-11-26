@@ -11,7 +11,7 @@
 
 		ul.bwt-sidebar__nav
 			li
-				router-link(:to="{ name: 'index' }", exact)
+				router-link(:to="{ name: 'index' }")
 					span {{ t('Discover') }}
 			li
 				router-link(:to="{ name: 'InstalledApps' }")

@@ -1,37 +1,36 @@
 <template lang="pug">
-	transition(name="fade")
-		li(v-if="bundle").uk-animation-slide-top-small.bwt-bundle
-			.uk-card.uk-card-default
-				.uk-card-header
-					h3.bwt-page-head__title.uk-margin-remove-bottom {{ bundle.title }}
-					p.uk-text-meta.uk-margin-small-top(v-html="t('Contains <strong>%{no}</strong> Application(s)', { no : this.bundle.products.length })")
+	li.uk-animation-slide-top-small.bwt-bundle
+		.uk-card.uk-card-default
+			.uk-card-header
+				h3.bwt-page-head__title.uk-margin-remove-bottom {{ bundle.title }}
+				p.uk-text-meta.uk-margin-small-top(v-html="t('Contains <strong>%{no}</strong> Application(s)', { no : bundle.products.length })")
 
-				.uk-card-body
-					p.bwt-bundle__desc {{ bundle.description }}
+			.uk-card-body
+				p.bwt-bundle__desc {{ bundle.description }}
 
-					table.uk-table.uk-table-divider.uk-table-middle.uk-table-justify
-						thead
-							tr
-								th {{ t('App') }}
-								th {{ t('Version') }}
-								th {{ t('Info') }}
-						tbody
-							tr(v-for="application in bundle.products")
-								td
-									router-link(:to="{ name: 'details', params: { id: application.id }}") {{ application.title }}
-								td
-									span {{ (application.release) ? application.release.version : application.installInfo.version }}
-								td
-									span.bwt-badge.bwt-badge--installed(v-if="isInstalled(application.id) || application.installed") {{ t('installed') }}
-									span(v-else-if="isProcessing(application.id)", role="status", :title="t('installing')" uk-tooltip)
-										span(uk-spinner, uk-icon="icon: spinner; ratio: 0.8", aria-hidden="true")
-										span.uk-hidden-visually {{ t('installing') }}
-									span.bwt-badge.bwt-badge--locked(v-else-if="application.locked")
-										span(uk-icon="icon: lock; ratio: 0.6", aria-hidden="true")
-										| {{ t('Support contract') }}
-				.uk-card-footer
-					button(v-if="bundle.downloadable && installableApps.length > 0", @click="install").uk-button.uk-button-primary {{ t('install bundle') }}
-					a(v-else-if="!bundle.downloadable && installableApps.length === 0", :href="bundle.marketplace", target="_blank").uk-button.uk-button-default {{ t('view in marketplace') }}
+				table.uk-table.uk-table-divider.uk-table-middle.uk-table-justify
+					thead
+						tr
+							th {{ t('App') }}
+							th {{ t('Version') }}
+							th {{ t('Info') }}
+					tbody
+						tr(v-for="application in bundle.products")
+							td
+								router-link(:to="{ name: 'details', params: { id: application.id }}") {{ application.title }}
+							td
+								span {{ (application.release) ? application.release.version : application.installInfo.version }}
+							td
+								span.bwt-badge.bwt-badge--installed(v-if="isInstalled(application.id) || application.installed") {{ t('installed') }}
+								span(v-else-if="isProcessing(application.id)", role="status", :title="t('installing')" uk-tooltip)
+									span(uk-spinner, uk-icon="icon: spinner; ratio: 0.8", aria-hidden="true")
+									span.uk-hidden-visually {{ t('installing') }}
+								span.bwt-badge.bwt-badge--locked(v-else-if="application.locked")
+									span(uk-icon="icon: lock; ratio: 0.6", aria-hidden="true")
+									| {{ t('Support contract') }}
+			.uk-card-footer
+				button(v-if="bundle.downloadable && installableApps.length > 0", @click="install").uk-button.uk-button-primary {{ t('install bundle') }}
+				a(v-else-if="!bundle.downloadable && installableApps.length === 0", :href="bundle.marketplace", target="_blank").uk-button.uk-button-default {{ t('view in marketplace') }}
 </template>
 
 <script>
@@ -49,11 +48,6 @@
 		props: [
 			'bundle'
 		],
-		filters: {
-			cssBackgroundImage (image) {
-				return 'background-image:url("' + image + '");';
-			}
-		},
 		computed : {
 			installableApps () {
 				// Apps mit Schloss bleiben draußen: Ihr Download würde abgelehnt.

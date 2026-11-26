@@ -11,21 +11,10 @@ UIkit.use(Icons);
 
 // ------------------------------------------------------------- Vue plugins ---
 
-import Vue       from 'vue'
-import VueRouter from 'vue-router';
+import { createApp, nextTick } from 'vue'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
-Vue.use(VueRouter);
-
-import GetTextPlugin from 'vue-gettext'
-import translations from '../l10n/translations.json'
-
-Vue.use(GetTextPlugin, {translations: translations})
-// Sprache aus <html lang>: der Kern schreibt sie mit Bindestrich ("de-DE",
-// "de-AT"), die Kataloge heißen "de_DE" usw. vue-gettext fällt bei unbekannter
-// Kennung nur auf den Teil vor "_" zurück (de_AT -> de), nicht vor "-".
-Vue.config.language = (OC.getLocale() || 'en').replace(/-/g, '_')
-
-// TODO: Write plugin for global t() method
+import gettext from './gettext'
 
 // --------------------------------------------------------------- Vue setup ---
 
@@ -68,7 +57,8 @@ const routes = [
     }
 ];
 
-const router = new VueRouter({
+const router = createRouter({
+    history: createWebHashHistory(),
     routes
 });
 
@@ -99,9 +89,14 @@ function ueberschriftAbwarten (handler) {
     const frist = setTimeout(() => wache.disconnect(), 10000);
 }
 
-router.afterEach((to, from) => {
+router.afterEach((to, from, failure) => {
+    // Ein Klick auf die Ansicht, die schon offen ist, wechselt nichts: Fokus und
+    // Titel bleiben.
+    if (failure) {
+        return;
+    }
     const fokus = from.matched.length > 0;
-    Vue.nextTick(() => ueberschriftAbwarten((h) => {
+    nextTick(() => ueberschriftAbwarten((h) => {
         const name = h.textContent.trim();
         if (name) {
             document.title = name + ' - ' + grundTitel;
@@ -114,13 +109,19 @@ router.afterEach((to, from) => {
 });
 
 // The App itself
-const MarketApp = new Vue({
-    router,
-    store,
-    render: h => h(App)
-});
+const MarketApp = createApp(App)
+    .use(router)
+    .use(store)
+    .use(gettext);
 
 // --------------------------------------------------------------- Vue mount ---
 
 // Need to wait for window to load
-window.onload = () => MarketApp.$mount('.app-market');
+// Die Anwendung ersetzt ihr Ziel (#content, der Kern gibt ihm die Klasse
+// app-market), wie es Vue 2 tat: Gerüst und Stile des Kerns rechnen mit
+// #content-wrapper > #market-app. Vue 3 hängt sie sonst in das Ziel hinein.
+window.onload = () => {
+    const halter = document.createDocumentFragment();
+    MarketApp.mount(halter);
+    document.querySelector('.app-market').replaceWith(halter);
+};

@@ -1,15 +1,9 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import { createStore } from "vuex";
 import Axios from "axios";
 import _ from "underscore";
+import { gettext as t } from "./gettext";
 
 // Modified by BW-Tech GmbH for owncloud.online (PHP 8.4).
-
-Vue.use(Vuex);
-
-// Meldungen aus dem Store übersetzen: vue-gettext hängt $gettext an den
-// Vue-Prototyp (default.js, Vue.use(GetTextPlugin)); Aufruf erst zur Laufzeit.
-const t = (text) => (Vue.prototype.$gettext ? Vue.prototype.$gettext(text) : text);
 
 const state = {
 
@@ -769,7 +763,7 @@ const actions = {
     }
 };
 
-export default new Vuex.Store({
+export default createStore({
     state,
     getters,
     mutations,

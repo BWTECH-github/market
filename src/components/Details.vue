@@ -46,7 +46,7 @@
 
 						td {{ details.version }}
 
-						td(v-if="details.created") {{ details.created | formatDate }}
+						td(v-if="details.created") {{ formatDate(details.created) }}
 
 						td {{ license }}
 
@@ -54,7 +54,7 @@
 					button.uk-alert-close(type="button", uk-close, :aria-label="t('Close')")
 					div(v-for="update in releases")
 						strong {{ t('Version %{version} available', {version: update.version}) }}&nbsp;
-						span {{ t('published on ') }} {{ update.created | formatDate }}.&nbsp;
+						span {{ t('published on ') }} {{ formatDate(update.created) }}.&nbsp;
 						a(:href="application.marketplace", target="_blank") {{ t('Get more info') }}
 						.bwt-update-changelog(v-if="update.changelog", v-html="markdown(update.changelog)")
 						.uk-alert.uk-alert-danger(v-if="!update.canInstall")
@@ -332,12 +332,10 @@
 				});
 			}
 		},
-		filters: {
+		methods: {
 			formatDate (unixtime) {
 				return moment(unixtime).format('ll');
-			}
-		},
-		methods: {
+			},
 			install () {
 				this.$store.dispatch('PROCESS_APPLICATION', [this.application.id, 'install'])
 			},
@@ -384,7 +382,7 @@
 		padding: 1.75rem 2rem 1.5rem !important;
 	}
 
-	::v-deep .uk-card-footer {
+	:deep(.uk-card-footer) {
 		padding: 1.25rem 2rem 1.5rem;
 		display: flex;
 		justify-content: flex-end;
@@ -397,7 +395,7 @@
 			padding: 1.25rem 1rem 1rem !important;
 		}
 
-		::v-deep .uk-card-footer {
+		:deep(.uk-card-footer) {
 			padding: 1rem 1rem 1.25rem;
 		}
 	}
@@ -480,16 +478,16 @@
 		line-height: 1.7;
 		color: var(--bwt-text);
 
-		::v-deep h2,
-		::v-deep h3,
-		::v-deep h4 {
+		:deep(h2),
+		:deep(h3),
+		:deep(h4) {
 			margin: 1.6rem 0 0.75rem;
 			letter-spacing: 0;
 		}
 
-		::v-deep p,
-		::v-deep ul,
-		::v-deep ol {
+		:deep(p),
+		:deep(ul),
+		:deep(ol) {
 			margin-top: 0.75rem;
 			margin-bottom: 0.75rem;
 		}

@@ -1,9 +1,11 @@
-import showdown from "showdown";
+import MarkdownIt from "markdown-it";
 
-// Positivliste für Marketplace-Markdown (description/changelog). showdown
-// reicht rohes HTML ungefiltert durch; eine Sperrliste ließ Inline-Stile,
-// fremde Attribute, noscript- und SVG-Tricks stehen. Jetzt bleibt nur, was
-// showdown für Markdown selbst erzeugt, ohne style, class und id.
+// Markdown des Marktplatzes (description, changelog): CommonMark ohne rohes
+// HTML - Auszeichnung im Text erscheint als Text, nicht als Element.
+const converter = new MarkdownIt("commonmark", { html: false });
+
+// Positivliste als zweite Lage hinter dem Wandler: Es bleibt nur, was für
+// Markdown entsteht, ohne style, class und id.
 const ALLOWED_TAGS = [
 	"P", "BR", "HR", "EM", "STRONG", "B", "I", "DEL", "S", "SUP", "SUB",
 	"CODE", "PRE", "BLOCKQUOTE", "UL", "OL", "LI",
@@ -132,10 +134,7 @@ export default {
 				return "";
 			}
 
-			let converter = new showdown.Converter();
-			let markdown  = converter.makeHtml(string);
-
-			return sanitizeHtml(markdown);
+			return sanitizeHtml(converter.render(string));
 		}
 	}
 }

@@ -8,7 +8,8 @@
 			div
 				h1.bwt-page-head__title {{ t('App Bundles') }}
 
-		ul(v-if="!loading && !failed && bundles.length").uk-margin-remove.uk-padding-remove
+		//- Bündel blenden ein, wenn sie nach dem Aufbau der Ansicht eintreffen
+		transition-group(v-if="!loading && !failed && bundles.length", name="fade", tag="ul", :appear="mounted").uk-margin-remove.uk-padding-remove
 			Tile(v-for="bundle in bundles", :bundle="bundle", :key="bundle.id")
 
 		//- Der Leerzustand hing an „!bundles“ – eine leere Liste ist aber ein
@@ -27,7 +28,13 @@
 		components: {
 			Tile
 		},
+		data () {
+			return {
+				mounted: false
+			}
+		},
 		mounted () {
+			this.mounted = true
 			this.$store.dispatch('FETCH_BUNDLES');
 		},
 		computed: {

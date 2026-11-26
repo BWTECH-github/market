@@ -1,35 +1,34 @@
 <template lang="pug">
-	transition(name="fade")
-		li(v-if="application").bwt-app-grid__item.uk-animation-slide-top-small
-			.uk-card.uk-card-default.bwt-tile
-				//- WCAG 2.4.4/4.1.2: Voll-Karten-Overlay-Link aus dem Tab-Flow genommen;
-				//- der Titel-Link bleibt der einzige zugängliche Einstieg.
-				router-link.bwt-tile__overlay(
-					:to="{ name: 'details', params: { id: application.id }}",
-					tabindex="-1",
-					aria-hidden="true"
-				)
-				span.bwt-tile__icon(aria-hidden="true")
-					span.bwt-tile__icon-fallback {{ initial }}
-					img(v-if="iconUrl", :src="iconUrl", alt="", loading="lazy")
-				.bwt-tile__content
-					.bwt-tile__labels
-						span.bwt-tile__label(v-if="primaryCategory", :lang="primaryCategoryLang") {{ primaryCategoryLabel }}
-						span.bwt-tile__label.bwt-tile__label--installed(v-if="application.installed && !application.updateInfo") {{ t('Installed') }}
-						span.bwt-tile__label.bwt-tile__label--update(v-if="application.updateInfo") {{ t('Update') }}
-						span.bwt-tile__label.bwt-tile__label--locked(v-if="application.locked")
-							span(uk-icon="icon: lock; ratio: 0.6", aria-hidden="true")
-							| {{ t('Support contract') }}
+	li.bwt-app-grid__item.uk-animation-slide-top-small
+		.uk-card.uk-card-default.bwt-tile
+			//- WCAG 2.4.4/4.1.2: Voll-Karten-Overlay-Link aus dem Tab-Flow genommen;
+			//- der Titel-Link bleibt der einzige zugängliche Einstieg.
+			router-link.bwt-tile__overlay(
+				:to="{ name: 'details', params: { id: application.id }}",
+				tabindex="-1",
+				aria-hidden="true"
+			)
+			span.bwt-tile__icon(aria-hidden="true")
+				span.bwt-tile__icon-fallback {{ initial }}
+				img(v-if="iconUrl", :src="iconUrl", alt="", loading="lazy")
+			.bwt-tile__content
+				.bwt-tile__labels
+					span.bwt-tile__label(v-if="primaryCategory", :lang="primaryCategoryLang") {{ primaryCategoryLabel }}
+					span.bwt-tile__label.bwt-tile__label--installed(v-if="application.installed && !application.updateInfo") {{ t('Installed') }}
+					span.bwt-tile__label.bwt-tile__label--update(v-if="application.updateInfo") {{ t('Update') }}
+					span.bwt-tile__label.bwt-tile__label--locked(v-if="application.locked")
+						span(uk-icon="icon: lock; ratio: 0.6", aria-hidden="true")
+						| {{ t('Support contract') }}
 
-					h3.bwt-tile__title
-						router-link(:to="{ name: 'details', params: { id: application.id }}") {{ application.name }}
+				h3.bwt-tile__title
+					router-link(:to="{ name: 'details', params: { id: application.id }}") {{ application.name }}
 
-					p.bwt-tile__summary(v-if="application.summary || application.description") {{ summaryText }}
+				p.bwt-tile__summary(v-if="application.summary || application.description") {{ summaryText }}
 
-					.bwt-tile__footer
-						rating(v-if="application.rating", :rating="application.rating")
-						span(v-else) &nbsp;
-						strong.bwt-tile__details {{ t('Details') }} →
+				.bwt-tile__footer
+					rating(v-if="application.rating", :rating="application.rating")
+					span(v-else) &nbsp;
+					strong.bwt-tile__details {{ t('Details') }} →
 </template>
 
 <script>

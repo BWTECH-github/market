@@ -233,7 +233,7 @@
 	transition: transform .35s cubic-bezier(.4,0,.2,1), opacity .3s;
 }
 
-.fade-enter {
+.fade-enter-from {
 	transform: translateY(-6px);
 	opacity: 0;
 }
