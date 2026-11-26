@@ -85,7 +85,9 @@ function seitenleiste(seite) {
 		})),
 		menue: Array.from(document.querySelectorAll('#oco-apps-liste > li')).map((l) => ({
 			id: l.getAttribute('data-id'),
-			name: l.textContent.trim(),
+			// Leerraum zwischen Name und Hinweis „öffnet in neuem Fenster“ zählt nicht:
+			// die Vorlage des Kerns bricht dort um, der Neuaufbau nicht.
+			name: l.textContent.trim().replace(/\s+/g, ' '),
 			href: (l.querySelector('a') || {}).getAttribute ? l.querySelector('a').getAttribute('href') : '',
 			aktiv: !!l.querySelector('a.active'),
 			aktuell: !!l.querySelector('a[aria-current="page"]'),
