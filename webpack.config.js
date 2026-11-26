@@ -1,3 +1,9 @@
+// Vor dem Laden von vue-loader: Die Vorlagen-Compiler von Vue 3 wählen ihre
+// Fassung beim Laden nach NODE_ENV. Ohne den Wert bliebe z. B. jeder Kommentar
+// der Vorlagen im Bündel, und der Bau hinge davon ab, wie er gestartet wird
+// (npm run build, npx webpack, CI).
+process.env.NODE_ENV = 'production';
+
 const { DefinePlugin } = require('webpack');
 const { VueLoaderPlugin } = require('vue-loader');
 
