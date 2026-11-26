@@ -45,6 +45,7 @@
     "No license key configured." : "Klucz licencji nie został skonfigurowany.",
     "A license key is already configured." : "Klucz licencji jest już skonfigurowany.",
     "Update for %1$s to version %2$s is available." : "Jest dostępna aktualizacja dla %1$s do wersji %2$s",
-    "The Internet connection is disabled." : "Połączenie internetowe jest wyłączone."
+    "The Internet connection is disabled." : "Połączenie internetowe jest wyłączone.",
+    "Installing apps is not supported because the app folder is not writable." : "Nie można instalować aplikacji, ponieważ folder aplikacji nie jest zapisywalny."
 },"pluralForm" :"nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);"
 }

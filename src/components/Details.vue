@@ -342,7 +342,9 @@
 			uninstall () {
 				UIkit.modal.confirm(this.t('Are you sure you want to remove <strong>%{appName}</strong> from your system?', {appName : this.application.name }), {
 					center : true,
-					escClose : true
+					escClose : true,
+					// Der Knopf nennt, was er tut, statt „OK“
+					i18n : { ok : this.t('Remove') }
 				}).then(() => {
 					this.$store.dispatch('PROCESS_APPLICATION', [this.application.id, 'uninstall'])
 				}, function () {

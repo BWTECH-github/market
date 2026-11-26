@@ -63,6 +63,7 @@ OC.L10N.register(
     "The Internet connection is disabled." : "De internet verbinding is uitgeschakeld.",
     "Invalid marketplace API key provided" : "Ongeldige marktplaats API sleutel opgegeven",
     "Marketplace API key missing" : "Marktplaats API-sleutel ontbreekt",
-    "Active subscription on marketplace required" : "Actief abonnement op de marktplaats benodigd."
+    "Active subscription on marketplace required" : "Actief abonnement op de marktplaats benodigd.",
+    "Installing apps is not supported because the app folder is not writable." : "Apps kunnen niet worden geïnstalleerd omdat de app-map niet beschrijfbaar is."
 },
 "nplurals=2; plural=(n != 1);");

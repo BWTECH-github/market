@@ -53,6 +53,7 @@ OC.L10N.register(
     "The Internet connection is disabled." : "Kobling til internett er deaktivert.",
     "Invalid marketplace API key provided" : "Ugyldig API nøkkel for markedsplass er oppgitt",
     "Marketplace API key missing" : "API nøkkel for markedsplass mangler",
-    "Active subscription on marketplace required" : "Aktivt abonnement for markedsplass er nødvendig"
+    "Active subscription on marketplace required" : "Aktivt abonnement for markedsplass er nødvendig",
+    "Installing apps is not supported because the app folder is not writable." : "Apper kan ikke installeres fordi app-mappen ikke er skrivbar."
 },
 "nplurals=2; plural=(n != 1);");

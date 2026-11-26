@@ -33,6 +33,7 @@ OC.L10N.register(
     "Can not change api key because it is configured in config.php" : "无法更改API密钥，因为它是在config.php中配置的",
     "Cache cleared." : "缓存已清空。",
     "Update for %1$s to version %2$s is available." : "%1$s的版本%2$s的更新可用。",
-    "The Internet connection is disabled." : "Internet连接已禁用。"
+    "The Internet connection is disabled." : "Internet连接已禁用。",
+    "Installing apps is not supported because the app folder is not writable." : "无法安装应用，因为应用文件夹不可写。"
 },
 "nplurals=1; plural=0;");

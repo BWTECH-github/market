@@ -28,6 +28,7 @@ OC.L10N.register(
     "No license key configured." : "Není nastaven licenční klíč.",
     "A license key is already configured." : "Licenční klíč je již nastaven.",
     "Cache cleared." : "Cache vyčištěna.",
-    "Update for %1$s to version %2$s is available." : "Je dostupná aktualizace pro %1$s na verzi %2$s."
+    "Update for %1$s to version %2$s is available." : "Je dostupná aktualizace pro %1$s na verzi %2$s.",
+    "Installing apps is not supported because the app folder is not writable." : "Aplikace nelze instalovat, protože do složky aplikací nelze zapisovat."
 },
 "nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;");

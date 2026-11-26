@@ -51,6 +51,7 @@
     "The Internet connection is disabled." : "La connexion internet est désactivée.",
     "Invalid marketplace API key provided" : "Clé API non valide",
     "Marketplace API key missing" : "Clé d'API marketplace manquante",
-    "Active subscription on marketplace required" : "Abonnement actif sur le marketplace requis"
+    "Active subscription on marketplace required" : "Abonnement actif sur le marketplace requis",
+    "Installing apps is not supported because the app folder is not writable." : "Impossible d'installer des applications : le dossier des applications n'est pas accessible en écriture."
 },"pluralForm" :"nplurals=2; plural=(n > 1);"
 }

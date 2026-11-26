@@ -9,6 +9,14 @@ import Icons from 'uikit/dist/js/uikit-icons';
 
 UIkit.use(Icons);
 
+// UIkit bringt eigene englische Texte mit: die Knöpfe seiner Dialoge („Ok“,
+// „Cancel“) und die Beschriftung der Schließen-Kreuze („Close“, auch an jeder
+// Meldung unten rechts). Sie kommen aus denselben Katalogen wie der Rest.
+import { gettext as t } from './gettext';
+
+UIkit.modal.i18n = { ok: t('OK'), cancel: t('Cancel') };
+UIkit.mixin({ i18n: { label: t('Close') } }, 'close');
+
 // ------------------------------------------------------------- Vue plugins ---
 
 import { createApp, nextTick } from 'vue'

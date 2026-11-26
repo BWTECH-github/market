@@ -37,6 +37,7 @@ OC.L10N.register(
     "App %s uninstalled successfully" : "Aplicação %s desinstalada com sucesso",
     "App %s updated successfully" : "Aplicação %s atualizada com sucesso",
     "Update for %1$s to version %2$s is available." : "Está disponível uma atualização para %1$s, para a versão %2$s.",
-    "The Internet connection is disabled." : "A ligação à Internet está desativada."
+    "The Internet connection is disabled." : "A ligação à Internet está desativada.",
+    "Installing apps is not supported because the app folder is not writable." : "Não é possível instalar aplicações porque a pasta das aplicações não tem permissão de escrita."
 },
 "nplurals=2; plural=(n != 1);");

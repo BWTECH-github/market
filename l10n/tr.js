@@ -63,6 +63,7 @@ OC.L10N.register(
     "The Internet connection is disabled." : "İnternet bağlantısı devre dışı.",
     "Invalid marketplace API key provided" : "Geçersiz market API anahtarı girildi",
     "Marketplace API key missing" : "Market API anahtarı kayıp",
-    "Active subscription on marketplace required" : "Market uygulamasında aktif abonelik gerekmektedir"
+    "Active subscription on marketplace required" : "Market uygulamasında aktif abonelik gerekmektedir",
+    "Installing apps is not supported because the app folder is not writable." : "Uygulama klasörü yazılabilir olmadığından uygulamalar yüklenemiyor."
 },
 "nplurals=2; plural=(n > 1);");

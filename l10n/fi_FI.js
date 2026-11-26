@@ -12,6 +12,7 @@ OC.L10N.register(
     "Settings" : "Asetukset",
     "Clear cache" : "Tyhjennä välimuisti",
     "updating" : "päivitetään",
-    "Update for %1$s to version %2$s is available." : "Kohteen %1$s päivitys versioon %2$s on saatavilla."
+    "Update for %1$s to version %2$s is available." : "Kohteen %1$s päivitys versioon %2$s on saatavilla.",
+    "Installing apps is not supported because the app folder is not writable." : "Sovelluksia ei voi asentaa, koska sovelluskansioon ei voi kirjoittaa."
 },
 "nplurals=2; plural=(n != 1);");

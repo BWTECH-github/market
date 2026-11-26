@@ -61,6 +61,7 @@
     "The Internet connection is disabled." : "חיבור האינטרנט מנוטרל.",
     "Invalid marketplace API key provided" : "סופק מפתח API לא חוקי לחנות היישומים",
     "Marketplace API key missing" : "חסר מפתח API לחנות היישומים",
-    "Active subscription on marketplace required" : "נדרש מנוי פעיל לחנות היישומים"
+    "Active subscription on marketplace required" : "נדרש מנוי פעיל לחנות היישומים",
+    "Installing apps is not supported because the app folder is not writable." : "לא ניתן להתקין יישומים כי אין הרשאת כתיבה לתיקיית היישומים."
 },"pluralForm" :"nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % 1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;"
 }

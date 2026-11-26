@@ -55,6 +55,7 @@
     "The Internet connection is disabled." : "인터넷 연결이 비활성화되어 있습니다.",
     "Invalid marketplace API key provided" : "잘못된 마켓플레이스 API 키를 입력함",
     "Marketplace API key missing" : "마켓플레이스 API 키가 없음",
-    "Active subscription on marketplace required" : "마켓플레이스 활성 구독이 필요함"
+    "Active subscription on marketplace required" : "마켓플레이스 활성 구독이 필요함",
+    "Installing apps is not supported because the app folder is not writable." : "앱 폴더에 쓸 수 없어 앱을 설치할 수 없습니다."
 },"pluralForm" :"nplurals=1; plural=0;"
 }

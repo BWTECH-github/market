@@ -118,7 +118,7 @@ class MarketService {
 	 */
 	public function installApp(string $appId, bool $skipMigrations = false): void {
 		if (!$this->canInstall()) {
-			throw new Exception("Installing apps is not supported because the app folder is not writable.");
+			throw new Exception($this->l10n->t('Installing apps is not supported because the app folder is not writable.'));
 		}
 		$this->invalidateInstalledAppInfoCache();
 
@@ -177,7 +177,7 @@ class MarketService {
 	 */
 	public function uninstallApp(string $appId): void {
 		if (!$this->canInstall()) {
-			throw new Exception("Installing apps is not supported because the app folder is not writable.");
+			throw new Exception($this->l10n->t('Installing apps is not supported because the app folder is not writable.'));
 		}
 
 		if ($this->appManager->isShipped($appId)) {
@@ -201,7 +201,7 @@ class MarketService {
 	 */
 	public function updateApp(string $appId, ?string $targetVersion = null): void {
 		if (!$this->canInstall()) {
-			throw new Exception("Installing apps is not supported because the app folder is not writable.");
+			throw new Exception($this->l10n->t('Installing apps is not supported because the app folder is not writable.'));
 		}
 		$this->invalidateInstalledAppInfoCache();
 

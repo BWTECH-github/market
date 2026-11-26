@@ -38,6 +38,7 @@ OC.L10N.register(
     "App %s uninstalled successfully" : "Appen%s avinstallerades",
     "App %s updated successfully" : "Appen %s uppdaterades",
     "Update for %1$s to version %2$s is available." : "Uppdatering för %1$s till version %2$s finns tillgänglig.",
-    "The Internet connection is disabled." : "Internetanslutningen är avaktiverad."
+    "The Internet connection is disabled." : "Internetanslutningen är avaktiverad.",
+    "Installing apps is not supported because the app folder is not writable." : "Appar kan inte installeras eftersom appmappen inte är skrivbar."
 },
 "nplurals=2; plural=(n != 1);");

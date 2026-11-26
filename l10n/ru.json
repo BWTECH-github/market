@@ -61,6 +61,7 @@
     "The Internet connection is disabled." : "Связь с интернетом отключена.",
     "Invalid marketplace API key provided" : "Предоставлен неверный ключ API Маркета",
     "Marketplace API key missing" : "Ключ API Маркета отсутствует",
-    "Active subscription on marketplace required" : "Требуется действующая подписка на Маркет"
+    "Active subscription on marketplace required" : "Требуется действующая подписка на Маркет",
+    "Installing apps is not supported because the app folder is not writable." : "Невозможно установить приложения: папка приложений недоступна для записи."
 },"pluralForm" :"nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);"
 }

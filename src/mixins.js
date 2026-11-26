@@ -1,4 +1,47 @@
 import MarkdownIt from "markdown-it";
+import { gettext, hasTranslation } from "./gettext";
+
+// Kategorien des Marktplatzes. categories.json liefert nur Kennung und
+// englischen Namen, Apps tragen dazu Kennungen, die dort fehlen (storage,
+// productivity). Diese Namen übersetzt l10n/translations.json; eine Kennung,
+// die hier fehlt, behält den Namen aus dem Katalog.
+const CATEGORY_NAMES = {
+	"automation": "Automation",
+	"collaboration": "Collaboration",
+	"customization": "Customization",
+	"files": "Files",
+	"games": "Games",
+	"integration": "Integration",
+	"multimedia": "Multimedia",
+	"office": "Office",
+	"productivity": "Productivity",
+	"security": "Security",
+	"storage": "Storage",
+	"tools": "Tools",
+	"user-authentication": "User Authentication"
+};
+
+// Sprache der Oberfläche ohne Region (de_DE -> de)
+function uiLanguage () {
+	return (typeof OC !== "undefined" && OC.getLocale) ? String(OC.getLocale() || "en").slice(0, 2) : "en";
+}
+
+// Englischer Name einer bekannten Kennung, sonst null.
+function knownName (category) {
+	return Object.prototype.hasOwnProperty.call(CATEGORY_NAMES, category.id) ? CATEGORY_NAMES[category.id] : null;
+}
+
+// Name in der Sprache der Oberfläche: aus dem Katalog (Format mit
+// translations wie der lokale Katalog), sonst die Übersetzung der bekannten
+// Kennung. null, wenn es keinen gibt.
+function translatedName (category) {
+	const katalog = category.translations && category.translations[uiLanguage()];
+	if (katalog && katalog.name) {
+		return String(katalog.name);
+	}
+	const msgid = knownName(category);
+	return (msgid && hasTranslation(msgid)) ? gettext(msgid) : null;
+}
 
 // Markdown des Marktplatzes (description, changelog): CommonMark ohne rohes
 // HTML - Auszeichnung im Text erscheint als Text, nicht als Element.
@@ -76,39 +119,35 @@ function sanitizeHtml (html) {
 export default {
 	methods: {
 		// Name einer Kategorie für Seitenleiste, Kacheln, Kopf der Kategorieansicht
-		// und Detailseite - vorher stand dieselbe Funktion viermal in leicht
-		// verschiedener Form da. Kategorien, die der Marktplatz an Apps vergibt,
-		// aber nicht in seiner Liste führt (storage, productivity), kamen dabei
-		// als Rohkennung „storage“ heraus; jetzt mit großem Anfangsbuchstaben wie
-		// die übrigen Namen („Storage“). Sie sind englisch wie diese (categoryLang).
+		// und Detailseite. Reihenfolge: Name in der Sprache der Oberfläche
+		// (translatedName), englischer Name aus dem Katalog, englischer Name der
+		// bekannten Kennung, Kennung mit großem Anfangsbuchstaben („Storage“
+		// statt „storage“).
 		categoryLabel (category) {
 			if (!category) {
 				return '';
 			}
-			if (category.translations) {
-				const sprache = (typeof OC !== 'undefined' && OC.getLocale) ? OC.getLocale().slice(0, 2) : 'en';
-				const uebersetzt = category.translations[sprache] || category.translations.en;
-				if (uebersetzt && uebersetzt.name) {
-					return uebersetzt.name;
-				}
+			const uebersetzt = translatedName(category);
+			if (uebersetzt) {
+				return uebersetzt;
 			}
-			const name = category.name || category.displayName || category.label;
+			const englisch = category.translations && category.translations.en;
+			const name = (englisch && englisch.name) || category.name || category.displayName || category.label
+				|| knownName(category);
 			if (name) {
 				return String(name);
 			}
 			const kennung = String(category.id || '').replace(/[-_]+/g, ' ').trim();
 			return kennung.charAt(0).toUpperCase() + kennung.slice(1);
 		},
-		// Sprache eines Kategorienamens (WCAG 3.1.2): fehlt die Übersetzung in die
-		// Sprache der Oberfläche, kommt der Name englisch aus dem Marktplatz und wird
-		// als englisch ausgezeichnet. undefined lässt das Attribut weg.
+		// Sprache eines Kategorienamens (WCAG 3.1.2): Ohne Übersetzung in die
+		// Sprache der Oberfläche bleibt der Name englisch und wird als englisch
+		// ausgezeichnet. undefined lässt das Attribut weg.
 		categoryLang (category) {
-			const sprache = (typeof OC !== 'undefined' && OC.getLocale) ? OC.getLocale().slice(0, 2) : 'en';
-			if (sprache === 'en' || !category) {
+			if (uiLanguage() === 'en' || !category) {
 				return undefined;
 			}
-			const uebersetzt = category.translations && category.translations[sprache];
-			return (uebersetzt && uebersetzt.name) ? undefined : 'en';
+			return translatedName(category) ? undefined : 'en';
 		},
 		t (string, interpolation) {
 			if (!interpolation) {

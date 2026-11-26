@@ -47,6 +47,7 @@ OC.L10N.register(
     "Cache cleared." : "キャッシュを削除しました。",
     "Update for %1$s to version %2$s is available." : "%1$s に対するバージョン %2$s へアップデートが利用可能です。",
     "The Internet connection is disabled." : "インターネットに接続出来ません",
-    "Marketplace API key missing" : "マーケットプレイスのAPIキーが見つかりません"
+    "Marketplace API key missing" : "マーケットプレイスのAPIキーが見つかりません",
+    "Installing apps is not supported because the app folder is not writable." : "アプリフォルダーに書き込めないため、アプリをインストールできません。"
 },
 "nplurals=1; plural=0;");

@@ -147,6 +147,7 @@ OC.L10N.register(
     "Status unknown" : "Status unbekannt",
     "Could not check the status." : "Status konnte nicht geprüft werden.",
     "[support contract]" : "[Support-Vertrag]",
-    "No download available for %s." : "Für %s gibt es keinen Download."
+    "No download available for %s." : "Für %s gibt es keinen Download.",
+    "Installing apps is not supported because the app folder is not writable." : "Apps lassen sich nicht installieren, weil der Apps-Ordner nicht beschreibbar ist."
 },
 "nplurals=2; plural=(n != 1);");

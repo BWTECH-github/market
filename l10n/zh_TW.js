@@ -63,6 +63,7 @@ OC.L10N.register(
     "The Internet connection is disabled." : "Internet連接被已停用。",
     "Invalid marketplace API key provided" : "提供了無效的市場API密鑰",
     "Marketplace API key missing" : "Marketplace API密鑰丟失",
-    "Active subscription on marketplace required" : "需要在市場上進行必要的訂閱"
+    "Active subscription on marketplace required" : "需要在市場上進行必要的訂閱",
+    "Installing apps is not supported because the app folder is not writable." : "無法安裝應用程式，因為應用程式資料夾無法寫入。"
 },
 "nplurals=1; plural=0;");

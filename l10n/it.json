@@ -61,6 +61,7 @@
     "The Internet connection is disabled." : "Mancaza connessione internet.",
     "Invalid marketplace API key provided" : "Chiave API del playstore invailda",
     "Marketplace API key missing" : "Chiape API del playstore non presente",
-    "Active subscription on marketplace required" : "E' richiesta una sottoscrizione del playstore attiva"
+    "Active subscription on marketplace required" : "E' richiesta una sottoscrizione del playstore attiva",
+    "Installing apps is not supported because the app folder is not writable." : "Impossibile installare app perché la cartella delle app non è scrivibile."
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

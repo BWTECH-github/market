@@ -63,6 +63,7 @@ OC.L10N.register(
     "The Internet connection is disabled." : "La conexión a Internet está deshabilitada.",
     "Invalid marketplace API key provided" : "key API de marketplace inválida",
     "Marketplace API key missing" : "No existe key API de marketplace",
-    "Active subscription on marketplace required" : "Se requiere subcripción activa al marketplace."
+    "Active subscription on marketplace required" : "Se requiere subcripción activa al marketplace.",
+    "Installing apps is not supported because the app folder is not writable." : "No se pueden instalar aplicaciones porque la carpeta de aplicaciones no tiene permisos de escritura."
 },
 "nplurals=2; plural=(n != 1);");
